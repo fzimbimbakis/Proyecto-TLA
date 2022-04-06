@@ -8,7 +8,7 @@
 /* Palabras reservadas*/
 	%token IF
 	%token ELSE
-%token	WHILE,
+	%token	WHILE
 	%token CLASS
 	%token EXTENDS
 	%token ATTRIBUTES
@@ -68,17 +68,17 @@ class_in: attributes constructor methods ;
 
 
 varname : VARNAME 
-| VARNAME ASSIGNACION INTEGER 
-| VARNAME ASSIGNACION function_call
+| VARNAME ASSIGNATION INTEGER
+| VARNAME ASSIGNATION function_call
 | //falta string  
 | VARNAME COMMA varname  ; 
 
 declaration: DATATYPE varname SEMICOLON 
 ; 
 
-methods : functions*; 
+methods : function | function methods; 
 
-declarations : declaration*; 
+declarations : declaration | declaration declarations; 
 
 parameters: DATATYPE VARNAME | DATATYPE VARNAME COMMA parameters ; 
 
@@ -108,7 +108,7 @@ program_unit_statements: declarations
 | function_call
 ; 
 
-program_statements : program_unit_statements*
+program_statements : program_unit_statements | program_unit_statements program_statements 
 ;
 
 %%

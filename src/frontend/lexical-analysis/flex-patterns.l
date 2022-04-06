@@ -26,7 +26,6 @@ ascii           [A-Za-z]
 
 %%
 
-/* Palabras reservadas*/
 "if"                                        {return IF;}
 "else"                                      {return ELSE;}
 "while"                                     {return WHILE;}
@@ -39,13 +38,10 @@ ascii           [A-Za-z]
 "char"                                      {return CHARACTER;}
 
 
-/* Nombres de variables*/
 {ascii}+{digit}*                            {return VARNAME;}
 
-/* Asignacion */
 "="                                         {return ASSIGNACION;}
 
-/* Operaciones de comparacion */
 "=="                                        {return EQUAL_OP;}
 "<"                                        {return LOWER_OP;}
 "<="                                        {return LOWEREQ_OP;}
@@ -53,24 +49,20 @@ ascii           [A-Za-z]
 ">="                                        {return GREATEREQ_OP;}
 
 
-/*Operadores aritmeticos*/
 "+"											{ return ADD; }
 "-"											{ return SUB; }
 "*"											{ return MUL; }
 "/"											{ return DIV; }
 
-/* Operadores logicos */
 "&&"                                        {return AND;}
 "||"                                        {return OR;}
 
 
-/* Parentesis y llaves*/
 "("											{ return OPEN_PARENTHESIS; }
 ")"											{ return CLOSE_PARENTHESIS; }
 "{"											{ return OPEN_BRACE; }
 "}"											{ return CLOSE_BRACE; }
 
-/* Punto y coma*/
 ";"                                         {return SEMICOLON;}
 ","                                         {return COMMA; }
 
