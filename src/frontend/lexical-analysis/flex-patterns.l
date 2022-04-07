@@ -34,9 +34,11 @@ ascii           [A-Za-z]
 "constructor"                               {return CONSTRUCTOR;}
 "return"                                    {return RETURN; }
 "new"                                       {return NEW; }
-"int"                                       {return INTEGER;}
-"char"                                      {return CHARACTER;}
-
+"int"                                       {return INT;}
+"char"                                      {return CHAR;}
+"\'.\'"                                     {return CHARACTER; }
+"\".\""                                     {return STRING;}
+{digit}+                                    {return INTEGER;}
 
 {ascii}+{digit}*                            {return VARNAME;}
 
@@ -62,6 +64,10 @@ ascii           [A-Za-z]
 ")"											{ return CLOSE_PARENTHESIS; }
 "{"											{ return OPEN_BRACE; }
 "}"											{ return CLOSE_BRACE; }
+"["                                         { return OPEN_SQUARE_BRACKET; }
+"]"                                         { return CLOSE_SQUARE_BRACKET; }
+
+
 
 ";"                                         {return SEMICOLON;}
 ","                                         {return COMMA; }

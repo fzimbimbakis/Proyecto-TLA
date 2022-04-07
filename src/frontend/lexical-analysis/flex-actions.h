@@ -19,8 +19,11 @@ typedef enum TokenID {
 	DATATYPE,
 	RETURN,
 	NEW,
-	INTEGER,
+	INT,
+	CHAR,
 	CHARACTER,
+	STRING,
+	INTEGER,
 	
 	/*Nombres de variables*/
 	VARNAME,
