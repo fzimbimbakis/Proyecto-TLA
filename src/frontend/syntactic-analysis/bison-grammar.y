@@ -8,12 +8,11 @@
 /* Palabras reservadas*/
 	%token IF
 	%token ELSE
-	%token	WHILE
+	%token WHILE
 	%token CLASS
 	%token EXTENDS
 	%token ATTRIBUTES
 	%token CONSTRUCTOR
-	%token DATATYPE
 	%token RETURN
 	%token NEW
 	%token INT
@@ -66,19 +65,21 @@
 
 %%
 
+program : class function
+
+
 class: CLASS VARNAME OPEN_BRACE  class_in CLOSE_BRACE 
-	   | CLASS VARNAME EXTENDS VARNAME OPEN_BRACE class_in CLOSE_BRACE 	
+| CLASS VARNAME EXTENDS VARNAME OPEN_BRACE class_in CLOSE_BRACE 	
 ;
 
 class_in: attributes constructor methods ;
 
 
 
-declaration: integer_declaration 
-| char_declaration 
+declaration: char_declaration 
 | integer_declaration
-|integer_array_declaration
-|char_array_declaration
+| integer_array_declaration
+| char_array_declaration
 | integer_assignation_declaration
 | char_assignation_declaration
 | integer_array_assignation_declaration
@@ -93,14 +94,12 @@ declaration: integer_declaration
 integer_assignation_declaration: INT VARNAME ASSIGNATION INTEGER SEMICOLON 
 	| INT VARNAME ASSIGNATION function_call SEMICOLON;
 
-char_assignation_declaration: CHAR VARNAME ASSIGNATION CHARACTER SEMICOLON;
+char_assignation_declaration: CHAR VARNAME ASSIGNATION CHARACTER SEMICOLON
 	| CHAR VARNAME ASSIGNATION function_call SEMICOLON;
 
-integer_array_assignation_declaration: INT VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON;
-| INT VARNAME OPEN_SQUARE_BRACKET CLOSE_BRACE ASSIGNATION function_call SEMICOLON;
+integer_array_assignation_declaration: INT VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON ; 
 
-char_array_assignation_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET ASSIGNATION CHAR_DATATYPE SEMICOLON;
-	| CHAR_DATATYPE VARNAME ASSIGNATION function_call SEMICOLON;
+char_array_assignation_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON ; 
 
 
 integer_array: INTEGER 
@@ -119,9 +118,11 @@ integer_declaration: INT VARNAME SEMICOLON ;
 
 char_declaration: CHAR VARNAME SEMICOLON ;
 
-integer_array_declaration: INT VARNAME OPEN_SQUARE_BRACKET NUMBER CLOSE_SQUARE_BRACKET  SEMICOLON ;
+array_declaration: VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET  SEMICOLON
 
-char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET NUMBER CLOSE_SQUARE_BRACKET SEMICOLON ;
+integer_array_declaration: INT array_declaration ;
+
+char_array_declaration: CHAR array_declaration ;
 
 /*************
 * ASSIGNATION*
@@ -129,22 +130,28 @@ char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET NUMBER CLOSE_SQUARE_BRA
 
 assignation: VARNAME ASSIGNATION INTEGER SEMICOLON
 | VARNAME ASSIGNATION CHARACTER SEMICOLON
-|  VARNAME OPEN_SQUARE_BRACKET NUMBER CLOSE_SQUARE_BRACKET ASSIGNATION INTEGER SEMICOLON 
-| VARNAME OPEN_SQUARE_BRACKET NUMBER CLOSE_SQUARE_BRACKET ASSIGNATION CHAR SEMICOLON
+|  VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET ASSIGNATION integer_array SEMICOLON 
+| VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
 ;
 
 methods : function 
-| function methods; 
+| methods SEMICOLON methods; 
 
 declarations : declaration 
-| declaration declarations; 
+| declaration COMMA declarations; 
 
-parameters: DATATYPE VARNAME 
-| DATATYPE VARNAME COMMA parameters ; 
+datatype: INT 
+| CHAR 
+;
 
-function: DATATYPE VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE ;  
+parameters: datatype VARNAME 
+| parameters COMMA parameters ; 
 
-constructor : CONSTRUCTOR OPEN_BRACE function CLOSE_BRACE
+function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE 
+| datatype VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE 
+;  
+
+constructor : CONSTRUCTOR function;
 
 attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE 
 
@@ -157,13 +164,20 @@ comparison_operator: EQUAL_OP
 logical_operator : AND 
 | OR ; 
 
-condition: OPEN_PARENTHESIS VARNAME comparison_operator INTEGER CLOSE_PARENTHESIS 
-| OPEN_PARENTHESIS VARNAME comparison_operator INTEGER logical_operator condition CLOSE_PARENTHESIS;   
+comparation: VARNAME comparison_operator datatype ;
+
+condition_unit: comparation
+| condition_unit logical_operator condition_unit
+;
+
+condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS ;
 
 while_loop : WHILE condition OPEN_BRACE program_statements CLOSE_BRACE; 
 
-if : IF condition OPEN_BRACE program_statements CLOSE_BRACE 
-| IF condition OPEN_BRACE program_statements CLOSE_BRACE ELSE OPEN_BRACE program_statements CLOSE_BRACE; 
+if_clause: IF condition OPEN_BRACE program_statements CLOSE_BRACE ;
+
+if : if_clause
+| if_clause ELSE OPEN_BRACE program_statements CLOSE_BRACE; 
 
 function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS SEMICOLON;
 
@@ -174,6 +188,7 @@ program_unit_statements: declarations
 | while_loop 
 | if 
 | function_call
+| assignation
 ; 
 
 program_statements : program_unit_statements 

@@ -32,17 +32,16 @@ ascii           [A-Za-z]
 "class"                                     {return CLASS;}
 "extends"                                   {return EXTENDS;}
 "constructor"                               {return CONSTRUCTOR;}
+"attributes"                                {return ATTRIBUTES; }
 "return"                                    {return RETURN; }
 "new"                                       {return NEW; }
 "int"                                       {return INT;}
 "char"                                      {return CHAR;}
-"\'.\'"                                     {return CHARACTER; }
-"\".\""                                     {return STRING;}
 {digit}+                                    {return INTEGER;}
 
 {ascii}+{digit}*                            {return VARNAME;}
 
-"="                                         {return ASSIGNACION;}
+"="                                         {return ASSIGNATION;}
 
 "=="                                        {return EQUAL_OP;}
 "<"                                        {return LOWER_OP;}
@@ -76,6 +75,9 @@ ascii           [A-Za-z]
 
 {whitespace}								{ IgnoredPatternAction(yytext); }
 
+
+"\'.\'"                                     {return CHARACTER; }
+"\".\""                                     {return STRING;}
 .											{ return UnknownPatternAction(yytext); }
 
 %%
