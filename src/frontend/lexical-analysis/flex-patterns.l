@@ -72,7 +72,7 @@ ascii           [A-Za-z]
 ","                                         {return COMMA; }
 
 
-
+{crlf}                                      {IgnoredPatternAction(yytext);}
 {whitespace}								{ IgnoredPatternAction(yytext); }
 
 

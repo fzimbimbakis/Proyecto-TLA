@@ -135,7 +135,7 @@ assignation: VARNAME ASSIGNATION INTEGER SEMICOLON
 ;
 
 methods : function 
-| methods SEMICOLON methods; 
+| function  methods; 
 
 declarations : declaration 
 | declaration COMMA declarations; 
@@ -145,7 +145,7 @@ datatype: INT
 ;
 
 parameters: datatype VARNAME 
-| parameters COMMA parameters ; 
+| datatype VARNAME  COMMA parameters ; 
 
 function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE 
 | datatype VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE 
@@ -167,7 +167,7 @@ logical_operator : AND
 comparation: VARNAME comparison_operator datatype ;
 
 condition_unit: comparation
-| condition_unit logical_operator condition_unit
+| comparation logical_operator condition_unit
 ;
 
 condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS ;
