@@ -7,6 +7,7 @@
  * Se definen los diferentes IDs de cada token disponible para el scanner Flex.
  */
 typedef enum TokenID {
+
 	// Por defecto, el valor "0" hace fallar el analizador sintáctico.
 	UNKNOWN = 0,
 
@@ -16,60 +17,42 @@ typedef enum TokenID {
 	// tokens continúen desde el valor "258" lo que permite proteger los IDs
 	// internos que Bison reserva para crear "tokens literales":
 	YYUNDEF = 257,
-	/* Palabras reservadas*/
-	IF,
-	ELSE,
-	WHILE,
-	CLASS,
-	EXTENDS,
-	ATTRIBUTES,
-	CONSTRUCTOR,
-	DATATYPE,
-	RETURN,
-	NEW,
-	INT,
-	CHAR,
-	CHARACTER,
-	STRING,
-	INTEGER,
-	
-	/*Nombres de variables*/
-	VARNAME,
 
-	/* Asignacion*/
-	ASSIGNATION,
-	
-	//Operaciones de comparacion
-	EQUAL_OP,
-	LOWER_OP,
-	LOWEREQ_OP,
-	GREATER_OP,
-	GREATEREQ_OP,
-
-	
-	// Operadores aritméticos.
 	ADD,
 	SUB,
 	MUL,
 	DIV,
-
-	// Operadores logicos
-	AND,
-	OR,
-
-
-	// Paréntesis y llaves.
-	OPEN_PARENTHESIS,
-	CLOSE_PARENTHESIS,
-	OPEN_BRACE,
-	CLOSE_BRACE,
-	OPEN_SQUARE_BRACKET,
-	CLOSE_SQUARE_BRACKET,
-
-	
-	// Punto y coma 
-	SEMICOLON,
-	COMMA,
+    COMMA,
+    SEMICOLON,
+    OPEN_BRACE,
+    CLOSE_BRACE,
+    OPEN_SQUARE_BRACKET,
+    CLOSE_SQUARE_BRACKET,
+    ASSIGNATION,
+    IF,
+    ELSE,
+    WHILE,
+    CLASS,
+    EXTENDS,
+    ATTRIBUTES,
+    CONSTRUCTOR,
+    RETURN,
+    NEW,
+    INT,
+    CHAR,
+    CHARACTER,
+    STRING,
+    VARNAME,
+    EQUAL_OP,
+    LOWER_OP,
+    LOWEREQ_OP,
+    GREATER_OP,
+    GREATEREQ_OP,
+    AND,
+    OR,
+     OPEN_PARENTHESIS,
+     CLOSE_PARENTHESIS,
+     INTEGER
 } TokenID;
 
 /**

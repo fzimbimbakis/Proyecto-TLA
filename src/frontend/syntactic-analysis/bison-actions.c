@@ -20,9 +20,9 @@ void yyerror(const char * string) {
 }
 
 int ProgramGrammarAction(const int value) {
-	LogDebug("ProgramGrammarAction(%d)", value);
+//	LogDebug("ProgramGrammarAction(%d)", value);
 	state.succeed = true;
-	state.result = value;
+//	state.result = value;
 	return value;
 }
 

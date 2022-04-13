@@ -1,7 +1,7 @@
 #include "backend/code-generation/generator.h"
 #include "backend/support/logger.h"
 #include "backend/support/shared.h"
-#include "frontend/syntactic-analysis/bison-actions.h"
+#include "frontend/syntactic-analysis/bison-parser.h"
 #include <stdio.h>
 
 //Estado de la aplicación.
@@ -14,9 +14,9 @@ const int main(const int argumentCount, const char ** arguments) {
 	state.succeed = false;
 
 	// Mostrar parámetros recibidos por consola.
-	// for (int i = 0; i < argumentCount; ++i) {
-	// 	LogInfo("Argumento %d: '%s'", i, arguments[i]);
-	// }
+	for (int i = 0; i < argumentCount; ++i) {
+		LogInfo("Argumento %d: '%s'", i, arguments[i]);
+	}
 
 	// Compilar el programa de entrada.
 	LogInfo("Compilando...\n");
@@ -25,7 +25,7 @@ const int main(const int argumentCount, const char ** arguments) {
 		case 0:
 			if (state.succeed) {
 				LogInfo("La compilacion fue exitosa.");
-				// Generator(state.result);
+//				Generator(state.result);
 			}
 			else {
 				LogError("Se produjo un error en la aplicacion.");
