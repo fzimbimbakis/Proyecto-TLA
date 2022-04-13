@@ -7,7 +7,15 @@
  * Se definen los diferentes IDs de cada token disponible para el scanner Flex.
  */
 typedef enum TokenID {
+	// Por defecto, el valor "0" hace fallar el analizador sintáctico.
+	UNKNOWN = 0,
 
+	// Código de error de Bison, que permite abortar el escaneo de lexemas cuando
+	// se presente un patrón desconocido. El número "257" coincide con el valor
+	// que Bison le otorga por defecto, pero además permite que el resto de
+	// tokens continúen desde el valor "258" lo que permite proteger los IDs
+	// internos que Bison reserva para crear "tokens literales":
+	YYUNDEF = 257,
 	/* Palabras reservadas*/
 	IF,
 	ELSE,
@@ -62,23 +70,6 @@ typedef enum TokenID {
 	// Punto y coma 
 	SEMICOLON,
 	COMMA,
-
-
-
-
-
-	// Por defecto, el valor "0" hace fallar el analizador sintáctico.
-	UNKNOWN = 0,
-
-	// Código de error de Bison, que permite abortar el escaneo de lexemas cuando
-	// se presente un patrón desconocido. El número "257" coincide con el valor
-	// que Bison le otorga por defecto, pero además permite que el resto de
-	// tokens continúen desde el valor "258" lo que permite proteger los IDs
-	// internos que Bison reserva para crear "tokens literales":
-	YYUNDEF = 257,
-
-
-
 } TokenID;
 
 /**
