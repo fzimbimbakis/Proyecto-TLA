@@ -1,0 +1,22 @@
+class Roundrobin {
+
+    Attributes {
+        int i = 0;
+    }
+
+    Constructor RoundRobin(int dim);
+
+    int next(){
+         int i = 0;
+    }
+
+    void add (int elem, int index) {
+        int i = 0;
+    }
+
+    void main(){
+       int i = 0; 
+       }
+    }
+}
+

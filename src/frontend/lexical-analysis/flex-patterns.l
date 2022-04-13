@@ -39,7 +39,7 @@ ascii           [A-Za-z]
 "char"                                      {return CHAR;}
 {digit}+                                    {return INTEGER;}
 
-{ascii}+{digit}*                            {return VARNAME;}
+{ascii}*                            {return VARNAME;}
 
 "="                                         {return ASSIGNATION;}
 

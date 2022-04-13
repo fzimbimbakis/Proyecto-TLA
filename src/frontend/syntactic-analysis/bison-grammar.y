@@ -65,7 +65,7 @@
 
 %%
 
-program : class function
+program : class function ;
 
 
 class: CLASS VARNAME OPEN_BRACE  class_in CLOSE_BRACE 
@@ -153,7 +153,7 @@ function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BR
 
 constructor : CONSTRUCTOR function;
 
-attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE 
+attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE ;
 
 comparison_operator: EQUAL_OP 
 | LOWER_OP 
