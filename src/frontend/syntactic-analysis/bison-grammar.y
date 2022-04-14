@@ -175,10 +175,21 @@ program_unit_statements: declarations
 | if
 | function_call
 | assignation
+| return
 ;
 
 program_statements : program_unit_statements
 | program_unit_statements program_statements
+;
+
+array_desreferencing: VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET 
+| VARNAME OPEN_SQUARE_BRACKET VARNAME CLOSE_SQUARE_BRACKET 
+;
+
+return: RETURN VARNAME SEMICOLON
+| RETURN array_desreferencing SEMICOLON
+| RETURN INTEGER SEMICOLON
+| RETURN CHAR SEMICOLON
 ;
 
 
