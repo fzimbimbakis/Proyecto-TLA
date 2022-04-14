@@ -21,6 +21,10 @@ whitespace		[ \f\n\r\t\v]
 letra           [A-Za-z]
 
 %%
+"%"                                         {return MODULO;}
+"++"                                         {return INCREMENT;}
+"--"                                         {return DECREMENT;}
+
 
 "="                                         {return ASSIGNATION;}
 
@@ -60,6 +64,7 @@ letra           [A-Za-z]
 
 "int"                                       {return INT;}
 "char"                                      {return CHAR;}
+"\."                                        {return POINT;}
 
 
 {letra}+                            {return VARNAME;}

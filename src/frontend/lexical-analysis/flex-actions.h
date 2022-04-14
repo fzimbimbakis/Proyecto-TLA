@@ -17,7 +17,9 @@ typedef enum TokenID {
 	// tokens continúen desde el valor "258" lo que permite proteger los IDs
 	// internos que Bison reserva para crear "tokens literales":
 	YYUNDEF = 257,
-
+    MODULO,
+    INCREMENT,
+    DECREMENT,
 	ADD,
 	SUB,
 	MUL,
@@ -52,7 +54,8 @@ typedef enum TokenID {
     OR,
      OPEN_PARENTHESIS,
      CLOSE_PARENTHESIS,
-     INTEGER
+     INTEGER,
+     POINT
 } TokenID;
 
 /**

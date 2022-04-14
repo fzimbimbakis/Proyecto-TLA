@@ -5,6 +5,9 @@
 %}
 
 // IDs de los tokens generados desde Flex:
+%token MODULO 
+%token INCREMENT
+%token DECREMENT
 %token ADD
 %token SUB
 %token MUL
@@ -44,6 +47,7 @@
 %token CLOSE_PARENTHESIS
 
 %token INTEGER
+%token POINT 
 
 // Reglas de asociatividad y precedencia (de menor a mayor):
 %left ADD SUB
@@ -60,7 +64,7 @@ class: CLASS VARNAME OPEN_BRACE  class_in CLOSE_BRACE
 
 class_in: attributes constructor methods ;
 
-
+instantiation: NEW function_call;
 
 declaration: char_declaration
 | integer_declaration
@@ -70,6 +74,7 @@ declaration: char_declaration
 | char_assignation_declaration
 | integer_array_assignation_declaration
 | char_array_assignation_declaration
+| VARNAME VARNAME ASSIGNATION instantiation
 ;
 
 
@@ -77,14 +82,16 @@ declaration: char_declaration
 *DECLARATION ASSIGNATION*
 ************************/
 
-integer_assignation_declaration: INT VARNAME ASSIGNATION INTEGER SEMICOLON
+integer_assignation_declaration: INT VARNAME ASSIGNATION integer_expression SEMICOLON
 | INT VARNAME ASSIGNATION function_call 
+| INT VARNAME ASSIGNATION method_call 
 | INT VARNAME ASSIGNATION array_desreferencing SEMICOLON 
 | INT VARNAME ASSIGNATION VARNAME SEMICOLON 
 ;
 
 char_assignation_declaration: CHAR VARNAME ASSIGNATION CHARACTER SEMICOLON
 | CHAR VARNAME ASSIGNATION function_call 
+| CHAR VARNAME ASSIGNATION method_call
 | CHAR VARNAME ASSIGNATION array_desreferencing SEMICOLON
 | CHAR VARNAME ASSIGNATION VARNAME SEMICOLON
 ;
@@ -120,21 +127,24 @@ char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BR
 * ASSIGNATION*
 **************/
 
-assignation: VARNAME ASSIGNATION INTEGER SEMICOLON
+assignation: VARNAME ASSIGNATION integer_expression SEMICOLON
 | VARNAME ASSIGNATION CHARACTER SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION integer_array SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
 | VARNAME ASSIGNATION VARNAME SEMICOLON
 | VARNAME ASSIGNATION array_desreferencing SEMICOLON
 | VARNAME ASSIGNATION function_call  
+| VARNAME ASSIGNATION method_call
 | array_assignation
+| VARNAME ASSIGNATION instantiation 
 ;
 
-value: INTEGER | CHARACTER  
+value: integer_expression | CHARACTER  
 index: INTEGER | VARNAME ; 
 
 array_assignation: VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION function_call
+| VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION method_call 
 | VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION VARNAME SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION array_desreferencing SEMICOLON;
 ;
@@ -143,7 +153,7 @@ array_assignation: VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGN
 methods : function
 | function  methods;
 
-
+method_call: VARNAME POINT function_call ; 
 
 declarations : declaration
 | declaration COMMA declarations;
@@ -153,7 +163,10 @@ datatype: INT
 ;
 
 parameters: datatype VARNAME
-| datatype VARNAME  COMMA parameters ;
+| datatype VARNAME  COMMA parameters 
+| VARNAME VARNAME 
+| VARNAME VARNAME COMMA parameters
+;
 
 function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | datatype VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
@@ -172,7 +185,7 @@ comparison_operator: EQUAL_OP
 logical_operator : AND
 | OR ;
 
-comparation: VARNAME comparison_operator INTEGER 
+comparation: VARNAME comparison_operator integer_expression 
 | VARNAME comparison_operator VARNAME 
 | VARNAME comparison_operator CHARACTER
 ;
@@ -190,7 +203,9 @@ if_clause: IF condition OPEN_BRACE program_statements CLOSE_BRACE ;
 if : if_clause
 | if_clause ELSE OPEN_BRACE program_statements CLOSE_BRACE;
 
-function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS SEMICOLON;
+function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS SEMICOLON
+| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS SEMICOLON
+;
 
 argument_values : VARNAME
 | VARNAME COMMA argument_values ;
@@ -201,6 +216,10 @@ program_unit_statements: declarations
 | function_call
 | assignation
 | return
+| method_call
+| instantiation
+| constant DECREMENT SEMICOLON
+| constant INCREMENT SEMICOLON
 ;
 
 program_statements : program_unit_statements
@@ -213,9 +232,26 @@ array_desreferencing: VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET
 
 return: RETURN VARNAME SEMICOLON
 | RETURN array_desreferencing SEMICOLON
-| RETURN INTEGER SEMICOLON
+| RETURN integer_expression SEMICOLON
 | RETURN CHARACTER SEMICOLON
 ;
+
+
+integer_expression: integer_expression ADD integer_expression
+| integer_expression SUB integer_expression
+| integer_expression MUL integer_expression
+| integer_expression DIV integer_expression
+| integer_expression MODULO integer_expression 
+| integer_expression DECREMENT
+| integer_expression INCREMENT
+| factor
+;
+
+factor: OPEN_PARENTHESIS integer_expression CLOSE_PARENTHESIS
+| constant
+;
+
+constant: INTEGER | VARNAME; 
 
 
 %%
