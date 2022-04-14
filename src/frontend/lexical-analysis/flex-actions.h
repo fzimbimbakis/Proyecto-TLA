@@ -40,6 +40,7 @@ typedef enum TokenID {
     CONSTRUCTOR,
     RETURN,
     NEW,
+    VOID,
     INT,
     CHAR,
     CHARACTER,

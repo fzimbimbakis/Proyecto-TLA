@@ -19,6 +19,8 @@ digit			[0-9]
 endline			\n
 whitespace		[ \f\n\r\t\v]
 letra           [A-Za-z]
+simpleQuote     "\'"
+Quote            "\""
 
 %%
 "%"                                         {return MODULO;}
@@ -61,7 +63,7 @@ letra           [A-Za-z]
 "return"                                    {return RETURN; }
 "new"                                       {return NEW; }
 
-
+"void"                                      {return VOID;}
 "int"                                       {return INT;}
 "char"                                      {return CHAR;}
 "\."                                        {return POINT;}
@@ -73,8 +75,8 @@ letra           [A-Za-z]
 ";"                                         {return SEMICOLON;}
 ","                                         {return COMMA; }
 
-"\'.\'"                                     {return CHARACTER; }
-"\".\""                                     {return STRING;}
+{simpleQuote}.{simpleQuote}                         {return CHARACTER; }
+{Quote}.*{Quote}                                     {return STRING;}
 
 
 {whitespace}								{ IgnoredPatternAction(yytext); }
