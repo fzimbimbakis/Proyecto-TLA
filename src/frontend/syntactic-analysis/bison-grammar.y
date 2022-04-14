@@ -158,9 +158,6 @@ methods : function
 
 method_call: VARNAME POINT function_call ; 
 
-declarations : declaration
-| declaration COMMA declarations;
-
 datatype: INT
 | CHAR
 ;
@@ -178,6 +175,9 @@ function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BR
 ;
 
 constructor : CONSTRUCTOR function;
+
+declarations: declaration 
+| declaration declarations; 
 
 attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE ;
 
@@ -201,21 +201,31 @@ condition_unit: comparation
 
 condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS ;
 
-while_loop : WHILE condition OPEN_BRACE program_statements CLOSE_BRACE;
+clause: program_unit_statements
+| OPEN_BRACE program_statements CLOSE_BRACE
+; 
 
-if_clause: IF condition OPEN_BRACE program_statements CLOSE_BRACE ;
+while_loop : WHILE condition clause;
+
+if_clause: IF condition clause ;
 
 if : if_clause
-| if_clause ELSE OPEN_BRACE program_statements CLOSE_BRACE;
+| if_clause ELSE clause;
 
 function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS SEMICOLON
 | VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS SEMICOLON
 ;
 
-argument_values : VARNAME
-| VARNAME COMMA argument_values ;
+argument_values_unit: INTEGER 
+| CHAR
+| STRING
+| VARNAME
+;
 
-program_unit_statements: declarations
+argument_values : argument_values_unit
+| argument_values_unit COMMA argument_values ;
+
+program_unit_statements: declaration
 | while_loop
 | if
 | function_call
@@ -239,6 +249,7 @@ return: RETURN VARNAME SEMICOLON
 | RETURN array_desreferencing SEMICOLON
 | RETURN integer_expression SEMICOLON
 | RETURN CHARACTER SEMICOLON
+| RETURN SEMICOLON
 ;
 
 

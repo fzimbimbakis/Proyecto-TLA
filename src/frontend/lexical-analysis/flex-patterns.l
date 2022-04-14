@@ -56,10 +56,10 @@ Quote            "\""
 "if"                                        {return IF;}
 "else"                                      {return ELSE;}
 "while"                                     {return WHILE;}
-"class"                                     {return CLASS;}
+"Class"                                     {return CLASS;}
 "extends"                                   {return EXTENDS;}
-"constructor"                               {return CONSTRUCTOR;}
-"attributes"                                {return ATTRIBUTES; }
+"Constructor"                               {return CONSTRUCTOR;}
+"Attributes"                                {return ATTRIBUTES; }
 "return"                                    {return RETURN; }
 "new"                                       {return NEW; }
 
