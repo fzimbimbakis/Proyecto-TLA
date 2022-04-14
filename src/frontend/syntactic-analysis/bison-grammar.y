@@ -143,6 +143,8 @@ array_assignation: VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGN
 methods : function
 | function  methods;
 
+
+
 declarations : declaration
 | declaration COMMA declarations;
 
@@ -170,7 +172,10 @@ comparison_operator: EQUAL_OP
 logical_operator : AND
 | OR ;
 
-comparation: VARNAME comparison_operator datatype ;
+comparation: VARNAME comparison_operator INTEGER 
+| VARNAME comparison_operator VARNAME 
+| VARNAME comparison_operator CHARACTER
+;
 
 condition_unit: comparation
 | comparation logical_operator condition_unit
