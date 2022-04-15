@@ -62,6 +62,7 @@ Quote            "\""
 "Attributes"                                {return ATTRIBUTES; }
 "return"                                    {return RETURN; }
 "new"                                       {return NEW; }
+"main"                                      {return MAIN;}
 
 "void"                                      {return VOID;}
 "int"                                       {return INT;}

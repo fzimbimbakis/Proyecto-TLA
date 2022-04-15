@@ -1,0 +1,76 @@
+class Persona{
+    attributes {
+            int dni;
+            char nombre[];
+        }
+
+        constructor Persona(int dni, char nombre[]){
+          this.dni = dni;
+          this.nombre = nombre;
+        }
+
+}
+class ListaPersonas{
+    attributes {
+            Persona personas[];
+            int n;
+            int capacity;
+        }
+
+        constructor ListaPersonas(int capacity){
+           this.personas = personas[capacity];
+           this.index = 0;
+           this.capacity = capacity;
+        }
+
+
+        int registrar(int dni, char nombre[])
+        {
+            if (this.n >= this.capacity){
+                return this.n;
+                }
+
+            int i = this.n - 1;
+            int comp;
+            if(this.n != 0){
+                comp = compare(this.personas[0], nombre);
+            }
+            while(i >= 0 && (comp<0 || (comp==0 && this.personas[i].dni > dni) )){
+                this.personas[i + 1] = this.personas[i];
+                i = i - 1;
+                if(i >= 0){
+                comp = compare(this.personas[i].nombre, nombre);
+                }
+                }
+
+            this.personas[i + 1] = new Persona(dni, nombre);
+
+            return (n + 1);
+        }
+
+        int compare(char a[],char b[])
+        {
+            int i=0;
+            while(a[i]!='\0' &&b[i]!='\0')
+            {
+               if(a[i]!=b[i])
+               {
+                   return a[i]-b[i];
+               }
+               i++;
+            }
+            return 0;
+        }
+
+
+    }
+
+int main(){
+    ListaPersonas lista = new ListaPersonas(10);
+    lista.registrar(1, "A");
+    lista.registrar(2, "A");
+    lista.registrar(3, "B");
+    lista.registrar(4, "C");
+    lista.registrar(5, "C");
+
+}

@@ -1,0 +1,10 @@
+int main(int base, int iteraciones){
+
+    if(iteraciones > 0){
+        while ( iteraciones != 0 ){
+            base = base + base;
+            iteraciones = iteraciones - 1;
+        }
+    }
+    return base;
+}

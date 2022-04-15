@@ -48,7 +48,8 @@
 %token CLOSE_PARENTHESIS
 
 %token INTEGER
-%token POINT 
+%token POINT
+%token MAIN
 
 // Reglas de asociatividad y precedencia (de menor a mayor):
 %left ADD SUB
@@ -56,7 +57,7 @@
 
 %%
 
-program : class function { $$ = ProgramGrammarAction($1); };
+program : class program | main_function { $$ = ProgramGrammarAction($1); };
 
 
 class: CLASS VARNAME OPEN_BRACE  class_in CLOSE_BRACE
@@ -87,7 +88,8 @@ integer_assignation_declaration: INT VARNAME ASSIGNATION integer_expression SEMI
 | INT VARNAME ASSIGNATION function_call 
 | INT VARNAME ASSIGNATION method_call 
 | INT VARNAME ASSIGNATION array_desreferencing SEMICOLON 
-| INT VARNAME ASSIGNATION VARNAME SEMICOLON 
+| INT VARNAME ASSIGNATION VARNAME SEMICOLON
+| INT VARNAME ASSIGNATION object_atributte SEMICOLON
 ;
 
 char_assignation_declaration: CHAR VARNAME ASSIGNATION CHARACTER SEMICOLON
@@ -95,6 +97,7 @@ char_assignation_declaration: CHAR VARNAME ASSIGNATION CHARACTER SEMICOLON
 | CHAR VARNAME ASSIGNATION method_call
 | CHAR VARNAME ASSIGNATION array_desreferencing SEMICOLON
 | CHAR VARNAME ASSIGNATION VARNAME SEMICOLON
+| CHAR VARNAME ASSIGNATION object_atributte SEMICOLON
 ;
 
 integer_array_assignation_declaration: INT VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON ;
@@ -105,10 +108,16 @@ char_array_assignation_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET  CLOSE_SQUA
 
 
 integer_array: INTEGER
-| INTEGER COMMA integer_array ;
+| INTEGER COMMA integer_array
+| object_atributte COMMA integer_array
+| VARNAME COMMA integer_array
+;
 
 character_array: CHARACTER
-| CHARACTER COMMA character_array ;
+| CHARACTER COMMA character_array
+| object_atributte COMMA character_array
+| VARNAME COMMA character_array
+;
 
 
 /************
@@ -120,10 +129,12 @@ char_declaration: CHAR VARNAME SEMICOLON ;
 
 integer_array_declaration: INT VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET SEMICOLON
 | INT VARNAME OPEN_SQUARE_BRACKET VARNAME CLOSE_SQUARE_BRACKET SEMICOLON
+| INT VARNAME OPEN_SQUARE_BRACKET object_atributte CLOSE_SQUARE_BRACKET SEMICOLON
 ;
 
 char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET INTEGER CLOSE_SQUARE_BRACKET SEMICOLON
 | CHAR VARNAME OPEN_SQUARE_BRACKET VARNAME CLOSE_SQUARE_BRACKET SEMICOLON
+| CHAR VARNAME OPEN_SQUARE_BRACKET object_atributte CLOSE_SQUARE_BRACKET SEMICOLON
  ;
 
 /*************
@@ -139,9 +150,20 @@ assignation: VARNAME ASSIGNATION integer_expression SEMICOLON
 | VARNAME ASSIGNATION function_call  
 | VARNAME ASSIGNATION method_call
 | array_assignation
-| VARNAME ASSIGNATION instantiation 
+| VARNAME ASSIGNATION instantiation
+| VARNAME ASSIGNATION object_atributte SEMICOLON
+| object_atributte ASSIGNATION object_atributte SEMICOLON
+| object_atributte ASSIGNATION integer_expression SEMICOLON
+| object_atributte ASSIGNATION CHARACTER SEMICOLON
+| object_atributte OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION integer_array SEMICOLON
+| object_atributte OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
+| object_atributte ASSIGNATION VARNAME SEMICOLON
+| object_atributte ASSIGNATION array_desreferencing SEMICOLON
+| object_atributte ASSIGNATION function_call
+| object_atributte ASSIGNATION method_call
+| object_atributte ASSIGNATION instantiation
 ;
-
+// TODO: De aca para abajo chequear donde meter object_atributte
 value: integer_expression | CHARACTER  
 index: INTEGER | VARNAME ; 
 
@@ -149,6 +171,7 @@ array_assignation: VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGN
 | VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION function_call
 | VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION method_call 
 | VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION VARNAME SEMICOLON
+| VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION object_atributte SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION array_desreferencing SEMICOLON;
 ;
 
@@ -168,10 +191,20 @@ parameters: datatype VARNAME
 | VARNAME VARNAME COMMA parameters
 ;
 
+main_function: datatype MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| datatype MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| VOID MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| VOID MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+;
+
 function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | datatype VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | VOID VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | VOID VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 ;
 
 constructor : CONSTRUCTOR function;
@@ -266,6 +299,8 @@ integer_expression: integer_expression ADD integer_expression
 factor: OPEN_PARENTHESIS integer_expression CLOSE_PARENTHESIS
 | constant
 ;
+
+object_atributte: VARNAME POINT VARNAME;
 
 constant: INTEGER | VARNAME; 
 

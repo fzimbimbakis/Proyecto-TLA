@@ -56,7 +56,8 @@ typedef enum TokenID {
      OPEN_PARENTHESIS,
      CLOSE_PARENTHESIS,
      INTEGER,
-     POINT
+     POINT,
+     MAIN
 } TokenID;
 
 /**

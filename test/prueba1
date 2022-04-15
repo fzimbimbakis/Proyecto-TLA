@@ -1,11 +1,11 @@
-class Prueba{
+Class Prueba{
 
-    attributes {
+    Attributes {
         int a;
         int b;
     }
 
-    constructor Prueba(int a, int b){
+    Constructor Prueba(int a, int b){
       this.a=a;
       this.b=b;
     }
@@ -14,11 +14,8 @@ class Prueba{
     int suma () {
        return a + b;
     }
-
-    void main(){
+}
+void main(){
        Prueba r= new Prueba(3,2);
         r.suma();
-
-   
     }
-}

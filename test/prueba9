@@ -1,0 +1,35 @@
+class Rectangulo{
+    attributes {
+            int lado;
+        }
+
+        constructor Cuadrado(int lado){
+          this.lado = lado;
+        }
+
+
+    int area () {
+           return this.lado * 2;
+        }
+    inr perimetro(){
+           return this.lado * 4;
+        }
+}
+class Cubo extends Cuadrado{
+    attributes {
+            }
+
+            constructor Cubo(int lado){
+              this.lado=lado;
+            }
+
+        int area() {
+            return lado * 2 * 6;
+        }
+
+        int suma_aristas(){
+            return this.perimetro() * 3;
+        }
+}
+int main(){
+}

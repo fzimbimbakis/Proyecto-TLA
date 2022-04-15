@@ -1,0 +1,26 @@
+class A{
+    attributes {
+            int a;
+        }
+
+        constructor A(int a){
+          this.a=a;
+        }
+}
+class B{
+    attributes {
+            int b;
+        }
+
+        constructor B(int b){
+          this.b=b;
+        }
+
+
+        int suma () {
+           return a + b;
+        }
+
+}
+int main(){
+}

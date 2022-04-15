@@ -16,15 +16,16 @@ Para construir el compilador, se requieren las siguientes dependencias:
 
 Si en lugar de trabajar con un entorno _Linux_, se está construyendo el proyecto sobre un entorno _Microsoft Windows_, se debe instalar _Microsoft Visual Studio 2022_ con las extensiones para desarrollar aplicaciones en _C/C++_, así como también las herramientas requeridas, con excepción del compilador _GCC_ y la herramienta _Make_.
 
-## Construcción
+## Construcción y ejecución de tests
 
-Para construir el proyecto por completo, ejecute en la raíz del repositorio el siguiente comando:
-
+Se utiliza el script run.sh.
+* --cmake: Para correr el Cmake y Make.
+* --make: Para correr el Make
+* TEST_#: Nombre de archivo que esta en la carpeta tests.
 ```bash
-user@machine:path/ $ cmake -S . -B bin
-user@machine:path/ $ cd bin
-user@machine:path/ $ make
+./run.sh [--cmake] [--make] [TEST_1 TEST_2 ...]
 ```
 
+El run.sh no toma en cuenta que:
 En un entorno _Microsoft Windows_, en lugar de ejecutar el comando `make`, se deberá abrir la solución generada `bin/Compiler.sln` con el IDE _Microsoft Visual Studio 2022_. Los ejecutables que este sistema construye se depositan dentro del directorio `bin/Debug` y `bin/Release` según corresponda.
 
