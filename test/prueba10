@@ -1,0 +1,71 @@
+class Prueba{
+
+    attributes {
+    }
+
+    constructor Prueba()){
+    }
+
+    int equal(int a, int b){
+        return a==b;
+    }
+
+     int lower(int a, int b){
+        return a<b;
+    }
+
+     int greater(int a, int b){
+        return a>b;
+    }
+
+    int lower_eq(int a, int b){
+        return a<=b;
+    }
+
+    int greater_eq(int a, int b){
+        return a>=b;
+    }
+
+    int add(int a, int b){
+        return a+b;
+    }
+
+    int substract(int a, int b){
+        return a<b;
+    }
+
+    int mult(int a, int b){
+        return a*b;
+    }
+
+    int div(int a, int b){
+        return a/b;
+    }
+
+    int and(int a, int b){
+        return a&&b;
+    }
+
+    int or(int a, int b){
+        return a||b;
+    }
+
+
+
+
+
+    void main(){
+       Prueba r= new Prueba();
+       r.or(0,2);
+       r.and(0,2);
+       r.mult(0,2);
+       r.div(0,2);
+       r.add(0,2);
+       r.substract(0,2);
+       r.lower(0,2);
+       r.lower_eq(0,2);
+       r.greater(0,2);
+       r.greater_eq(0,2);
+       r.equal(0,2);
+    }
+}

@@ -1,0 +1,21 @@
+class Prueba{
+
+    attributes {
+        int a;
+        int b;
+    }
+
+    constructor Prueba(int a, int b){
+      this.a=a;
+      this.b=b;
+    }
+
+
+    void main(){
+       Prueba r= new Prueba(3,2);
+       Fibonacci f=new Fibonacci();
+
+       r=f;
+
+    }
+}

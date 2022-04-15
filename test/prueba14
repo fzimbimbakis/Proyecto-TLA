@@ -1,0 +1,18 @@
+class Prueba{
+
+    attributes {}
+
+    constructor Prueba(){
+    }
+
+
+    int suma (int a, int b) {
+       return a + b;
+    }
+
+    void main(){
+       Prueba r= new Prueba();
+       r.suma(2);
+
+    }
+}

@@ -1,0 +1,14 @@
+class Prueba extends Tests,Testing {
+
+    attributes {}
+
+    constructor Prueba(){
+    }
+
+
+    void main(){
+       Prueba r= new Prueba();
+       
+
+    }
+}
