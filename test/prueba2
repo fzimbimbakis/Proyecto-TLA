@@ -1,27 +1,31 @@
 Class Rectangulo{
     Attributes {
-            int lado;
+            int ladoA;
+            int ladoB;
         }
 
-        Constructor Cuadrado(int lado){
-          this.lado = lado;
+        Constructor Rectangulo(int ladoA, int ladoB){
+          this.ladoA = ladoA;
+          this.ladoB = ladoB;
         }
 
 
     int area () {
-           return this.lado * 2;
+           return this.ladoA * this.ladoB;
         }
     int perimetro(){
            return this.ladoA * 2 + this.ladoB * 2;
         }
 }
-Class Cubo extends Cuadrado{
-    Attributes {
-            }
+Class Cuadrado extends Rectangulo{
 
             Constructor Cubo(int lado){
-              this.lado=lado;
+              this.ladoA=lado;
+              this.ladoB=lado;
             }
 }
 int main(){
+    Cuadrado c = new Cuadrado();
+    c.perimetro();
+    c.area();
 }

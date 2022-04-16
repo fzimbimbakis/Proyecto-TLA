@@ -11,6 +11,12 @@ TokenID IntegerPatternAction(const char * lexeme) {
 	yylval = atoi(lexeme);
 	return INTEGER;
 }
+//TokenID NegativeIntegerPatternAction(const char * lexeme) {
+//    LogDebug("IntegerPatternAction: '%s'.", lexeme);
+//    yylval = atoi(lexeme);
+//    return NEGATIVE;
+//}
+
 
 void IgnoredPatternAction(const char * lexeme) {
 	LogDebug("IgnoredPatternAction: '%s'.", lexeme);

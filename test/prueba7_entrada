@@ -1,0 +1,42 @@
+Class NumberList{
+
+    Attributes{
+        int list[255];
+        int counter;
+    }
+    Constructor NumberList(){
+        this.count = 0;
+    }
+
+    int read(){
+        int n = scanf();
+        while( n != -1){
+            list[count] = n;
+            count = count+1;
+            n = scanf();
+        }
+    }
+
+    int modify(int n){
+        int i = 0;
+        while ( i < count) {
+            list[i] = list[i] * n;
+            i = i + 1;
+        }
+    }
+
+    int write(){
+        int i = 0;
+        while ( i < count) {
+            printf("%d", list[i]);
+            i = i + 1;
+        }
+    }
+}
+
+int main() {
+    NumberList list = new NumberList();
+    list.read();
+    list.modify(2);
+    list.write();
+}
