@@ -1,24 +1,24 @@
-class Persona{
-    attributes {
+Class Persona{
+    Attributes {
             int dni;
             char nombre[];
         }
 
-        constructor Persona(int dni, char nombre[]){
+        Constructor Persona(int dni, char nombre[]){
           this.dni = dni;
           this.nombre = nombre;
         }
 
 
 }
-class ListaPersonas{
-    attributes {
+Class ListaPersonas{
+    Attributes {
             Persona personas[];
             int n;
             int capacity;
         }
 
-        constructor ListaPersonas(int capacity){
+        Constructor ListaPersonas(int capacity){
            this.personas = personas[capacity];
            this.index = 0;
            this.capacity = capacity;

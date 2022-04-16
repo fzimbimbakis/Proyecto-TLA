@@ -1,18 +1,48 @@
-class Prueba{
+Class Fibonacci{
 
-    attributes {
+    Attributes {
+        int actual;
+    }
+
+    Constructor Fibonacci(){
+      actual=0;
+    }
+
+    int fibo(int n){
+
+        if(n==0)
+            return 0;
+        else if(n==1)
+            return 1;
+        else
+            return fibo(n-2)+fibo(n-1);
+
+    }
+
+
+    int next () {
+        int a=actual;
+        actual=actual+1;
+       return fibo(a);
+    }
+
+}
+
+Class Prueba{
+
+    Attributes {
         Fibonacci f;
     }
 
-    constructor Prueba(Fibonacci f){
+    Constructor Prueba(Fibonacci f){
       this.f=f;
     }
 
 
-    void main(){
-        Fibonacci f = new Fibonacci()
-       Prueba r= new Prueba(f);
 
-    
-    }
+}
+
+int main(){
+        Fibonacci f = new Fibonacci();
+       Prueba r= new Prueba(f);
 }

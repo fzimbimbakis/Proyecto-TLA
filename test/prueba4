@@ -26,9 +26,10 @@ Class Fibonacci{
        return fibo(a);
     }
 
-    void main(){
+}
+
+int main(){
        Fibonacci f= new Fibonacci();
        f.next();
        f.next();
-    }
 }

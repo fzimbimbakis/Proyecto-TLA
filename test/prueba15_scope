@@ -1,18 +1,18 @@
-class A{
-    attributes {
+Class A{
+    Attributes {
             int a;
         }
 
-        constructor A(int a){
+        Constructor A(int a){
           this.a=a;
         }
 }
-class B{
-    attributes {
+Class B{
+    Attributes {
             int b;
         }
 
-        constructor B(int b){
+        Constructor B(int b){
           this.b=b;
         }
 

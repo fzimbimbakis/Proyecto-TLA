@@ -1,9 +1,9 @@
-class Rectangulo{
-    attributes {
+Class Rectangulo{
+    Attributes {
             int lado;
         }
 
-        constructor Cuadrado(int lado){
+        Constructor Cuadrado(int lado){
           this.lado = lado;
         }
 
@@ -15,11 +15,11 @@ class Rectangulo{
            return this.lado * 4;
         }
 }
-class Cubo extends Cuadrado{
-    attributes {
+Class Cubo extends Cuadrado{
+    Attributes {
             }
 
-            constructor Cubo(int lado){
+            Constructor Cubo(int lado){
               this.lado=lado;
             }
 

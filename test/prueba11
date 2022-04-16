@@ -1,14 +1,47 @@
-class Prueba extends Tests,Testing {
+Class Testing{
+    Attributes{}
 
-    attributes {}
+    Constructor Testing(){}
+}
 
-    constructor Prueba(){
+Class Fibonacci{
+
+    Attributes {
+        int actual;
+    }
+
+    Constructor Fibonacci(){
+      this.actual=0;
+    }
+
+    int fibo(int n){
+
+        if(n==0)
+            return 0;
+        else if(n==1)
+            return 1;
+        else
+            return fibo(n-2)+fibo(n-1);
+
     }
 
 
-    void main(){
-       Prueba r= new Prueba();
-       
-
+    int next () {
+        int a=actual;
+        actual=actual+1;
+       return fibo(a);
     }
+
+}
+
+
+
+Class Prueba extends Fibonacci,Testing {
+
+    Attributes {}
+
+    Constructor Prueba(){}
+}
+
+int main(){
 }

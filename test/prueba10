@@ -1,13 +1,13 @@
-class Prueba{
+Class Prueba{
 
-    attributes {
-    }
-
-    constructor Prueba()){
-    }
+    Constructor Prueba(){}
 
     int equal(int a, int b){
         return a==b;
+    }
+
+    int notEqual(int a , int b){
+        return a!=b;
     }
 
      int lower(int a, int b){
@@ -18,11 +18,11 @@ class Prueba{
         return a>b;
     }
 
-    int lower_eq(int a, int b){
+    int lowerEq(int a, int b){
         return a<=b;
     }
 
-    int greater_eq(int a, int b){
+    int greaterEq(int a, int b){
         return a>=b;
     }
 
@@ -50,11 +50,9 @@ class Prueba{
         return a||b;
     }
 
+}
 
-
-
-
-    void main(){
+int main(){
        Prueba r= new Prueba();
        r.or(0,2);
        r.and(0,2);
@@ -68,4 +66,3 @@ class Prueba{
        r.greater_eq(0,2);
        r.equal(0,2);
     }
-}

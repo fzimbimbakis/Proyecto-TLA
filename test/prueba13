@@ -1,19 +1,21 @@
-class Prueba{
+Class Prueba{
 
-    attributes {
+    Attributes {
         int a;
         int b;
     }
 
-    constructor Prueba(int a, int b){
+    Constructor Prueba(int a, int b){
       this.a=a;
       this.b=b;
     }
 
 
-    void main(){
+
+}
+
+int main(){
        Prueba r= new Prueba(3,2);
        r.suma();
 
     }
-}

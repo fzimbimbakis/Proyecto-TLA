@@ -1,18 +1,19 @@
-class Prueba{
+Class Prueba{
 
-    attributes {}
+    Attributes {}
 
-    constructor Prueba(){
-    }
+    Constructor Prueba(){}
 
 
     int suma (int a, int b) {
        return a + b;
     }
 
-    void main(){
+
+}
+
+int main(){
        Prueba r= new Prueba();
        r.suma(2);
 
     }
-}
