@@ -58,7 +58,7 @@ Class ListaPersonas{
                {
                    return a[i]-b[i];
                }
-               i++;
+               i=i+1;
             }
             return 0;
         }

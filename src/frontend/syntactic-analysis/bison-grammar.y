@@ -230,6 +230,7 @@ comparation: value comparison_operator value { debug("comparation"); }
 ;
 
 condition_unit: comparation
+| value logical_operator value
 | comparation logical_operator condition_unit
 | OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS
 ;

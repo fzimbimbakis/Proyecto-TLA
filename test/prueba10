@@ -61,8 +61,8 @@ int main(){
        r.add(0,2);
        r.substract(0,2);
        r.lower(0,2);
-       r.lower_eq(0,2);
+       r.lowerEq(0,2);
        r.greater(0,2);
-       r.greater_eq(0,2);
+       r.greaterEq(0,2);
        r.equal(0,2);
     }
