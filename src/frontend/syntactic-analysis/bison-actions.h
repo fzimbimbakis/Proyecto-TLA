@@ -12,7 +12,7 @@
 
 // Programa.
 int ProgramGrammarAction(const int value);
-
+void degub(char string[]);
 // Expresión.
 int AdditionExpressionGrammarAction(const int leftValue, const int rightValue);
 int SubtractionExpressionGrammarAction(const int leftValue, const int rightValue);

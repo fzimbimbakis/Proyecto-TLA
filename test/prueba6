@@ -9,6 +9,7 @@ class Persona{
           this.nombre = nombre;
         }
 
+
 }
 class ListaPersonas{
     attributes {
@@ -48,10 +49,10 @@ class ListaPersonas{
             return (n + 1);
         }
 
-        int compare(char a[],char b[])
+        int compare(char a[], char b[])
         {
             int i=0;
-            while(a[i]!='\0' &&b[i]!='\0')
+            while(a[i]!=0 &&b[i]!=0)
             {
                if(a[i]!=b[i])
                {

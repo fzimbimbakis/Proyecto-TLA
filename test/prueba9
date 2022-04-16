@@ -11,7 +11,7 @@ class Rectangulo{
     int area () {
            return this.lado * 2;
         }
-    inr perimetro(){
+    int perimetro(){
            return this.lado * 4;
         }
 }
@@ -27,7 +27,7 @@ class Cubo extends Cuadrado{
             return lado * 2 * 6;
         }
 
-        int suma_aristas(){
+        int sumaAristas(){
             return this.perimetro() * 3;
         }
 }

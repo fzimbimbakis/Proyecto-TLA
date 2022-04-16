@@ -47,6 +47,7 @@ typedef enum TokenID {
     STRING,
     VARNAME,
     EQUAL_OP,
+    NOT_EQUAL_OP,
     LOWER_OP,
     LOWEREQ_OP,
     GREATER_OP,
@@ -73,4 +74,5 @@ void IgnoredPatternAction(const char * lexeme);
 
 TokenID UnknownPatternAction(const char * lexeme);
 
+void debug(const char * lexeme);
 #endif

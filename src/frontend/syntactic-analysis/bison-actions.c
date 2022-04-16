@@ -20,7 +20,7 @@ void yyerror(const char * string) {
 }
 
 int ProgramGrammarAction(const int value) {
-//	LogDebug("ProgramGrammarAction(%d)", value);
+	LogDebug("ProgramGrammarAction(%d)", value);
 	state.succeed = true;
 //	state.result = value;
 	return value;
@@ -29,6 +29,9 @@ int ProgramGrammarAction(const int value) {
 int AdditionExpressionGrammarAction(const int leftValue, const int rightValue) {
 	LogDebug("AdditionExpressionGrammarAction(%d, %d)", leftValue, rightValue);
 	return Add(leftValue, rightValue);
+}
+void degub(char string[]){
+    LogDebug("ProgramGrammarAction(%s)", string);
 }
 
 int SubtractionExpressionGrammarAction(const int leftValue, const int rightValue) {
