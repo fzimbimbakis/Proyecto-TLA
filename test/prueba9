@@ -1,4 +1,4 @@
-Class Rectangulo{
+Class Cuadrado{
     Attributes {
             int lado;
         }

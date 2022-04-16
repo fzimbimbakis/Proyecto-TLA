@@ -1,4 +1,7 @@
-int main(int base, int iteraciones){
+int main(){
+
+    int base = 2;
+    int iteraciones = 15;
 
     if(iteraciones > 0){
         while ( iteraciones != 0 ){
