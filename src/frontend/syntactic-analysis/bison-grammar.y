@@ -159,7 +159,7 @@ assignation: VARNAME ASSIGNATION value SEMICOLON
 { debug("assignation"); }
 ;
 
-value: integer_expression | CHARACTER | object_attribute  | function_call | method_call | VARNAME | array_desreferencing { debug("value"); };
+value: integer_expression | CHARACTER | object_attribute  | function_call | method_call | VARNAME | array_desreferencing | STRING { debug("value"); };
 int_value: integer_expression | object_attribute  | function_call | method_call | VARNAME | array_desreferencing { debug("int_value"); };
 char_value: CHARACTER | object_attribute  | function_call | method_call | VARNAME | array_desreferencing { debug("char_value"); };
 index: INTEGER | VARNAME | object_attribute { debug("index"); };
@@ -189,16 +189,9 @@ parameters: datatype VARNAME
 | VARNAME VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET COMMA parameters
 ;
 
-main_function: datatype MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| datatype MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| datatype MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE  CLOSE_BRACE
-| VOID MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| VOID MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| VOID MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE  CLOSE_BRACE
-| MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| MAIN MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE  CLOSE_BRACE
-{ debug("main_function"); };
+main_function: INT MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| INT MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+| INT MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE CLOSE_BRACE ; 
 
 function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | datatype VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
@@ -253,15 +246,8 @@ function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS
 | VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS
 { debug("function_call"); };
 
-argument_values_unit: integer_expression
-| CHARACTER
-| STRING
-| VARNAME
-{ debug("argument_values_unit"); }
-;
-
-argument_values : argument_values_unit
-| argument_values_unit COMMA argument_values { debug("argument_values"); };
+argument_values : value
+| value COMMA argument_values { debug("argument_values"); };
 
 program_unit_statements: declaration { debug("program_unit_statements"); }
 | while_loop
@@ -274,6 +260,7 @@ program_unit_statements: declaration { debug("program_unit_statements"); }
 //| int_variable DECREMENT SEMICOLON
 //| int_variable INCREMENT SEMICOLON
 { debug("program_unit_statements"); };
+
 int_variable: VARNAME | object_attribute | array_desreferencing { debug("int_variable"); };
 
 program_statements : program_unit_statements

@@ -11,7 +11,7 @@ Class NumberList{
     int read(){
         int n = scanf();
         while( n != -1){
-            list[count] = n;
+            list[count] = ni;
             count = count+1;
             n = scanf();
         }

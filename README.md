@@ -24,6 +24,7 @@ Se utiliza el script run.sh.
 * TEST_#: Nombre de archivo que esta en la carpeta tests.
 ```bash
 ./run.sh [--cmake] [--make] [TEST_1 TEST_2 ...]
+./runAll.sh para correr todos los tests.
 ```
 
 El run.sh no toma en cuenta que:
