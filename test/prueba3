@@ -1,0 +1,24 @@
+Class Prueba{
+
+    Attributes {
+        int a;
+        int b;
+    }
+
+    Constructor Prueba(int a, int b){
+      this.a=a;
+      this.b=b;
+    }
+
+
+    int suma () {
+       return a + b;
+    }
+}
+int main(){
+       Prueba prueba =new Prueba(1, 2);
+       int integer = 1;
+       char character = 'a';
+       char string[] = "String";
+       int integerArray[] = {1, 2, 3, 4, 5};
+    }

@@ -22,8 +22,19 @@ if [ "$1" = "--make" ]; then
     cd .. || exit;
     shift 1
 fi
+if [ "$1" = "--all" ]; then
+    for i in {1..15}
+    do
+    	echo "Compiling test$i"
+    	source ./run.sh prueba$i | egrep "INFO"
+    	echo -e '\n'
+    done
+    shift 1
+fi
 
 for var in "$@"
 do
-    ./bin/Compiler < ./test/"$var"
+    echo "$var"
+    ./bin/Compiler < ./test/"$var" | egrep "INFO"
+    echo -e '\n'
 done

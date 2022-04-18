@@ -10,7 +10,7 @@ node_modules/
 # Files:
 *.csproj.user
 *~
-
+bison-parser.output
 # Project specific:
 bison-parser.c
 bison-parser.h

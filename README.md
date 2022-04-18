@@ -21,10 +21,10 @@ Si en lugar de trabajar con un entorno _Linux_, se está construyendo el proyect
 Se utiliza el script run.sh.
 * --cmake: Para correr el Cmake y Make.
 * --make: Para correr el Make
+* --all: Correr todos los tests en la carpeta tests.
 * TEST_#: Nombre de archivo que esta en la carpeta tests.
 ```bash
-./run.sh [--cmake] [--make] [TEST_1 TEST_2 ...]
-./runAll.sh para correr todos los tests.
+./run.sh [--cmake] [--make] [--all] [TEST_1 TEST_2 ...]
 ```
 
 El run.sh no toma en cuenta que:

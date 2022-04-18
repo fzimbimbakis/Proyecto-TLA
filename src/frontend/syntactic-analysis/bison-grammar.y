@@ -54,7 +54,7 @@
 
 // Reglas de asociatividad y precedencia (de menor a mayor):
 %left ADD SUB
-%left MUL DIV
+%left MUL DIV MODULO INCREMENT DECREMENT
 
 %%
 
@@ -63,15 +63,14 @@ program : main_function { $$ = ProgramGrammarAction($1); } | class program { $$ 
 
 class: CLASS VARNAME OPEN_BRACE  class_in CLOSE_BRACE
 | CLASS VARNAME EXTENDS VARNAME OPEN_BRACE class_in CLOSE_BRACE
-{ debug("class"); }
 ;
 
-class_in: attributes constructor methods { debug("class_in"); }
+class_in: attributes constructor methods
 | constructor methods
 | constructor
 | attributes constructor;
 
-instantiation: NEW function_call SEMICOLON { debug("instantiation"); };
+instantiation: NEW function_call SEMICOLON ;
 
 declaration: char_declaration
 | integer_declaration
@@ -84,11 +83,10 @@ declaration: char_declaration
 | VARNAME VARNAME SEMICOLON
 | VARNAME VARNAME ASSIGNATION method_call SEMICOLON
 | VARNAME VARNAME ASSIGNATION function_call SEMICOLON
-| VARNAME VARNAME SEMICOLON
-| VARNAME VARNAME ASSIGNATION instantiation { debug("declaration"); }
+| VARNAME VARNAME ASSIGNATION instantiation
 | VARNAME VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET SEMICOLON
 | VARNAME VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET SEMICOLON
-{ debug("declaration"); }
+
 ;
 
 
@@ -96,28 +94,26 @@ declaration: char_declaration
 *DECLARATION ASSIGNATION*
 ************************/
 
-integer_assignation_declaration: INT VARNAME ASSIGNATION int_value SEMICOLON { debug("integer_assignation_declaration"); }
+integer_assignation_declaration: INT VARNAME ASSIGNATION integer_expression SEMICOLON
 ;
 
-char_assignation_declaration: CHAR VARNAME ASSIGNATION char_value SEMICOLON { debug("char_assignation_declaration"); }
+
+char_assignation_declaration: CHAR VARNAME ASSIGNATION char_value SEMICOLON
 ;
 
-integer_array_assignation_declaration: INT VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON { debug("integer_array_assignation_declaration"); };
+integer_array_assignation_declaration: INT VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON ;
 
 char_array_assignation_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET  CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON 
 | CHAR VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON
-{ debug("char_array_assignation_declaration"); }
 ;
 
 
-integer_array: int_value
-| int_value COMMA integer_array
-{ debug("integer_array"); }
+integer_array: integer_expression
+| integer_expression COMMA integer_array
 ;
 
 character_array: char_value
 | char_value COMMA character_array
-{ debug("character_array"); }
 ;
 
 
@@ -125,20 +121,16 @@ character_array: char_value
 *DECLARATION*
 ************/
 integer_declaration: INT VARNAME SEMICOLON
-{ debug("integer_declaration"); }
 ;
 
 char_declaration: CHAR VARNAME SEMICOLON
-{ debug("char_declaration"); }
 ;
 
-integer_array_declaration: INT VARNAME OPEN_SQUARE_BRACKET int_value CLOSE_SQUARE_BRACKET SEMICOLON
-{ debug("integer_array_declaration"); }
+integer_array_declaration: INT VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET SEMICOLON
 ;
 
-char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET int_value CLOSE_SQUARE_BRACKET SEMICOLON
+char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET SEMICOLON
 | CHAR VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET SEMICOLON
-{ debug("char_array_declaration"); }
  ;
 
 /*************
@@ -149,35 +141,36 @@ assignation: VARNAME ASSIGNATION value SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON ;
 | VARNAME OPEN_SQUARE_BRACKET  CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON
-| array_assignation { debug("assignation"); }
+| array_assignation
 | VARNAME ASSIGNATION instantiation
 | object_attribute ASSIGNATION value SEMICOLON
 | object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON ;
 | object_attribute OPEN_SQUARE_BRACKET  CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
 | object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON
 | object_attribute ASSIGNATION instantiation
-{ debug("assignation"); }
+
 ;
 
-value: integer_expression | CHARACTER | object_attribute  | function_call | method_call | VARNAME | array_desreferencing | STRING { debug("value"); };
-int_value: integer_expression | object_attribute  | function_call | method_call | VARNAME | array_desreferencing { debug("int_value"); };
-char_value: CHARACTER | object_attribute  | function_call | method_call | VARNAME | array_desreferencing { debug("char_value"); };
-index: INTEGER | VARNAME | object_attribute { debug("index"); };
+value: integer_expression | CHARACTER | STRING ;
+//int_value: integer_expression | object_attribute  | function_call | method_call | VARNAME | array_desreferencing | SUB INTEGER;
+char_value: CHARACTER | object_attribute  | function_call | method_call | VARNAME | array_desreferencing ;
+//index: integer_expression ;
 
-array_assignation: VARNAME OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
-| object_attribute OPEN_SQUARE_BRACKET index CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
-{ debug("array_assignation"); }
+array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation
+| VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation
 ;
 
 
 methods : function
-| function  methods { debug("methods"); };
+| function  methods ;
 
-method_call: VARNAME POINT function_call { debug("method_call"); };
+method_call: VARNAME POINT function_call ;
 
 datatype: INT
 | CHAR
-{ debug("datatype"); };
+;
 
 parameters: datatype VARNAME
 | datatype VARNAME  COMMA parameters
@@ -200,26 +193,26 @@ function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BR
 | VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE CLOSE_BRACE
-{ debug("function"); };
+;
 
-constructor : CONSTRUCTOR function { debug("contructor"); };
+constructor : CONSTRUCTOR function ;
 
 declarations: declaration
-| declaration declarations { debug("declarations"); };
+| declaration declarations ;
 
-attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE | ATTRIBUTES OPEN_BRACE CLOSE_BRACE { debug("attributes"); };
+attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE | ATTRIBUTES OPEN_BRACE CLOSE_BRACE ;
 
 comparison_operator: EQUAL_OP
 | NOT_EQUAL_OP
 | LOWER_OP
 | LOWEREQ_OP
 | GREATER_OP
-| GREATEREQ_OP { debug("comparison_operator"); };
+| GREATEREQ_OP ;
 
 logical_operator : AND
-| OR { debug("logical_operator"); };
+| OR ;
 
-comparation: value comparison_operator value { debug("comparation"); }
+comparation: value comparison_operator value
 ;
 
 condition_unit: comparation
@@ -228,80 +221,70 @@ condition_unit: comparation
 | OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS
 ;
 
-condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS { debug("condition"); };
+condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS ;
 
-clause: program_unit_statements
-| OPEN_BRACE program_statements CLOSE_BRACE
-{ debug("clause"); }
+clause: OPEN_BRACE program_statements CLOSE_BRACE
 ;
 
-while_loop : WHILE condition clause { debug("while_loop"); };
+while_loop : WHILE condition clause ;
 
-if_clause: IF condition clause { debug("if_clause"); };
+//if_clause: IF condition clause ;
 
-if : if_clause
-| if_clause ELSE clause { debug("if"); };
+if : IF condition clause
+| IF condition clause ELSE clause;
 
-function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS
-| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS
-{ debug("function_call"); };
+
 
 argument_values : value
-| value COMMA argument_values { debug("argument_values"); };
+| value COMMA argument_values ;
 
-program_unit_statements: declaration { debug("program_unit_statements"); }
+program_unit_statements: declaration
 | while_loop
 | if
-| function_call SEMICOLON
-| assignation { debug("program_unit_statements"); }
+| assignation
 | return
-| method_call SEMICOLON
-| instantiation { debug("program_unit_statements"); }
-//| int_variable DECREMENT SEMICOLON
-//| int_variable INCREMENT SEMICOLON
-{ debug("program_unit_statements"); };
+| instantiation
+| integer_expression SEMICOLON
+;
 
-int_variable: VARNAME | object_attribute | array_desreferencing { debug("int_variable"); };
+//int_variable: VARNAME | object_attribute | array_desreferencing ;
 
 program_statements : program_unit_statements
 | program_unit_statements program_statements
-{ debug("program_statements"); }
 ;
 
-array_desreferencing: VARNAME OPEN_SQUARE_BRACKET int_value CLOSE_SQUARE_BRACKET
-{ debug("array_desreferencing"); }
+array_desreferencing: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET
 ;
 
 return: RETURN value SEMICOLON
 | RETURN condition_unit SEMICOLON
 | RETURN SEMICOLON
-{ debug("return"); }
 ;
 
 
-integer_expression: integer_expression ADD integer_expression
-| integer_expression SUB integer_expression
-| integer_expression MUL integer_expression
-| integer_expression DIV integer_expression
-| integer_expression MODULO integer_expression
-| integer_expression DECREMENT
-| integer_expression INCREMENT
-| OPEN_PARENTHESIS integer_expression CLOSE_PARENTHESIS
-| factor
-{ debug("integer_expression"); }
+integer_expression: integer_expression ADD integer_expression { debug("mal"); }
+| integer_expression SUB integer_expression { debug("mal"); }
+| integer_expression MUL integer_expression{ debug("mal"); }
+| integer_expression DIV integer_expression{ debug("mal"); }
+| integer_expression MODULO integer_expression{ debug("mal"); }
+| integer_expression DECREMENT { debug("mal"); }
+| integer_expression INCREMENT{ debug("mal"); }
+| OPEN_PARENTHESIS integer_expression CLOSE_PARENTHESIS{ debug("mal"); }
+| factor { debug("factor"); }
 ;
 
-factor: INTEGER | object_attribute  | function_call | method_call | VARNAME | array_desreferencing | SUB INTEGER
-{ debug("factor"); }
+factor: object_attribute  | function_call | method_call | VARNAME | array_desreferencing | SUB INTEGER | INTEGER{ debug("integer"); }
 ;
 
 object_attribute: VARNAME POINT VARNAME
 | object_attribute POINT VARNAME
-| VARNAME POINT VARNAME OPEN_SQUARE_BRACKET int_value CLOSE_SQUARE_BRACKET
-| object_attribute POINT VARNAME OPEN_SQUARE_BRACKET int_value CLOSE_SQUARE_BRACKET
-{ debug("object_attributes"); }
+| array_desreferencing POINT VARNAME
+//| VARNAME POINT VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET
+//| object_attribute POINT VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET
 ;
-
+function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS { debug("function call"); }
+| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS
+;
 
 
 %%
