@@ -36,18 +36,17 @@ Class ListaPersonas{
             i++;
             int comp;
             if(this.n != 0){
-
-                comp = compare(personas[0], nombre);
+                comp = compare(this.personas[0], nombre);
             }
-            while(i >= 0 && (comp<0 || (comp==0 && personas[i].dni > dni) )){
-                personas[i + 1] = personas[i];
+            while(i >= 0 && (comp<0 || (comp==0 && this.personas[i].dni > dni) )){
+                this.personas[i + 1] = this.personas[i];
                 i = i - 1;
                 if(i >= 0){
-                comp = compare(personas[i].nombre, nombre);
+                comp = compare(this.personas[i].nombre, nombre);
                 }
                 }
 
-            personas[i + 1] = new Persona(dni, nombre);
+            this.personas[i + 1] = new Persona(dni, nombre);
 
             return (n + 1);
         }

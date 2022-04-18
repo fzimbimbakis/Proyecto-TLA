@@ -138,23 +138,34 @@ char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET integer_expression CLOS
 **************/
 
 assignation: VARNAME ASSIGNATION value SEMICOLON
-| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON ;
-| VARNAME OPEN_SQUARE_BRACKET  CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
+| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON 
+| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON
 | array_assignation
 | VARNAME ASSIGNATION instantiation
 | object_attribute ASSIGNATION value SEMICOLON
-| object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON ;
-| object_attribute OPEN_SQUARE_BRACKET  CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
+| object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON 
+| object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
 | object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON
 | object_attribute ASSIGNATION instantiation
-
 ;
 
-value: integer_expression | CHARACTER | STRING ;
-//int_value: integer_expression | object_attribute  | function_call | method_call | VARNAME | array_desreferencing | SUB INTEGER;
-char_value: CHARACTER | object_attribute  | function_call | method_call | VARNAME | array_desreferencing ;
-//index: integer_expression ;
+value: integer_expression 
+| CHARACTER 
+| STRING 
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET 
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME 
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME object_attribute
+;
+
+char_value: CHARACTER 
+| object_attribute  
+| function_call 
+| method_call 
+| VARNAME 
+| array_desreferencing 
+;
+
 
 array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
@@ -198,9 +209,12 @@ function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BR
 constructor : CONSTRUCTOR function ;
 
 declarations: declaration
-| declaration declarations ;
+| declaration declarations 
+;
 
-attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE | ATTRIBUTES OPEN_BRACE CLOSE_BRACE ;
+attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE 
+| ATTRIBUTES OPEN_BRACE CLOSE_BRACE 
+;
 
 comparison_operator: EQUAL_OP
 | NOT_EQUAL_OP
@@ -210,7 +224,8 @@ comparison_operator: EQUAL_OP
 | GREATEREQ_OP ;
 
 logical_operator : AND
-| OR ;
+| OR 
+;
 
 comparation: value comparison_operator value
 ;
@@ -221,22 +236,25 @@ condition_unit: comparation
 | OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS
 ;
 
-condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS ;
+condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS 
+;
 
 clause: OPEN_BRACE program_statements CLOSE_BRACE
 ;
 
-while_loop : WHILE condition clause ;
+while_loop : WHILE condition clause 
+;
 
-//if_clause: IF condition clause ;
 
 if : IF condition clause
-| IF condition clause ELSE clause;
+| IF condition clause ELSE clause
+;
 
 
 
 argument_values : value
-| value COMMA argument_values ;
+| value COMMA argument_values 
+;
 
 program_unit_statements: declaration
 | while_loop
@@ -246,8 +264,6 @@ program_unit_statements: declaration
 | instantiation
 | integer_expression SEMICOLON
 ;
-
-//int_variable: VARNAME | object_attribute | array_desreferencing ;
 
 program_statements : program_unit_statements
 | program_unit_statements program_statements
@@ -262,27 +278,32 @@ return: RETURN value SEMICOLON
 ;
 
 
-integer_expression: integer_expression ADD integer_expression { debug("mal"); }
-| integer_expression SUB integer_expression { debug("mal"); }
-| integer_expression MUL integer_expression{ debug("mal"); }
-| integer_expression DIV integer_expression{ debug("mal"); }
-| integer_expression MODULO integer_expression{ debug("mal"); }
-| integer_expression DECREMENT { debug("mal"); }
-| integer_expression INCREMENT{ debug("mal"); }
-| OPEN_PARENTHESIS integer_expression CLOSE_PARENTHESIS{ debug("mal"); }
-| factor { debug("factor"); }
+integer_expression: integer_expression ADD integer_expression 
+| integer_expression SUB integer_expression 
+| integer_expression MUL integer_expression
+| integer_expression DIV integer_expression
+| integer_expression MODULO integer_expression
+| integer_expression DECREMENT 
+| integer_expression INCREMENT
+| OPEN_PARENTHESIS integer_expression CLOSE_PARENTHESIS
+| factor 
 ;
 
-factor: object_attribute  | function_call | method_call | VARNAME | array_desreferencing | SUB INTEGER | INTEGER{ debug("integer"); }
+factor: object_attribute  
+| function_call 
+| method_call 
+| VARNAME
+| array_desreferencing 
+| SUB INTEGER 
+| INTEGER
 ;
 
 object_attribute: VARNAME POINT VARNAME
 | object_attribute POINT VARNAME
 | array_desreferencing POINT VARNAME
-//| VARNAME POINT VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET
-//| object_attribute POINT VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET
 ;
-function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS { debug("function call"); }
+
+function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS 
 | VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS
 ;
 
