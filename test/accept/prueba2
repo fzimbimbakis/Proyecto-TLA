@@ -19,13 +19,20 @@ Class Rectangulo{
 }
 Class Cuadrado extends Rectangulo{
 
-            Constructor Cubo(int lado){
+            Constructor Cuadrado(int lado){
               this.ladoA=lado;
               this.ladoB=lado;
             }
+            int modificar(int lado){
+                this.ladoA = lado;
+                this.ladoB = lado;
+            }
 }
 int main(){
-    Cuadrado c = new Cuadrado();
-    c.perimetro();
-    c.area();
+    Cuadrado c = new Cuadrado(3);
+    int p = c.perimetro();
+    int a = c.area();
+    c.modificar(2);
+    int pmod = c.perimetro();
+    int amod = c.area();
 }

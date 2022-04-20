@@ -2,18 +2,19 @@ Class NumberList{
 
     Attributes{
         int list[255];
-        int counter;
+        int count;
     }
     Constructor NumberList(){
         this.count = 0;
     }
 
     int read(){
-        int n = scanf();
-        while( n != -1){
-            list[count] = ni;
+        int total = atoi(scanf());
+        int n;
+        while( count!=255 && total != 0){
+            list[count] = atoi(scanf());
             count = count+1;
-            n = scanf();
+            total = total-1;
         }
     }
 

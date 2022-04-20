@@ -31,7 +31,7 @@ Class Prueba{
     }
 
     int substract(int a, int b){
-        return a<b;
+        return a-b;
     }
 
     int mult(int a, int b){

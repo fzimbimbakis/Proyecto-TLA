@@ -1,31 +1,21 @@
 Class Fibonacci{
 
     Attributes {
-        int actual;
+        int a;
+        int b;
     }
 
     Constructor Fibonacci(){
-      this.actual=0;
-    }
-
-    int fibo(int n){
-
-        if(n==0){
-            return 0;}
-        else {
-        if(n==1)
-        {    return 1;}
-        else
-        {    return fibo(n-2)+fibo(n-1);}
-            }
-
+      this.a=1;
+      this.b=0;
     }
 
 
     int next () {
-        int a=actual;
-        actual=actual+1;
-       return fibo(a);
+     int aux = a;
+     b = a;
+     a = a + b;
+     return aux;
     }
 
 }

@@ -1,3 +1,48 @@
+if [ "$1" = "--help" ]; then
+    echo "
+    Construcción y ejecución de tests
+
+         Se utiliza el script run.sh que puede recibir los siguientes argumentos (los argumentos deben respetar el orden de esta lista):
+
+         # Ayuda
+         * --help: Muestra los posibles argumentos para el run.sh.
+
+         # Construcción
+         * --cmake: Para correr el Cmake y Make.
+         * --make: Para correr el Make
+
+         # Tests
+         * --all: Correr todos los tests en la carpeta tests.
+         * TEST_#: Nombre de archivo que esta en la carpeta tests.
+
+         ./run.sh [--cmake] [--make] [--all] [TEST_1 TEST_2 ...]
+
+         El run.sh no toma en cuenta que:
+         En un entorno Microsoft Windows, en lugar de ejecutar el comando `make`, se deberá abrir la solución generada `bin/Compiler.sln` con el IDE Microsoft Visual Studio 2022. Los ejecutables que este sistema construye se depositan dentro del directorio `bin/Debug` y `bin/Release` según corresponda.
+
+         Información de tests disponibles
+
+         Tests aceptados
+         * prueba1: Crear una clase con métodos y atributos, y utilizarlos en la función main.
+         * prueba2: Crear una superclase y una subclase, y utilizar los métodos de ambas desde el mismo objeto.
+         * prueba3: Crear instancias de cada tipo y de alguna clase, y asignarles valores a todos.
+         * prueba4: Crear una clase que genere el siguiente número de Fibonacci cada vez que se lo solicita.
+         * prueba5: Crear un algoritmo que utilice saltos condicionales y bucles/iteraciones.
+         * prueba6: Un programa que ordene una lista de objetos “Persona” por DNI y luego por nombre.
+         * prueba7: Un programa que lea una lista de números de la entrada, los modifique y los imprima en la salida.
+         * prueba8: Un programa que crea objetos de una clase cuyos atributos son de otra clase.
+         * prueba9: Crear una superclase cuya subclase redefine uno de sus métodos.
+         * prueba10: Un programa que utilice todos los operadores aritméticos y lógicos.
+
+         Tests rechazados ( !!! Los tests del 12 al 15 se rechazan en el back-end. Por lo tanto, hasta el momento son aceptados )
+         * prueba11: Un programa que intente crear una clase heredando de múltiples clases.
+         * prueba12: Un programa que cree 2 objetos de diferente clase e intente asignar uno en el otro.
+         * prueba13: Un programa que intente llamar a un método que no posee.
+         * prueba14: Un programa que llame a un método/constructor con una cantidad errónea de parámetros.
+         * prueba15: Un programa que use variables definidas en otro scope.
+         "
+    shift 1
+fi
 if [ "$1" = "--cmake" ]; then
     rm -r bin;
     cd src/frontend/lexical-analysis;
@@ -25,9 +70,15 @@ fi
 if [ "$1" = "--all" ]; then
     for i in {1..15}
     do
-    	echo "Compiling test$i"
-    	source ./run.sh prueba$i | egrep "INFO"
-    	echo -e '\n'
+    	echo prueba"$i"
+          if test -f ./test/accept/prueba"$i"; then
+          ./bin/Compiler < ./test/accept/prueba"$i" | egrep "INFO"
+          elif test -f ./test/reject/prueba"$i"; then
+              ./bin/Compiler < ./test/reject/prueba"$i" | egrep "INFO"
+          else
+            echo "No existe el test $i"
+          fi
+          echo -e '\n'
     done
     shift 1
 fi
@@ -35,6 +86,12 @@ fi
 for var in "$@"
 do
     echo "$var"
-    ./bin/Compiler < ./test/"$var" | egrep "INFO"
+    if test -f ./test/accept/"$var"; then
+    ./bin/Compiler < ./test/accept/"$var" | egrep "INFO"
+    elif test -f ./test/reject/"$var"; then
+        ./bin/Compiler < ./test/reject/"$var" | egrep "INFO"
+    else
+      echo "No existe el test $var"
+    fi
     echo -e '\n'
 done
