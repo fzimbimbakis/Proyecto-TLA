@@ -18,7 +18,7 @@ if [ "$1" = "--help" ]; then
          ./run.sh [--cmake] [--make] [--all] [TEST_1 TEST_2 ...]
 
          El run.sh no toma en cuenta que:
-         En un entorno Microsoft Windows, en lugar de ejecutar el comando `make`, se deberá abrir la solución generada `bin/Compiler.sln` con el IDE Microsoft Visual Studio 2022. Los ejecutables que este sistema construye se depositan dentro del directorio `bin/Debug` y `bin/Release` según corresponda.
+         En un entorno Microsoft Windows, en lugar de ejecutar el comando make, se deberá abrir la solución generada bin/Compiler.sln con el IDE Microsoft Visual Studio 2022. Los ejecutables que este sistema construye se depositan dentro del directorio bin/Debug y bin/Release según corresponda.
 
          Información de tests disponibles
 
