@@ -58,18 +58,21 @@
 
 %%
 
+//
 program : main_function { $$ = ProgramGrammarAction($1); } | class program { $$ = ProgramGrammarAction($1); };
 
-
+//
 class: CLASS VARNAME OPEN_BRACE  class_in CLOSE_BRACE
 | CLASS VARNAME EXTENDS VARNAME OPEN_BRACE class_in CLOSE_BRACE
 ;
 
+//podria ser solo Attr, Constr, Method y que puedan ser empty Attr y Methods?
 class_in: attributes constructor methods
 | constructor methods
 | constructor
 | attributes constructor;
 
+//
 instantiation: NEW function_call SEMICOLON ;
 
 declaration: char_declaration
@@ -94,24 +97,27 @@ declaration: char_declaration
 *DECLARATION ASSIGNATION*
 ************************/
 
+//
 integer_assignation_declaration: INT VARNAME ASSIGNATION integer_expression SEMICOLON
 ;
 
-
+//
 char_assignation_declaration: CHAR VARNAME ASSIGNATION char_value SEMICOLON
 ;
 
+//
 integer_array_assignation_declaration: INT VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON ;
 
-char_array_assignation_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET  CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON 
+char_array_assignation_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
 | CHAR VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON
 ;
 
-
+//
 integer_array: integer_expression
 | integer_expression COMMA integer_array
 ;
 
+//
 character_array: char_value
 | char_value COMMA character_array
 ;
@@ -120,15 +126,19 @@ character_array: char_value
 /************
 *DECLARATION*
 ************/
+//
 integer_declaration: INT VARNAME SEMICOLON
 ;
 
+//
 char_declaration: CHAR VARNAME SEMICOLON
 ;
 
+//
 integer_array_declaration: INT VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET SEMICOLON
 ;
 
+//
 char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET SEMICOLON
 | CHAR VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET SEMICOLON
  ;
@@ -137,6 +147,7 @@ char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET integer_expression CLOS
 * ASSIGNATION*
 **************/
 
+//
 assignation: VARNAME ASSIGNATION value SEMICOLON
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE integer_array CLOSE_BRACE SEMICOLON 
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION character_array SEMICOLON
@@ -160,7 +171,7 @@ value: integer_expression
 // TODO Ver el último caso.
 ;
 
-// revisen
+//
 char_value: CHARACTER 
 | object_attribute  
 | function_call 
@@ -176,16 +187,19 @@ array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_B
 | VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation
 ;
 
-
+//
 methods : function
 | function  methods ;
 
+//
 method_call: VARNAME POINT function_call ;
 
+//
 datatype: INT
 | CHAR
 ;
 
+//
 parameters: datatype VARNAME
 | datatype VARNAME  COMMA parameters
 | VARNAME VARNAME
@@ -194,31 +208,39 @@ parameters: datatype VARNAME
 | datatype VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET COMMA parameters
 | VARNAME VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET
 | VARNAME VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET COMMA parameters
+| /* empty */
 ;
 
+//
 main_function: INT MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| INT MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| INT MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE CLOSE_BRACE ; 
+//| INT MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+//| INT MAIN OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE CLOSE_BRACE ;
 
+//
 function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| datatype VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+//| datatype VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | VOID VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| VOID VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+//| VOID VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
 | VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
-| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE CLOSE_BRACE
+//| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE
+//| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACE CLOSE_BRACE
 ;
 
+//
 constructor : CONSTRUCTOR function ;
 
+//
 declarations: declaration
-| declaration declarations 
+| declaration declarations
+| /* empty */
 ;
 
+//
 attributes: ATTRIBUTES OPEN_BRACE declarations CLOSE_BRACE 
-| ATTRIBUTES OPEN_BRACE CLOSE_BRACE 
+//| ATTRIBUTES OPEN_BRACE CLOSE_BRACE
 ;
 
+//
 comparison_operator: EQUAL_OP
 | NOT_EQUAL_OP
 | LOWER_OP
@@ -226,22 +248,27 @@ comparison_operator: EQUAL_OP
 | GREATER_OP
 | GREATEREQ_OP ;
 
+//
 logical_operator : AND
 | OR 
 ;
 
+//
 comparation: value comparison_operator value
 ;
 
+//
 condition_unit: comparation
 | value logical_operator value
 | comparation logical_operator condition_unit
-| OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS
+| condition
 ;
 
-condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS 
+//
+condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS
 ;
 
+//
 clause: OPEN_BRACE program_statements CLOSE_BRACE
 ;
 
@@ -258,7 +285,8 @@ if : IF condition clause
 
 //
 argument_values : value
-| value COMMA argument_values 
+| value COMMA argument_values
+| /* empty */
 ;
 
 //
@@ -274,6 +302,7 @@ program_unit_statements: declaration
 //
 program_statements : program_unit_statements
 | program_unit_statements program_statements
+| /* empty */
 ;
 
 //
@@ -316,7 +345,7 @@ object_attribute: VARNAME POINT VARNAME
 
 ////
 function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS 
-| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS
+//| VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS
 ;
 
 

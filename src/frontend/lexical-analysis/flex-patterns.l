@@ -21,6 +21,7 @@ whitespace		[ \f\n\r\t\v]
 letra           [A-Za-z]
 simpleQuote     "\'"
 Quote            "\""
+NotQuote         [^\"]+
 
 %%
 "%"                                         {debug(yytext);return MODULO;}
@@ -79,11 +80,11 @@ Quote            "\""
 ","                                         {debug(yytext);return COMMA; }
 
 {simpleQuote}.{simpleQuote}                         {debug(yytext);return CHARACTER; }
-{Quote}.*{Quote}                                     {debug(yytext); return STRING;}
+{Quote}{NotQuote}{Quote}                                     {debug(yytext); return STRING;}
+/* TODO agregar \" en string */
 
 
 {whitespace}								{ IgnoredPatternAction(yytext); }
 {crlf}                                      {IgnoredPatternAction(yytext);}
 .											{ return UnknownPatternAction(yytext); }
-
 %%
