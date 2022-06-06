@@ -363,15 +363,7 @@ typedef struct tArrayAssignation{
         tInstantiation * instantiation;
     };
 }tArrayAssignation;
-/**
- * @Subnode
- * value;
- * Subnode used in tArrayAssignation.
- */
-typedef struct tArrayValueSemicolon{
-    tValue * value;
-    tTokenNode * semicolon;
-}tArrayValueSemicolon;
+
 
 typedef struct tClause{
     tTokenNode* openBrace;
@@ -519,26 +511,66 @@ typedef tIntegerArrayAssignationDeclaration{
  *  objectAttribute assignation value ;
  *  varname assignation value ;
  *  varname [ ] assignation { integerArray } ;
- *  varname [ ] assignation characterArray ;
+ *  varname [ ] assignation { characterArray } ;
  *  varname [ ] assignation string ;
  *  objectAttribute [ ] assignation { integerArray } ;
- *  objectAttribute [ ] assignation characterArray ;
+ *  objectAttribute [ ] assignation { characterArray } ;
  *  objectAttribute [ ] assignation string ;
  *
- * @note Node uses sub-node tSquareBrackets for "[]".
+ * @note Node uses @subnode tSquareBrackets for "[]".
  */
 
 typedef tAssignation{
+    union {
+        tArrayAssignation* arrayAssignation;
+        tSuperSubnode* assignationSubnode;
+    };
     union{
         tTokenNode* varname;
-        tArrayAssignation* arrayAssignation;
         tObjectAttribute* objectAttribute;
     };
-    tSquareBrackets* squareBrackets; //// Nullable
-    tAssignation* assignation; //// Nullable
-//TODO: seguir
+    tEmptySquareBrackets* emptySquareBrackets; //// Nullable
+    tAssignation* assignation;
 
 }tAssignation;
+
+
+/**
+ * @Subnode
+ *
+ *  varname assignation instantiation
+ *  varname assignation value ;
+ *  varname [ ] assignation { integerArray } ;
+ *  varname [ ] assignation { characterArray } ;
+ *  varname [ ] assignation string ;
+ *  objectAttribute assignation value ;
+ *  objectAttribute [ ] assignation { integerArray } ;
+ *  objectAttribute [ ] assignation { characterArray } ;
+ *  objectAttribute [ ] assignation string ;
+ *  
+ *  Subnode used in tAssignation
+ */
+typedef tSuperSubnode{
+    union{
+        tTokenNode* varname;
+        tObjectAttribute* objectAttribute;
+    };
+    union{
+        tArraysAssignationSubnode* arraysAssignationSubnode;
+        tSimpleAssignationSubnode* simpleAssignationSubnode;
+    };
+}tSuperSubnode;
+
+/**
+ * @Subnode
+ * 
+ * 
+ */
+
+typedef tArrayAssignationSubnode{
+    
+};
+
 
 /**
  *  Function
@@ -582,25 +614,177 @@ typedef struct tParameters{
         tTokenNode * objectTypeName;
     };
     tTokenNode * paramName;
-    tSquareBrackets * squareBrackets;       //// Nullable
+    tEmptySquareBrackets * squareBrackets;       //// Nullable
     tCommaNextParameters * nextParameters;  //// Nullable
 }tParameters;
+
+/**
+ * @node Declaration
+ *
+ * char name;
+ * int name;
+ * int name[ size ];
+ * char name[ size ];
+ * int name = expression;
+ * char name = charValue;
+ * int name[] = { integerValues };
+ * char name[] = { charValues };
+ * char name[] = "string";
+ * ObjectDataType name;
+ * ObjectDataType name = methodCall;
+ * ObjectDataType name = functionCall;
+ * ObjectDataType name = instantiation;
+ * ObjectDataType name[];
+ * ObjectDataType name[ size ];
+ *
+ * @note Uses @subnode tDeclarationWithObjectDataType for declarations with an Object as DataType
+ */
+typedef struct tDeclaration{
+    union {
+        tCharDeclaration * charDeclaration;
+        tIntegerDeclaration * integerDeclaration;
+        tIntegerArrayDeclaration * integerArrayDeclaration;
+        tCharArrayDeclaration * charArrayDeclaration;
+        tIntegerAssignationDeclaration * integerAssignationDeclaration;
+        tCharAssignationDeclaration * charAssignationDeclaration;
+        tIntegerArrayAssignationDeclaration * integerArrayAssignationDeclaration;
+        tCharArrayAssignationDeclaration * charArrayAssignationDeclaration;
+        tDeclarationWithObjectDataType * declarationAux;
+    };
+}tDeclaration;
+
+
+
+  /**
+   * @node Char Array Assignation Declaration
+   *
+   * char name[] = { charValues };
+   *
+   * char name[] = "string";
+   *
+   * @note Uses @subnode tEmptySquareBrackets
+   */
+   typedef struct tCharArrayAssignationDeclaration{
+       tTokenNode * charType;
+       tTokenNode * name;
+       tEmptySquareBrackets * emptySquareBrackets;
+       tTokenNode * assignation;
+       union {
+           tCharArrayWithBrackets * charArrayWithBrackets;
+       };
+   }tCharArrayAssignationDeclaration;
+
+
+
+
+/**
+ * @section SUB-NODES
+ */
+
 /**
  * @Subnode
- * []
- * Used in tParameters.
+ * "[ charValues ]"
+ * 
+ * Used in 
  */
-typedef struct tSquareBrackets{
+
+/**
+ * @Subnode
+ * "[]"
+ * Used in tParameters, tAssignation, tDeclarationWithObjectDataType and tCharArrayAssignationDeclaration.
+ */
+typedef struct tEmptySquareBrackets{
     tTokenNode * openSquareBracket;
     tTokenNode * closeSquareBracket;
 };
+
 /**
  * @Subnode
- * , parameters
+ * ", parameters"
+ *
  * Used in tParameters.
  */
 typedef struct tCommaNextParameters{
     tTokenNode * comma;
     tParameters * nextParameters;
 }tCommaNextParameters;
+
+/**
+ * @Subnode
+ * "value;"
+ *
+ * Subnode used in tArrayAssignation.
+ */
+typedef struct tArrayValueSemicolon{
+    tValue * value;
+    tTokenNode * semicolon;
+}tArrayValueSemicolon;
+
+/**
+ * @Subnode
+ * value;
+ * Subnode used in tArrayAssignation.
+ */
+typedef struct tArrayValueSemicolon{
+    tValue * value;
+    tTokenNode * semicolon;
+}tArrayValueSemicolon;
+
+/**
+* @subnode Declaration with Object as data type
+*
+* ObjectDataType name;
+* ObjectDataType name = methodCall;
+* ObjectDataType name = functionCall;
+* ObjectDataType name = instantiation;
+* ObjectDataType name[];
+* ObjectDataType name[ size ];
+*
+* Used in @node tDeclaration
+*
+* @note Uses @subnode tEmptySquareBrackets, tSquareBracketsWithSize and tAssignationWithMethodFunctionInstantiation
+*/
+typedef struct tDeclarationWithObjectDataType{
+    tTokenNode * objectDataType;
+    tTokenNode * name;
+    union {
+        tTokenNode * semicolon;
+        tEmptySquareBrackets * emptySquareBrackets;
+        tSquareBracketsWithSize * squareBracketsWithSize;
+        tAssignationWithMethodFunctionInstantiation * assignationWithMethodFunctionInstantiation;
+    };
+}tDeclarationWithObjectDataType;
+
+/**
+ * @subnode Square brackets with size
+ *
+ * [ size ]
+ *
+ * Used in @subnode tDeclarationWithObjectDataType
+ *
+ * @note size is an integer expression
+ */
+typedef struct tSquareBracketsWithSize{
+    tTokenNode * openSquareBracket;
+    tIntegerExpression * size;
+    tTokenNode * closeSquareBracket;
+}tSquareBracketsWithSize;
+
+/**
+ * @subnode Assignation with Function, Method or instantiation
+ *
+ * = functionCall
+ * = methodCall
+ * = instantiation
+ *
+ * Used in @subnode tDeclarationWithObjectDataType
+ */
+typedef struct tAssignationWithMethodFunctionInstantiation{
+    tTokenNode * assignation;
+    union {
+        tFunctionCall * functionCall;
+        tMethodCall * methodCall;
+        tInstantiation * instantiation;
+    };
+}tAssignationWithMethodFunctionInstantiation;
 #endif
