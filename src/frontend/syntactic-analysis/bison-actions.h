@@ -21,7 +21,7 @@ tClass * ClassGrammarActionWithHerency(tTokenNode * class, tTokenNode * fatherNa
 tClassIn  * classInGrammarAction(tAttributes * attributes , tConstructor * constructor , tMethods * methods);
 
 ////instantiation
-tInstantiation * instantiationGrammarAction(tTokenNode *  new , tFunctionCall * functionCall , tTokenNode * semicolon )
+tInstantiation * instantiationGrammarAction(tTokenNode *  new , tFunctionCall * functionCall , tTokenNode * semicolon );
 
 ////declaration
 tDeclaration  * charDeclarationGrammarAction(tCharDeclaration * charDeclaration );
@@ -69,10 +69,27 @@ tCharArrayDeclaration * charArrayDeclarationRule2GrammarAction(tTokenNode * char
 ////assignation
 tAssignation  * assignationGrammarAction(tTokenNode * varname, tTokenNode * assignation , tValue * value , tTokenNode * semicolon);
 tAssignation  * assignationRule2GrammarAction(tTokenNode * varname, tTokenNode * assignation , tInstantiation * instantiation);
+        tAssignation  * assignationRule3GrammarAction(tTokenNode * varname,tTokenNode * openSquareBracket, tTokenNode * closeSquareBracket, tTokenNode *assignation, tTokenNode * openBrace , tGenericValueArray * genericValueArray  ,  tTokenNode * closeBrace , tTokenNode * semicolon );
+        tAssignation  * assignationRule4GrammarAction(tTokenNode * varname , tTokenNode * openSquareBracket, tTokenNode * closeSquareBracket, tTokenNode * assignation , tTokenNode * string , tTokenNode * semicolon);
+tAssignation  * assignationRule5GrammarAction(tArrayAssignation* arrayAssignation);
+tAssignation  * assignationRule6GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* assignation,tValue* value, tTokenNode* semicolon);
+tAssignation  * assignationRule7GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* assignation,tInstantiation* instantiation);
+tAssignation * assignationRule8GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket,tTokenNode * assignation, tTokenNode* openBrace, tGenericValueArray * genericValueArray ,tTokenNode* closeBrace, tTokenNode* semicolon);
+tAssignation  * assignationRule9GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket,  tTokenNode * assignation, tTokenNode* string, tTokenNode* semicolon);
 
+;
 tTokenNode * tokenGrammarActionWithChar(const int tokenId,char character);
 tTokenNode * tokenGrammarActionWithInt(const int tokenId,int integer);
 tTokenNode * tokenGrammarActionWitString(const int tokenId,char * string);
+
+
+/**
+ * @section
+ * value
+ */
+tValue * valueSingle(void * value);
+tValue * valueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tIntegerExpression* integerExpression, tTokenNode* closeSquareBracket);
+tValue * valueObjectAttributeDesreferencingAttribute(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tIntegerExpression* integerExpression, tTokenNode* closeSquareBracket, tTokenNode* point, tTokenNode* varname);
 
 /**
  * @section
@@ -93,6 +110,75 @@ tCharValue * charValue(void * value);
  */
 tArrayAssignation * arrayAssignationSemicolon(void * name, tTokenNode* openSquareBracket, tIntegerExpression* integerExpression, tTokenNode* closeSquareBracket, tTokenNode* assignation, tInstantiation* instantiation);
 tArrayAssignation * arrayAssignationValue(void * name, tTokenNode* openSquareBracket, tIntegerExpression* integerExpression, tTokenNode* closeSquareBracket, tTokenNode* assignation, tValue* value, tTokenNode* semicolon);
+
+
+////methods
+tMethods * methods(tFunction* function, tMethods* methods);
+
+////method_call
+tMethodCall * methodCall(tTokenNode* varname, tTokenNode* point,tFunctionCall* functionCall);
+
+////datatype
+tDataType * dataType(tTokenNode* token);
+
+////parameters
+tParameters * basicParameters(tDataType* dataType, tTokenNode* varname);
+tParameters * multiBasicParameters(tDataType* dataType, tTokenNode* paramName,
+                                   tTokenNode* comma, tParameters* parameters);
+tParameters * objectParameters( tTokenNode* objectType, tTokenNode* paramName);
+tParameters * multiObjectParameters( tTokenNode* objectType, tTokenNode* paramName,
+                                     tTokenNode* comma, tParameters* parameters);
+tParameters * arrayParameters(tDataType* dataType, tTokenNode* paramName,
+                              tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket);
+tParameters * multiArrayParameters(tDataType* dataType, tTokenNode* paramName,
+                                   tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket,
+                                   tTokenNode* comma, tParameters* parameters);
+tParameters * objectArrayParameters(tTokenNode * objectType, tTokenNode* paramName,
+                                    tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket);
+tParameters * multiObjectArrayParameters(tTokenNode * objectType, tTokenNode* paramName,
+                                         tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket,
+                                         tTokenNode* comma, tParameters* parameters);
+
+////declarations
+tDeclarations* declarations(tDeclaration * declaration, tDeclarations* declarations);
+
+////attributes
+tAttributes* attributes(tTokenNode* attributes, tTokenNode* openBrace,
+                        tDeclarations* declarations, tTokenNode* closeBrace);
+
+////comparison_operator
+tComparisonOperator * comparisonOperator(tTokenNode* token);
+
+////logical_operator
+tLogicalOperator * logicalOperator(tTokenNode* token);
+
+////comparation
+tComparation * comparation(tValue* lValue, tComparisonOperator* comparisonOperator,
+                           tValue* rValue);
+////condition_unit
+tConditionUnit * simpleConditionUnit(tCondition* condition);
+tConditionUnit * conditionUnitValOpVal(tValue* lValue, struct tLogicalOperator* logicalOperator,
+                                       tValue* rValue);
+tConditionUnit * conditionUnitCompOpCond(tComparation* comparation,tLogicalOperator* logicalOperator,
+                                         tConditionUnit* conditionUnit);
+tConditionUnit * conditionUnitComparation(tComparation* comparation);
+
+////condition
+tCondition * condition(tTokenNode* openParenthesis, tConditionUnit* conditionUnit,
+                       tTokenNode* closeParenthesis);
+
+////clause
+tClause * clause(tTokenNode* openBrace, tProgramStatements* programStatements,
+                 tTokenNode* closeBrace);
+
+////while_loop
+tWhileLoop * whileLoop(tTokenNode* whileToken, tCondition* condition,
+                       tClause* clause);
+
+////if
+tIf* If(tTokenNode* ifToken, tCondition* condition, tClause* clause);
+tIf* IfElse(tTokenNode* ifToken, tCondition* condition, tClause* ifClause,
+            tTokenNode* elseToken, tClause* elseClause);
 
 /**
  * @section

@@ -1,12 +1,13 @@
 %{
 
 #include "bison-actions.h"
+#include "../../backend/support/shared.h"
+
 
 %}
 
 %union{
 	tDataType* DataType;
-	tVarDeclaration* VarDeclaration;
 	tFactor* Factor;
 	tValue* Value;
 	tArgumentValues* ArgumentValues;
@@ -39,13 +40,13 @@
     tDeclarations* Declarations;
     tConstructor* Constructor;
     tConditionUnit* ConditionUnit;
-    tvalueComparatorValue* ValueComparatorValue;
+    tValueComparatorValue* ValueComparatorValue;
     tLogicalComparationUnit* LogicalComparationUnit;
     tCondition* Condition;
     tMethods* Methods;
     tMethodCall* MethodCall;
     tMainFunction* MainFunction;
-    tInstantiation* Instantiation*;
+    tInstantiation* Instantiation;
     tIntegerAssignationDeclaration* IntegerAssignationDeclaration;
     tCharAssignationDeclaration* CharAssignationDeclaration;
     tIntegerArrayAssignationDeclaration* IntegerArrayAssignationDeclaration;
@@ -56,6 +57,7 @@
     tFunction* Function;
     tParameters* Parameters;
     tDeclaration* Declaration;
+    tIntegerExpression* IntegerExpression;
 }
 
 %type <DataType> datatype
@@ -88,7 +90,7 @@
 %type <LogicalOperator> logical_operator
 %type <ComparisonOperator> comparison_operator
 %type <Attributes> attributes
-%type <Declarations> declaration
+%type <Declarations> declarations
 %type <Constructor> constructor
 %type <ConditionUnit> condition_unit
 %type <Condition> condition
@@ -104,6 +106,7 @@
 %type <Parameters> parameters
 %type <Declaration> declaration
 %type <CharArrayAssignationDeclaration> char_array_assignation_declaration
+%type <IntegerExpression> integer_expression
 
 // IDs de los tokens generados desde Flex:
 %token <token> MODULO
@@ -255,21 +258,21 @@ char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET integer_expression CLOS
 
 assignation: VARNAME ASSIGNATION value SEMICOLON {$$ = assignationGrammarAction($1,$2,$3,$4);}
 | VARNAME ASSIGNATION instantiation  {$$ = assignationRule2GrammarAction($1,$2,$3);}
-| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE generic_value_array CLOSE_BRACE SEMICOLON
-| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON
-| array_assignation
-| object_attribute ASSIGNATION value SEMICOLON
-| object_attribute ASSIGNATION instantiation
-| object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE generic_value_array CLOSE_BRACE SEMICOLON
-| object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON
+| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE generic_value_array CLOSE_BRACE SEMICOLON {$$ = assignationRule3GrammarAction($1,$2,$3,$4,$5,$6,$7,$8);}
+| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON {$$ = assignationRule3GrammarAction( $1,$2,$3,$4,$5,$6);}
+| array_assignation {$$ = assignationRule5GrammarAction($1);}
+| object_attribute ASSIGNATION value SEMICOLON {$$ = assignationRule6GrammarAction($1,$2,$3,$4);}
+| object_attribute ASSIGNATION instantiation {$$ = assignationRule7GrammarAction($1,$2,$3);}
+| object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE generic_value_array CLOSE_BRACE SEMICOLON { $$ =  assignationRule8GrammarAction($1,$2,$3,$4,$5,$6,$7,$8); }
+| object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON { $$ =  assignationRule9GrammarAction($1,$2,$3,$4,$5,$6); }
 ;
 
 
-value: integer_expression 
-| CHARACTER 
-| STRING 
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET 
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME
+value: integer_expression { $$ =  valueSingle($1); }
+| CHARACTER { $$ =  valueSingle($1); }
+| STRING { $$ =  valueSingle($1); }
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4); };
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6); }
 ;
 
 generic_value_array:

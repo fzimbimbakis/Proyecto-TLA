@@ -2,8 +2,8 @@
 #define SHARED_HEADER
 
 #include <stdio.h>
-#include "../../frontend/lexical-analysis/flex-actions.h"
-#include "../../frontend/syntactic-analysis/bison-parser.h"
+//#include "../../frontend/lexical-analysis/flex-actions.h"
+//#include "../../frontend/syntactic-analysis/bison-parser.h"
 
 // Descriptor del archivo de entrada que utiliza Bison.
 extern FILE * yyin;
@@ -12,7 +12,7 @@ extern FILE * yyin;
 extern FILE * yyout;
 
 // Variable global que contiene el número escaneado.
-extern int yylval;
+//extern int yylval;
 
 // Variable global que contiene el número de la línea analizada.
 extern int yylineno;
@@ -329,19 +329,19 @@ typedef struct tGenericArrayWithBracket{
  * @note Node uses @subnode tCommaGenericValueArray
  */
 typedef struct tGenericValueArray{
-    tGenericValue* genericValue;
-    tCommaGenericValueArray* commaGenericValueArray; //// Nullable
+    struct tGenericValue* genericValue;
+    struct tCommaGenericValueArray* commaGenericValueArray; //// Nullable
 }tGenericValueArray;
 
 typedef struct tGenericValue{
     union{
-        tTokenNode* character;
-        tTokenNode* integer;
-        tObjectAttribute* objectAttribute;
-        tFunctionCall* fUnctionCall;
-        tMethodCall* methodCall;
-        tTokenNode* varname;
-        tArrayDesreferencing* arrayDesreferencing;
+        struct tTokenNode* character;
+        struct tTokenNode* integer;
+        struct tObjectAttribute* objectAttribute;
+        struct tFunctionCall* fUnctionCall;
+        struct tMethodCall* methodCall;
+        struct tTokenNode* varname;
+        struct tArrayDesreferencing* arrayDesreferencing;
     };
 }tGenericValue;
 
@@ -442,7 +442,7 @@ typedef struct tIf{
     struct tTokenNode * ifReserved;
     struct tConditionClause * condition;
     struct tClause * clause ;
-    tIfElseStatement* ifElseStatement; //// Nullable
+    struct tIfElseStatement* ifElseStatement; //// Nullable
 
 }tIf;
 
@@ -965,10 +965,10 @@ typedef struct tExtendsName{
  * @note Used in @node tProgram
  */
 typedef struct tClassesAndMain{
-    union {
-        struct tClassAux* class;
+
+        struct tClass* class;
         struct tProgram * program;
-    };
+
 }tClassesAndMain;
 
 /**
@@ -1019,5 +1019,5 @@ typedef struct tSubInteger{
 typedef struct tCommaGenericValueArray{
     tTokenNode* comma;
     tGenericValueArray* genericValueArray;
-};
+}tCommaGenericValueArray;
 #endif

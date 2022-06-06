@@ -1,6 +1,7 @@
 #include "../../backend/domain-specific/calculator.h"
 #include "../../backend/support/logger.h"
 #include "bison-actions.h"
+#include "bison-parser.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -65,8 +66,9 @@ tProgram * ProgramGrammarActionWithMain( tMainFunction * mainFunction) {
 
 tProgram  *  ProgramGrammarActionWithClassAndProg(tClass * class , tProgram * program ){
     tProgram* newNode  = malloc(sizeof (tProgram));
-    newNode->classesAndMain->program= program;
+    newNode->classesAndMain = malloc(sizeof(*(newNode->classesAndMain)));
     newNode->classesAndMain->class = class;
+    newNode->classesAndMain->program = program;
     return newNode;
 }
 ////class
@@ -360,52 +362,143 @@ tAssignation  * assignationRule2GrammarAction(tTokenNode * varname, tTokenNode *
 }
 
 tAssignation  * assignationRule3GrammarAction(tTokenNode * varname,tTokenNode * openSquareBracket, tTokenNode * closeSquareBracket, tTokenNode *assignation, tTokenNode * openBrace , tGenericValueArray * genericValueArray  ,  tTokenNode * closeBrace , tTokenNode * semicolon ){
-    tAssignation  * newNode = malloc(sizeof(tAssignation));
+        tAssignation  * newNode = malloc(sizeof(tAssignation));
 
     tGenericArrayWithBracket * genericArrayWithBracket  = malloc(sizeof(tGenericArrayWithBracket));
     genericArrayWithBracket->openBracket = openBrace  ;
     genericArrayWithBracket->genericValueArray = genericValueArray ;
     genericArrayWithBracket->closeBracket = closeBrace;
 
-    tArrayAssignation  * arrayAssignation = malloc(sizeof(tArrayAssignation));
-    arrayAssignation->assignation = assignation  ;
+    tArrayAssignationSubnode * arrayAssignationSubNode = malloc(sizeof(tArrayAssignationSubnode));
 
+    arrayAssignationSubNode->assignation = assignation  ;
+    arrayAssignationSubNode->genericArrayWithBrackets = genericArrayWithBracket;
+    arrayAssignationSubNode->semicolon = semicolon;
+
+    tEmptySquareBrackets * emptySquareBrackets = malloc(sizeof(tEmptySquareBrackets));
+    emptySquareBrackets->openSquareBracket = openBrace;
+    emptySquareBrackets->closeSquareBracket = closeBrace;
+
+    arrayAssignationSubNode->emptySquareBrackets = emptySquareBrackets;
 
     tSuperSubnode  * subnode = malloc(sizeof(tSuperSubnode));
     subnode->varname = varname;
-
-    tSimpleAssignationSubnode * simpleAssignationSubnode = malloc(sizeof(tSimpleAssignationSubnode));
-    simpleAssignationSubnode->assignation = assignation;
-//    simpleAssignationSubnode->instantation = instantiation;
-
-    subnode->simpleAssignationSubnode= simpleAssignationSubnode;
-    newNode->assignationSubnode = subnode;
+    subnode->arrayAssignationSubnode=arrayAssignationSubNode;
 
     return newNode;
 }
 
+tAssignation  * assignationRule4GrammarAction(tTokenNode * varname , tTokenNode * openSquareBracket, tTokenNode * closeSquareBracket, tTokenNode * assignation , tTokenNode * string , tTokenNode * semicolon){
+    tAssignation  * newNode = malloc(sizeof(tAssignation));
+
+    tSuperSubnode  * superSubnode = malloc(sizeof(tSuperSubnode));
+    superSubnode->varname = varname;
+
+    tEmptySquareBrackets * emptySquareBrackets = malloc(sizeof(tEmptySquareBrackets));
+    emptySquareBrackets->openSquareBracket = openSquareBracket;
+    emptySquareBrackets->closeSquareBracket = closeSquareBracket;
+
+    tArrayAssignationSubnode * arrayAssignationSubnode = malloc(sizeof(arrayAssignationSubnode));
+    arrayAssignationSubnode->assignation= assignation;
+    arrayAssignationSubnode->emptySquareBrackets = emptySquareBrackets ;
+    arrayAssignationSubnode->string = string ;
+    arrayAssignationSubnode->semicolon = semicolon;
+
+    superSubnode->arrayAssignationSubnode = arrayAssignationSubnode;
+
+    newNode->assignationSubnode = superSubnode;
+
+    return newNode;
+}
+
+
+
+tAssignation  * assignationRule5GrammarAction(tArrayAssignation* arrayAssignation){
+    tAssignation * newNode= malloc(sizeof(tAssignation));
+    newNode->arrayAssignation=arrayAssignation;
+
+    return newNode;
+}
 
 tAssignation  * assignationRule6GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* assignation,
                                               tValue* value, tTokenNode* semicolon){
     tAssignation * newNode= malloc(sizeof(tAssignation));
     newNode->assignationSubnode= malloc(sizeof(tSuperSubnode));
     newNode->assignationSubnode->objectAttribute=objectAttribute;
-    newNode->
+    newNode->assignationSubnode->simpleAssignationSubnode= malloc(sizeof(tSimpleAssignationSubnode));
+
+    newNode->assignationSubnode->simpleAssignationSubnode->assignation=assignation;
+    newNode->assignationSubnode->simpleAssignationSubnode->arrayValueSemicolon=malloc(sizeof(tArrayValueSemicolon));
+    newNode->assignationSubnode->simpleAssignationSubnode->arrayValueSemicolon->value=value;
+    newNode->assignationSubnode->simpleAssignationSubnode->arrayValueSemicolon->semicolon=semicolon;
+
+    return newNode;
 
 }
 
 
+tAssignation  * assignationRule7GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* assignation,
+                                              tInstantiation* instantiation){
+    tAssignation * newNode= malloc(sizeof(tAssignation));
+    newNode->assignationSubnode= malloc(sizeof(tSuperSubnode));
+    newNode->assignationSubnode->objectAttribute=objectAttribute;
+    newNode->assignationSubnode->simpleAssignationSubnode= malloc(sizeof(tSimpleAssignationSubnode));
 
+    newNode->assignationSubnode->simpleAssignationSubnode->assignation=assignation;
+    newNode->assignationSubnode->simpleAssignationSubnode->instantation=instantiation;
+    return newNode;
+}
+
+tAssignation* assignationRule8GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket,
+                                            tTokenNode * assignation, tTokenNode* openBrace, tGenericValueArray * genericValueArray ,
+                                            tTokenNode* closeBrace, tTokenNode* semicolon){
+    tAssignation * newNode= malloc(sizeof(tAssignation));
+    newNode->assignationSubnode = malloc(sizeof(tSuperSubnode));
+    newNode->assignationSubnode->objectAttribute = objectAttribute;
+    newNode->assignationSubnode->arrayAssignationSubnode = malloc(sizeof (tArrayAssignationSubnode));
+    newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets= malloc(sizeof(tEmptySquareBrackets));
+    newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets->openSquareBracket=openSquareBracket;
+    newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets->closeSquareBracket=closeSquareBracket;
+
+
+    newNode->assignationSubnode->arrayAssignationSubnode->assignation=assignation;
+
+    newNode->assignationSubnode->arrayAssignationSubnode->genericArrayWithBrackets= malloc(sizeof(tGenericArrayWithBracket));
+
+    newNode->assignationSubnode->arrayAssignationSubnode->genericArrayWithBrackets->openBracket=openBrace;
+    newNode->assignationSubnode->arrayAssignationSubnode->genericArrayWithBrackets->genericValueArray=genericValueArray;
+    newNode->assignationSubnode->arrayAssignationSubnode->genericArrayWithBrackets->closeBracket=closeBrace;
+
+
+    newNode->assignationSubnode->arrayAssignationSubnode->semicolon=semicolon;
+
+    return newNode;
+
+}
+
+tAssignation  * assignationRule9GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket,  tTokenNode * assignation, tTokenNode* string, tTokenNode* semicolon){
+    tAssignation * newNode= malloc(sizeof(tAssignation));
+    newNode->assignationSubnode = malloc(sizeof(*(newNode->arrayAssignation)));
+    newNode->assignationSubnode->objectAttribute = objectAttribute;
+    newNode->assignationSubnode->arrayAssignationSubnode = malloc(sizeof(*(newNode->assignationSubnode->arrayAssignationSubnode)));
+    newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets = malloc(sizeof(*(newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets)));
+    newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets->openSquareBracket =openSquareBracket;
+    newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets->closeSquareBracket = closeSquareBracket;
+    newNode->assignationSubnode->arrayAssignationSubnode->assignation = assignation;
+    newNode->assignationSubnode->arrayAssignationSubnode->string = string;
+    newNode->assignationSubnode->arrayAssignationSubnode->semicolon = semicolon;
+    return newNode;
+}
 /**
  * @section
  * value
  */
-tValue * genericValue(void * value){
+tValue * valueSingle(void * value){
     tValue * result = malloc(sizeof(tValue));
     result->integerExpression = value;
     return result;
 }
-tValue * genericValueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tIntegerExpression* integerExpression, tTokenNode* closeSquareBracket){
+tValue * valueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tIntegerExpression* integerExpression, tTokenNode* closeSquareBracket){
     tValue * result = malloc(sizeof(tValue));
     result->objectAttributeDesreferencing = malloc(sizeof(*(result->objectAttributeDesreferencing)));
     result->objectAttributeDesreferencing->objectAttribute = objectAttribute;
@@ -414,7 +507,7 @@ tValue * genericValueObjectAttributeDesreferencing(tObjectAttribute* objectAttri
     result->objectAttributeDesreferencing->closeSquareBracket = closeSquareBracket;
     return result;
 }
-tValue * genericValueObjectAttributeDesreferencingAttribute(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tIntegerExpression* integerExpression, tTokenNode* closeSquareBracket, tTokenNode* point, tTokenNode* varname){
+tValue * valueObjectAttributeDesreferencingAttribute(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tIntegerExpression* integerExpression, tTokenNode* closeSquareBracket, tTokenNode* point, tTokenNode* varname){
     tValue * result = malloc(sizeof(tValue));
     result->objectAttributeDesreferencing = malloc(sizeof(*(result->objectAttributeDesreferencing)));
     result->objectAttributeDesreferencing->objectAttribute = objectAttribute;
@@ -441,7 +534,7 @@ tGenericValueArray * genericValueArrayPlural(tGenericValue * value, tTokenNode *
     genericValueArray->genericValue = value;
     genericValueArray->commaGenericValueArray = malloc(sizeof(*(genericValueArray->commaGenericValueArray)));
     genericValueArray->commaGenericValueArray->comma = comma;
-    genericValueArray->commaGenericValueArray->nextArgument = argumentValues1;
+    genericValueArray->commaGenericValueArray->genericValueArray = argumentValues1;
     return genericValueArray;
 }
 
@@ -644,7 +737,6 @@ tDeclarations* declarations(tDeclaration * declaration, tDeclarations* declarati
     return newNode;
 }
 ////attributes
-
 tAttributes* attributes(tTokenNode* attributes, tTokenNode* openBrace,
                         tDeclarations* declarations, tTokenNode* closeBrace){
     tAttributes * newNode= malloc(sizeof(tAttributes));
@@ -696,7 +788,6 @@ tLogicalOperator * logicalOperator(tTokenNode* token){
     return newNode;
 }
 ////comparation
-
 tComparation * comparation(tValue* lValue, tComparisonOperator* comparisonOperator,
                            tValue* rValue){
     tComparation * newNode= malloc(sizeof(tComparation));
@@ -814,7 +905,7 @@ tProgramUnitStatements * programUnitStatements(void * unit){
 }
 tProgramUnitStatements * programUnitStatementsIntegerExpression(tIntegerExpression * integerExpression, tTokenNode * semicolon){
     tProgramUnitStatements * programUnitStatements1 = malloc(sizeof(tProgramUnitStatements));
-    programUnitStatements1->integerExpressionSemicolon = malloc(sizeof(*(programUnitStatements1->integerExpressionSemicolon));
+    programUnitStatements1->integerExpressionSemicolon = malloc(sizeof(*(programUnitStatements1->integerExpressionSemicolon)));
     programUnitStatements1->integerExpressionSemicolon->integerExpression = integerExpression;
     programUnitStatements1->integerExpressionSemicolon->semicolon = semicolon;
     return programUnitStatements1;
