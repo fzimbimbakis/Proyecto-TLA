@@ -150,14 +150,17 @@ assignation: VARNAME ASSIGNATION value SEMICOLON
 | object_attribute ASSIGNATION instantiation
 ;
 
+//
 value: integer_expression 
 | CHARACTER 
 | STRING 
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET 
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME 
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME object_attribute
+// TODO Ver el último caso.
 ;
 
+// revisen
 char_value: CHARACTER 
 | object_attribute  
 | function_call 
@@ -166,7 +169,7 @@ char_value: CHARACTER
 | array_desreferencing 
 ;
 
-
+//
 array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation
@@ -242,20 +245,23 @@ condition: OPEN_PARENTHESIS condition_unit CLOSE_PARENTHESIS
 clause: OPEN_BRACE program_statements CLOSE_BRACE
 ;
 
+
+//
 while_loop : WHILE condition clause 
 ;
 
-
+//
 if : IF condition clause
 | IF condition clause ELSE clause
 ;
 
 
-
+//
 argument_values : value
 | value COMMA argument_values 
 ;
 
+//
 program_unit_statements: declaration
 | while_loop
 | if
@@ -265,19 +271,22 @@ program_unit_statements: declaration
 | integer_expression SEMICOLON
 ;
 
+//
 program_statements : program_unit_statements
 | program_unit_statements program_statements
 ;
 
+//
 array_desreferencing: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET
 ;
 
+//
 return: RETURN value SEMICOLON
 | RETURN condition_unit SEMICOLON
 | RETURN SEMICOLON
 ;
 
-
+///
 integer_expression: integer_expression ADD integer_expression 
 | integer_expression SUB integer_expression 
 | integer_expression MUL integer_expression
@@ -289,7 +298,8 @@ integer_expression: integer_expression ADD integer_expression
 | factor 
 ;
 
-factor: object_attribute  
+//
+factor: object_attribute
 | function_call 
 | method_call 
 | VARNAME
@@ -298,11 +308,13 @@ factor: object_attribute
 | INTEGER
 ;
 
+//
 object_attribute: VARNAME POINT VARNAME
 | object_attribute POINT VARNAME
 | array_desreferencing POINT VARNAME
 ;
 
+////
 function_call: VARNAME OPEN_PARENTHESIS argument_values CLOSE_PARENTHESIS 
 | VARNAME OPEN_PARENTHESIS CLOSE_PARENTHESIS
 ;
