@@ -81,7 +81,6 @@ NotQuote         [^\"]+
 
 {simpleQuote}.{simpleQuote}                         {debug(yytext);return CHARACTER; }
 {Quote}{NotQuote}{Quote}                                     {debug(yytext); return STRING;}
-/* TODO agregar \" en string */
 
 
 {whitespace}								{ IgnoredPatternAction(yytext); }

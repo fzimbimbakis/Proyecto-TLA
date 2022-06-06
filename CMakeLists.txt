@@ -1,5 +1,5 @@
 # Versión mínima requerida de CMake:
-cmake_minimum_required(VERSION 3.20.2)
+cmake_minimum_required(VERSION 3.16.3)
 
 # Nombre del proyecto, y lenguaje usado (C, en este caso):
 project(Compiler C)

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "../../frontend/lexical-analysis/flex-actions.h"
+#include "../../frontend/syntactic-analysis/bison-parser.h"
 
 // Descriptor del archivo de entrada que utiliza Bison.
 extern FILE * yyin;
@@ -55,217 +56,338 @@ extern CompilerState state;
 
 
 /**
- * Token nodes (Hojas)
+ * @node Token nodes (Tree leaves)
+ *
+ * Every possible token
  */
 typedef struct tTokenNode{
-    TokenID tokenId;
-    union associated_value{
+    unsigned tokenId;
+    union {
         char * varname;
         int integerValue;
         char charValue;
-    };
+    }associated_value;
 } tTokenNode;
 
 /**
- * Data types
+ * @node Data types
+ *
+ * CHAR
+ * INT
  */
 typedef struct tDataType{
-    tTokenNode * type;
+    struct tTokenNode * type;
 }tDataType;
 
-/**
- * type varname;
- */
-typedef struct tVarDeclaration{
-    tDataType* dataType;
-    tTokenNode * varname;
-    tTokenNode * semicolon;
-} VarDeclaration;
+///**
+// * @node Basic Variable Declaration
+// *
+// * type varname;
+// *
+// */
+//typedef struct tVarDeclaration{
+//    struct tDataType* dataType;
+//    struct tTokenNode * varname;
+//    struct tTokenNode * semicolon;
+//} VarDeclaration;
 
 /**
+ * @node Factor
  *
+ * Object.attribute
+ * functionCall
+ * methodCall
+ * variable
+ * array[ index ]
+ * -integer
+ * integer
+ *
+ * @note Uses @subnode tSubInteger
  */
 typedef struct tFactor{
     union{
-        tObjectAttribute * object_attribute;
-        tFunction_call * function_call;
-        tMethod_call * method_call;
-        tTokenNode *  varname;
-        tArray_desreferencing * array_desreferencing;
-        union subInteger{
-            tTokenNode * sub;
-            tTokenNode * integer;
-        } ;
-        tTokenNode * integer;
+        struct tObjectAttribute * object_attribute;
+        struct tFunctionCall * function_call;
+        struct tMethodCall * method_call;
+        struct tTokenNode *  varname;
+        struct tArrayDesreferencing * array_desreferencing;
+        struct tSubInteger * subInteger;
+        struct tTokenNode * integer;
     };
 } tFactor;
 
+
 /**
- * Value
- * var
- *      INT
- *      CHAR
+ * @node Value
+ *
+ * string
+ * character
  * integer_expression
- * Object attribute desreferencing + Object attribute of the Object attribute desreferenced
+ * Object.attribute[ index ]
+ * Object.attribute[ index ].innerAttribute
+ *
+ * @note Uses @subnode tObjectAttributeDesreferencing
  */
 typedef struct tValue{
     union {
-        tTokenNode * var;
-        tIntegerExpression * integerExpression;
-        tValueAuxObjectAttributeDesreferencing * value_object_attribute_desreferencing;
+        struct tTokenNode * character;
+        struct tTokenNode * string;
+        struct tIntegerExpression * integerExpression;
+        struct tObjectAttributeDesreferencing * objectAttributeDesreferencing;
     };
 }tValue;
 
 /**
- * Value Auxiliar Struct
- * Object attribute desreferencing + Object attribute of the Object attribute desreferenced
+ * @subnode Object Attribute Desreferencing
  *
  * Object.attribute[ index ]
- * Object.attribute[ index ].attribute1
+ * Object.attribute[ index ].innerAttribute
+ *
+ * @note Used in @node tValue
+ * @note Uses @subnode tInnerAttribute
  */
-typedef struct tValueAuxObjectAttributeDesreferencing{
-    tObjectAttribute * objectAttribute;
-    tTokenNode * openSquareBracket;
-    tIntegerExpression * index;
-    tTokenNode * closeSquareBracket;
-    tTokenNode * point;     //// Nullable
-    tTokenNode * varname;   //// Nullable
-    // TODO Ver último caso del bison.
-}tValueAux;
+typedef struct tObjectAttributeDesreferencing{
+    struct tObjectAttribute * objectAttribute;
+    struct tTokenNode * openSquareBracket;
+    struct tIntegerExpression * index;
+    struct tTokenNode * closeSquareBracket;
+    struct tInnerAttribute * pointInnerAtributte;
+}tObjectAttributeDesreferencing;
 
 /**
- * Argument Values
+ * @subnode Getting inner atribute
+ *
+ * ".InnerAttributeName"
+ *
+ * @note Used in @subnode tObjectAttributeDesreferencing
+ */
+typedef struct tInnerAttribute{
+    tTokenNode * point;
+    tTokenNode * innerAttributeName;
+}tInnerAttribute;
+
+/**
+ * @node Argument Values
  *
  * Value, NextArgument
+ *
+ * @note Uses @subnode tCommaNextArgumentValue
  */
 typedef struct tArgumentValues{
-    tValue * value;
-    tTokenNode * comma;
-    struct tArgument * nextArgument;
+    struct tValue * value;
+    struct tCommaNextArgumentValue * commaNextArgumentValue;
 }tArgumentValues;
+/**
+ * @subnode Comma Argument Values
+ *
+ * ", NextArgument"
+ *
+ * @note Used in @node tArgumentValues
+ */
+typedef struct tCommaNextArgumentValue{
+    struct tTokenNode * comma;
+    struct tArgumentValues * nextArgument; //// Nullable
+}tCommaNextArgumentValue;
 
 /**
- * Function Call
+ * @node Function Call
  *
  * functionName( tArgument )
  * functionName( )
  */
 typedef struct tFunctionCall{
-    tTokenNode * functionName;
-    tTokenNode * openP;
-    tArgumentValues * firstArgument; //// Nullable
-    tTokenNode * closeP;
+    struct tTokenNode * functionName;
+    struct tTokenNode * openP;
+    struct tArgumentValues * firstArgument;
+    struct tTokenNode * closeP;
 }tFunctionCall;
 
+/**
+ * @node Program
+ *
+ * classes main
+ * main
+ *
+ * @note Uses @subnode tClassesAndMain
+ */
 typedef struct tProgram{
     union {
-        tMainFunction* mainFunction;
-        tClassAux* class;
+        struct tMainFunction* mainFunction;
+        struct tClassesAndMain* classesAndMain;
     };
-};
+}tProgram;
 
-typedef struct tClassAux{
-    tClass* class;
-    tProgram program;
-};
 
+
+/**
+ * @node Class
+ *
+ * class Name { class_in }
+ * class Name extends ExtendedClassName { class_in }
+ *
+ * @note Uses @subnode tExtendsName
+ */
 typedef struct tClass{
-    tTokenNode* class;
-    tTokenNode* varname;
-    tTokenNode* openBrace;
-    tClassIn* classIn;
-    tTokenNode* closeBrace;
-};
+    struct tTokenNode* class;
+    struct tTokenNode* varname;
+    struct tExtendsName* extendsName;
+    struct tTokenNode* openBrace;
+    struct tClassIn* classIn;
+    struct tTokenNode* closeBrace;
+}tClass;
 
+
+/**
+ * @node Class sections
+ *
+ * attributes constructor methods
+ *
+ */
 typedef struct tClassIn{
-    tAttributes* attributes;
-    tConstructor* constructor;
-    tMethods* methods;
-};
+    struct tAttributes* attributes;
+    struct tConstructor* constructor;
+    struct tMethods* methods;
+}tClassIn;
 
+/**
+ * @node Char Array
+ *
+ * character
+ * character, char_array
+ *
+ * @note Uses @subnode tCommaCharacterArray
+ */
 typedef struct tCharacterArray{
-    tCharValue* charValue;
-    tTokenNode* comma;      ////los hacemos nullable estos 2
-    tCharacterArray* next;  ////los hacemos nullable estos 2
-};
+    struct tCharValue* charValue;
+    struct tCommaCharacterArray* commaCharacterArray;   //// Nullable
+}tCharacterArray;
 
+
+
+/**
+ * @node Integer Array
+ *
+ * integer_expression
+ * integer_expression, integer_array
+ *
+ * @note Uses @subnode tCommaIntegerArray
+ */
 typedef struct tIntegerArray{
-    tIntegerExpression* integerExpression;
-    tTokenNode* comma;      ////los hacemos nullable estos 2
-    tIntegerArrat* next;  ////los hacemos nullable estos 2
-};
+    struct tIntegerExpression* integerExpression;
+    struct tCommaIntegerArray * commaIntegerArray;  //// Nullable
+}tIntegerArray;
+
 
 
 typedef struct tCharDeclaration{
-    tTokenNode* charType;
-    tTokenNode* varname;
-    tTokenNode* semicolon;
-};
+    struct tTokenNode* character;
+    struct tTokenNode* varname;
+    struct tTokenNode* semicolon;
+}tCharDeclaration;
 
 typedef struct tIntDeclaration{
-    tTokenNode* intType;
-    tTokenNode* varname;
-    tTokenNode* semicolon;
-};
+    struct tTokenNode* integer;
+    struct tTokenNode* varname;
+    struct tTokenNode* semicolon;
+}tIntDeclaration;
 
 typedef struct tIntegerArrayDeclaration{
-    tTokenNode* intType;
-    tTokenNode* varname;
-    tTokenNode* openSquareBracket;
-    tIntegerExpression* integerExpression;  //// Nullable
-    tTokenNode* closeSquareBracket;
-    tTokenNode* semicolon;
+    struct tTokenNode* integer;
+    struct tTokenNode* varname;
+    struct tTokenNode* openSquareBracket;
+    struct tIntegerExpression* integerExpression;  //// Nullable
+    struct tTokenNode* closeSquareBracket;
+    struct tTokenNode* semicolon;
 
-};
+}tIntegerArrayDeclaration;
 
 
 typedef struct tCharArrayDeclaration{
-    tTokenNode* charType;
-    tTokenNode* varname;
-    tTokenNode* openSquareBracket;
-    tIntegerExpression* integerExpression;  //// Nullable
-    tTokenNode* closeSquareBracket;
-    tTokenNode* semicolon;
+    struct tTokenNode* character;
+    struct tTokenNode* varname;
+    struct tTokenNode* openSquareBracket;
+    struct tIntegerExpression* integerExpression;  //// Nullable
+    struct tTokenNode* closeSquareBracket;
+    struct tTokenNode* semicolon;
 
-};
+}tCharArrayDeclaration;
+
+
+typedef struct tGenericArrayWithBracket{
+    struct tTokenNode * openBracket;
+    struct tGenericValueArray * genericValueArray;
+    struct tTokenNode * closeBracket;
+}tGenericArrayWithBracket;
+
+
+/**
+ * genericValueArray
+ *
+ * genericValue
+ * genericValue , genericValueArray
+ *
+ * @note Node uses @subnode tCommaGenericValueArray
+ */
+typedef struct tGenericValueArray{
+    tGenericValue* genericValue;
+    tCommaGenericValueArray* commaGenericValueArray; //// Nullable
+}tGenericValueArray;
+
+typedef struct tGenericValue{
+    union{
+        tTokenNode* character;
+        tTokenNode* integer;
+        tObjectAttribute* objectAttribute;
+        tFunctionCall* fUnctionCall;
+        tMethodCall* methodCall;
+        tTokenNode* varname;
+        tArrayDesreferencing* arrayDesreferencing;
+    };
+}tGenericValue;
+
 
 typedef struct tObjectAttribute{
         union {
-            tTokenNode *varname;
-            tObjectAttribute *objectAttribute;
-            tArrayDesreferencing *arrayDesreferencing;
-        }
-        tTokenNode * point ;
-        tTokenNode * varname;
+            struct tTokenNode *varnameLeft;
+            struct tObjectAttribute *objectAttribute;
+            struct tArrayDesreferencing *arrayDesreferencing;
+        };
+        struct tTokenNode * point ;
+        struct tTokenNode * varnameRight;
 }tObjectAttribute;
 
 typedef struct tReturn{
-    tTokenNode * returnToken ;
-    union {
-       tValue * value;
-       tCondition_unit * conditionUnit;
-    } returnValue;
-    tTokenNode *  semicolon;
+    struct tTokenNode * returnToken ;
+    union valueUnion{
+        struct tValue * value;
+        struct tConditionUnit * conditionUnit;
+    }valueUnion;
+    struct tTokenNode *  semicolon;
 }tReturn;
 
 
 typedef struct tArrayDesreferencing{
-    tTokenNode * varname ;
-    tTokenNode * openSquareBracket;
-    tIntegerExpression * integerExpression;
-    tTokenNode * closeSquareBracket ;
+    struct tTokenNode * varname ;
+    struct tTokenNode * openSquareBracket;
+    struct tIntegerExpression * integerExpression;
+    struct tTokenNode * closeSquareBracket ;
 } tArrayDesreferencing;
 
 typedef struct commonIntegerExpression{
     struct tIntegerExpression * leftIntegerExpression;
-    tTokenNode * operator;
+    struct tTokenNode * operator;
     struct tIntegerExpression * rightIntegerExpression;
 } commonIntegerExpression;
 
+typedef struct decrementIncrementIntegerExpression{
+    struct tIntegerExpression * leftIntegerExpression;
+    struct tTokenNode * operator;
+} decrementIncrementIntegerExpression;
+
 typedef  struct enclosedCommonIntegerExpression{
-    tTokenNode * openParenthesis;
+    struct tTokenNode * openParenthesis;
     struct tIntegerExpression * integerExpression;
-    tTokenNode * closeParenthesis;
+    struct tTokenNode * closeParenthesis;
 
 } enclosedCommonIntegerExpression;
 
@@ -273,70 +395,68 @@ typedef  struct enclosedCommonIntegerExpression{
 
 typedef  struct tIntegerExpression{
     union {
-        commonIntegerExpression * commonIntegerExpression;
-        tFactor * factor;
-        enclosedCommonIntegerExpression * enclosedCommonIntegerExpression;
+        struct commonIntegerExpression * commonIntegerExpression;
+        struct tFactor * factor;
+        struct enclosedCommonIntegerExpression * enclosedCommonIntegerExpression;
+        struct decrementIncrementIntegerExpression * decrementIncrementIntegerExpression;
     };
 }tIntegerExpression;
 
-typedef struct tProgramStatements{
-    tProgramUnitStatements * programUnitStatements;
+typedef struct tProgramStatements{// can be empty
+    struct tProgramUnitStatements * programUnitStatements;
     struct tProgramStatements* ProgramStatements;
-};
+}tProgramStatements;
 
 
 typedef struct IntegerExpressionSemicolon{
-    tIntegerExpression * integerExpression;
-    tTokenNode * semicolon;
+    struct tIntegerExpression * integerExpression;
+    struct tTokenNode * semicolon;
 } IntegerExpressionSemicolon;
 
 typedef struct tProgramUnitStatements{
     union {
-        tWhileLoop * whileLoop;
-        tIf * ifCondition;
-        tAssignation * assignation;
-        tInstantiation * instantiation;
-        IntegerExpressionSemicolon * integerExpressionSemicolon;
+        struct tWhileLoop * whileLoop;
+        struct tIf * ifCondition;
+        struct tAssignation * assignation;
+        struct tReturn* returnReserved;
+        struct tInstantiation * instantiation;
+        struct IntegerExpressionSemicolon * integerExpressionSemicolon;
     };
-};
+}tProgramUnitStatements;
 
 
 typedef struct tCharValue{
     union {
-        tTokenNode * character;
-        tObjectAttribute* objectAttribute;
-        tFunctionCall* functionCall;
-        tMethodCall* methodCall;
-        tTokenNode * varname;
-        tArrayDesreferencing* arrayDesreferencing;
+        struct tTokenNode * character;
+        struct tObjectAttribute* objectAttribute;
+        struct tFunctionCall* functionCall;
+        struct tMethodCall* methodCall;
+        struct tTokenNode * varname;
+        struct tArrayDesreferencing* arrayDesreferencing;
     };
 }tCharValue;
 
-typedef struct ifStatement{
-    tTokenNode * ifReserved;
-    tConditionClause * condition;
-    tClause * clause ;
-} ifStatement;
 
-typedef struct ifElseStatement{
-    ifStatement * ifStatement;
-    tTokenNode * elseReserved;
-    tClause * clause;
-}ifElseStatement;
 
 typedef struct tIf{
-    union {
-        ifStatement * ifStatement;
-        ifElseStatement * ifElseStatement;
-    };
+    struct tTokenNode * ifReserved;
+    struct tConditionClause * condition;
+    struct tClause * clause ;
+    tIfElseStatement* ifElseStatement; //// Nullable
+
 }tIf;
 
+typedef struct tIfElseStatement{
+    struct tTokenNode * elseReserved;
+    struct tClause * clause;
+}tIfElseStatement;
 
-typedef tWhile{
-    tTokenNode * whileReserved;
-    tCondition * conditionClause ;
-    tClause * clause;
-}tWhile;
+
+typedef struct tWhileLoop{
+    struct tTokenNode * whileReserved;
+    struct tCondition * conditionClause ;
+    struct tClause * clause;
+}tWhileLoop;
 
 /**
  * Array assignation
@@ -351,156 +471,150 @@ typedef tWhile{
  */
 typedef struct tArrayAssignation{
     union{
-        tTokenNode * varname;
-        tObjectAttribute * objectAttribute;
+        struct tTokenNode * varname;
+        struct tObjectAttribute * objectAttribute;
     };
-    tTokenNode * openSquareBracket;
-    tIntegerExpression * index;
-    tTokenNode * closeSquareBracket;
-    tTokenNode * assignation;
+    struct tTokenNode * openSquareBracket;
+    struct tIntegerExpression * index;
+    struct tTokenNode * closeSquareBracket;
+    struct tTokenNode * assignation;
     union {
-        tArrayValueSemicolon * valueSemicolon;
-        tInstantiation * instantiation;
+        struct tArrayValueSemicolon * valueSemicolon;
+        struct tInstantiation * instantiation;
     };
 }tArrayAssignation;
 
 
 typedef struct tClause{
-    tTokenNode* openBrace;
-    tProgramStatements* programStatements;
-    tTokenNode* closeBrace;
-};
+    struct tTokenNode* openBrace;
+    struct tProgramStatements* programStatements;
+    struct tTokenNode* closeBrace;
+}tClause;
 
 typedef struct tComparation{
-    tValue* lValue;
-    tComparisonOperator* comparisonOperator;
-    tValue* rValue;
-};
+    struct tValue* lValue;
+    struct tComparisonOperator* comparisonOperator;
+    struct tValue* rValue;
+}tComparation;
 
 typedef struct tLogicalOperator{
     union {
-        tTokenNode* andToken;
-        tTokenNode* orToken;
+        struct tTokenNode* andToken;
+        struct tTokenNode* orToken;
     };
-};
+}tLogicalOperator;
 
 typedef struct tComparisonOperator{
     union {
-        tTokenNode* equalOp;
-        tTokenNode* notEqualOp;
-        tTokenNode* lowerOp;
-        tTokenNode* lowerEqOp;
-        tTokenNode* greaterOp;
-        tTokenNode* greaterEqOp;
+        struct tTokenNode* equalOp;
+        struct tTokenNode* notEqualOp;
+        struct tTokenNode* lowerOp;
+        struct tTokenNode* lowerEqOp;
+        struct tTokenNode* greaterOp;
+        struct tTokenNode* greaterEqOp;
     };
-};
+}tComparisonOperator;
 
 typedef struct tAttributes{
-    tTokenNode* attributes;
-    tTokenNode* operBrace;
-    tDeclarations* declarations;
-    tTokenNode* closeBrace;
-};
+    struct tTokenNode* attributes;
+    struct tTokenNode* operBrace;
+    struct tDeclarations* declarations;
+    struct tTokenNode* closeBrace;
+}tAttributes; //puede ser empty
 
 typedef struct tDeclarations{
-    tDeclaration * declaration;
-    tDeclarations * declarations; //// Nullable
-}; ////TODO checkear empty
+    struct tDeclaration * declaration;
+    struct tDeclarations * declarations; //// Nullable
+}tDeclarations; ////TODO checkear empty
 
 typedef struct tConstructor{
-    tTokenNode* constructor;
-    tFunction* function;
-};
+    struct tTokenNode* constructor;
+    struct tFunction* function;
+}tConstructor;
 
 typedef struct tConditionUnit{
     union {
-        tComparation* comparation;
-        tValueComparatorValue* valueComparatorValue;
-        tLogicalComparationUnit* logicalComparationUnit
-        tCondition* condition;
+        struct tComparation* comparation;
+        struct tValueComparatorValue* valueComparatorValue;
+        struct tLogicalComparationUnit* logicalComparationUnit;
+        struct tCondition * condition;
     };
-};
+}tConditionUnit;
 
-typedef struct tvalueComparatorValue{
-    tValue* lValue;
-    tLogicalOperator logicalOperator;
-    tValue* rValue;
-};
+typedef struct tValueComparatorValue{
+    struct tValue* lValue;
+    struct tLogicalOperator* logicalOperator;
+    struct tValue* rValue;
+}tValueComparatorValue;
 
 typedef struct tLogicalComparationUnit{
-    tComparation* comparation;
-    tLogicalOperator* logicalOperator;
-    tConditionUnit* conditionUnit;
-};
+    struct tComparation* comparation;
+    struct tLogicalOperator* logicalOperator;
+    struct tConditionUnit* conditionUnit;
+}tLogicalComparationUnit;
 
 typedef struct tCondition{
-    tTokenNode * openP;
-    tConditionUnit * conditionUnit;
-    tTokenNode * closeP;
+    struct tTokenNode * openP;
+    struct tConditionUnit * conditionUnit;
+    struct tTokenNode * closeP;
 }tCondition;
 
 
 typedef struct tMethods{
-    tFunction * function;
-    tMethods * methods; //// Nullable
+    struct  tFunction * function;
+    struct tMethods * methods; //// Nullable
 }tMethods;
 
-typedef tMethodCall{
-    tTokenNode * varname;
-    tTokenNode * point;
-    tFunctionCall * functionCall;
+typedef struct tMethodCall{
+    struct tTokenNode * varname;
+    struct tTokenNode * point;
+    struct tFunctionCall * functionCall;
 }tMethodCall;
 
-typedef tDataType{
-    union {
-        tTokenNode * integerType;
-        tTokenNode * characterType;
-    };
-}tDataType;
 
-typedef tMainFunction{
-    tTokenNode* integerType;
-    tTokenNode* main;
-    tTokenNode* openParenthesis;
-    tParameters* parameters;
-    tTokenNode* closeParenthesis;
-    tTokenNode* openBrace;
-    tProgramStatements* programStatements;
-    tTokenNode* closeBrace;
+typedef struct tMainFunction{
+    struct tTokenNode* integer;
+    struct tTokenNode* main;
+    struct tTokenNode* openParenthesis;
+    struct tParameters* parameters;
+    struct tTokenNode* closeParenthesis;
+    struct tTokenNode* openBrace;
+    struct tProgramStatements* programStatements;
+    struct tTokenNode* closeBrace;
 }tMainFunction;
 
-typedef tInstantiation{
-    tTokenNode* new;
-    tFunctionCall* functionCall;
-    tTokenNode* semicolon;
+typedef struct tInstantiation{
+    struct tTokenNode* new;
+    struct tFunctionCall* functionCall;
+    struct tTokenNode* semicolon;
 }tInstantiation;
 
-typedef tIntegerAssignationDeclaration{
-    tTokenNode* integer;
-    tTokenNode* varname;
-    tTokenNode* assignation;
-    tIntegerExpression* integerExpression;
-    tTokenNode* semicolon;
+typedef struct tIntegerAssignationDeclaration{
+    struct tTokenNode* integer;
+    struct tTokenNode* varname;
+    struct tTokenNode* assignation;
+    struct tIntegerExpression* integerExpression;
+    struct tTokenNode* semicolon;
 }tIntegerAssignationDeclaration;
 
-typedef tCharAssignationDeclaration{
-    tTokenNode* character;
-    tTokenNode* varname;
-    tTokenNode* assignation;
-    tCharValue* charValue;
-    tTokenNode* semicolon;
+typedef struct tCharAssignationDeclaration{
+    struct tTokenNode* character;
+    struct tTokenNode* varname;
+    struct tTokenNode* assignation;
+    struct tCharValue* charValue;
+    struct tTokenNode* semicolon;
 }tCharAssignationDeclaration;
 
-typedef tIntegerArrayAssignationDeclaration{
-    tTokenNode* integer;
-    tTokenNode* varname;
-    tTokenNode* openSquareBracket;
-    tTokenNode* closeSquareBracket;
-    tTokenNode* assignation;
-    tTokenNode* openBrace;
-    tIntegerArray* integerArray;
-    tTokenNode* closeBrace;
-    tTokenNode* semicolon;
+typedef struct tIntegerArrayAssignationDeclaration{
+    struct tTokenNode* integer;
+    struct tTokenNode* varname;
+    struct tTokenNode* openSquareBracket;
+    struct tTokenNode* closeSquareBracket;
+    struct tTokenNode* assignation;
+    struct tTokenNode* openBrace;
+    struct tIntegerArray* integerArray;
+    struct tTokenNode* closeBrace;
+    struct tTokenNode* semicolon;
 }tIntegerArrayAssignationDeclaration;
 
 /**
@@ -509,6 +623,7 @@ typedef tIntegerArrayAssignationDeclaration{
  *  arrayAssignation
  *  varname assignation instantiation
  *  objectAttribute assignation value ;
+ *  objectAttribute assignation instantiation
  *  varname assignation value ;
  *  varname [ ] assignation { integerArray } ;
  *  varname [ ] assignation { characterArray } ;
@@ -517,21 +632,14 @@ typedef tIntegerArrayAssignationDeclaration{
  *  objectAttribute [ ] assignation { characterArray } ;
  *  objectAttribute [ ] assignation string ;
  *
- * @note Node uses @subnode tSquareBrackets for "[]".
+ * @note Node uses @subnode tSuperSubnode.
  */
 
-typedef tAssignation{
+typedef struct tAssignation{
     union {
-        tArrayAssignation* arrayAssignation;
-        tSuperSubnode* assignationSubnode;
+        struct tArrayAssignation* arrayAssignation;
+        struct  tSuperSubnode* assignationSubnode;
     };
-    union{
-        tTokenNode* varname;
-        tObjectAttribute* objectAttribute;
-    };
-    tEmptySquareBrackets* emptySquareBrackets; //// Nullable
-    tAssignation* assignation;
-
 }tAssignation;
 
 
@@ -544,32 +652,67 @@ typedef tAssignation{
  *  varname [ ] assignation { characterArray } ;
  *  varname [ ] assignation string ;
  *  objectAttribute assignation value ;
+ *  objectAttribute assignation instantiation
  *  objectAttribute [ ] assignation { integerArray } ;
  *  objectAttribute [ ] assignation { characterArray } ;
  *  objectAttribute [ ] assignation string ;
  *  
- *  Subnode used in tAssignation
+ *  @note Node uses @subnode tAssignation.
  */
-typedef tSuperSubnode{
+typedef struct tSuperSubnode{
     union{
-        tTokenNode* varname;
-        tObjectAttribute* objectAttribute;
+        struct tTokenNode* varname;
+        struct tObjectAttribute* objectAttribute;
     };
     union{
-        tArraysAssignationSubnode* arraysAssignationSubnode;
-        tSimpleAssignationSubnode* simpleAssignationSubnode;
+        struct tArrayAssignationSubnode* arrayAssignationSubnode;
+        struct tSimpleAssignationSubnode* simpleAssignationSubnode;
     };
 }tSuperSubnode;
 
 /**
  * @Subnode
- * 
- * 
+ *
+ * [ ] assignation { integerArray } ;
+ * [ ] assignation { characterArray } ;
+ * [ ] assignation string ;
+ *
+ * @note Node uses @subnode tCharArrayWithBrackets, tIntegerArrayWithBrackets.
+ *
+ * Used in tSuperSubnode
  */
 
-typedef tArrayAssignationSubnode{
-    
-};
+typedef struct tArrayAssignationSubnode{
+    struct tEmptySquareBrackets* emptySquareBrackets;
+    struct tTokenNode* assignation;
+    union{
+        struct tGenericArrayWithBracket * genericArrayWithBrackets;
+        struct tIntegerArrayWithBrackets* integerArray;
+        struct tCharArrayWithBrackets* characterArray;
+        struct tTokenNode* string;
+    };
+    struct tTokenNode* semicolon;
+}tArrayAssignationSubnode;
+
+/**
+ * @Subnode
+ *
+ * assignation value ;
+ * assignation instantation
+ *
+ * @note Node uses @subnode tValueWithSemicolon.
+ *
+ * Used in tSuperSubnode
+ */
+
+typedef struct tSimpleAssignationSubnode{
+    struct tTokenNode* assignation;
+    union{
+        struct tArrayValueSemicolon* arrayValueSemicolon;
+        struct tInstantation* instantation;
+    };
+}tSimpleAssignationSubnode;
+
 
 
 /**
@@ -581,17 +724,17 @@ typedef tArrayAssignationSubnode{
  */
 typedef struct tFunction{
     union {     //// Nullable
-        tDataType * datatype;
-        tTokenNode * void;
+        struct tDataType * datatype;
+        struct tTokenNode * voidReserved;
         //// Nothing
     };
-    tTokenNode * varname;
-    tTokenNode * openP;
-    tParameters * parameters;
-    tTokenNode * closeP;
-    tTokenNode * openBrace;
-    tProgramStatements * programStatements;
-    tTokenNode * closeBrace;
+    struct tTokenNode * varname;
+    struct tTokenNode * openP;
+    struct tParameters * parameters;
+    struct tTokenNode * closeP;
+    struct tTokenNode * openBrace;
+    struct tProgramStatements * programStatements;
+    struct tTokenNode * closeBrace;
 }tFunction;
 
 /**
@@ -610,12 +753,12 @@ typedef struct tFunction{
  */
 typedef struct tParameters{
     union {
-        tDatatype * datatype;
-        tTokenNode * objectTypeName;
+        struct tDataType * datatype;
+        struct tTokenNode * objectTypeName;
     };
-    tTokenNode * paramName;
-    tEmptySquareBrackets * squareBrackets;       //// Nullable
-    tCommaNextParameters * nextParameters;  //// Nullable
+    struct tTokenNode * paramName;
+    struct tEmptySquareBrackets * squareBrackets;       //// Nullable
+    struct tCommaNextParameters * nextParameters;  //// Nullable
 }tParameters;
 
 /**
@@ -641,15 +784,15 @@ typedef struct tParameters{
  */
 typedef struct tDeclaration{
     union {
-        tCharDeclaration * charDeclaration;
-        tIntegerDeclaration * integerDeclaration;
-        tIntegerArrayDeclaration * integerArrayDeclaration;
-        tCharArrayDeclaration * charArrayDeclaration;
-        tIntegerAssignationDeclaration * integerAssignationDeclaration;
-        tCharAssignationDeclaration * charAssignationDeclaration;
-        tIntegerArrayAssignationDeclaration * integerArrayAssignationDeclaration;
-        tCharArrayAssignationDeclaration * charArrayAssignationDeclaration;
-        tDeclarationWithObjectDataType * declarationAux;
+        struct tCharDeclaration * charDeclaration;
+        struct tIntegerDeclaration * integerDeclaration;
+        struct tIntegerArrayDeclaration * integerArrayDeclaration;
+        struct tCharArrayDeclaration * charArrayDeclaration;
+        struct tIntegerAssignationDeclaration * integerAssignationDeclaration;
+        struct tCharAssignationDeclaration * charAssignationDeclaration;
+        struct tIntegerArrayAssignationDeclaration * integerArrayAssignationDeclaration;
+        struct tCharArrayAssignationDeclaration * charArrayAssignationDeclaration;
+        struct tDeclarationWithObjectDataType * declarationAux;
     };
 }tDeclaration;
 
@@ -665,13 +808,15 @@ typedef struct tDeclaration{
    * @note Uses @subnode tEmptySquareBrackets
    */
    typedef struct tCharArrayAssignationDeclaration{
-       tTokenNode * charType;
-       tTokenNode * name;
-       tEmptySquareBrackets * emptySquareBrackets;
-       tTokenNode * assignation;
+       struct tTokenNode * charType;
+       struct tTokenNode * name;
+       struct tEmptySquareBrackets * emptySquareBrackets;
+       struct tTokenNode * assignation;
        union {
-           tCharArrayWithBrackets * charArrayWithBrackets;
+           struct tCharArrayWithBrackets * charArrayWithBrackets;
+           struct tTokenNode * string;
        };
+       struct tTokenNode * semicolon;
    }tCharArrayAssignationDeclaration;
 
 
@@ -683,10 +828,31 @@ typedef struct tDeclaration{
 
 /**
  * @Subnode
- * "[ charValues ]"
+ * "{ charValues }"
  * 
- * Used in 
+ * Used in @node tCharArrayAssignationDeclaration
+ *
+ * Used in tArraysAssignationSubnode
  */
+ typedef struct tCharArrayWithBrackets{
+     struct tTokenNode * openBrace;
+     struct tCharacterArray * characterArray;
+     struct tTokenNode * closeBrace;
+ }tCharArrayWithBrackets;
+
+/**
+* @Subnode
+* "{ integerValues }"
+*
+* Used in @node tIntegerArrayAssignationDeclaration
+ *
+ * Used in tArraysAssignationSubnode
+*/
+typedef struct tIntegerArrayWithBrackets{
+    struct tTokenNode * openBrace;
+    struct tIntegerArray * integerArray;
+    struct tTokenNode * closeBrace;
+}tIntegerArrayWithBrackets;
 
 /**
  * @Subnode
@@ -694,9 +860,9 @@ typedef struct tDeclaration{
  * Used in tParameters, tAssignation, tDeclarationWithObjectDataType and tCharArrayAssignationDeclaration.
  */
 typedef struct tEmptySquareBrackets{
-    tTokenNode * openSquareBracket;
-    tTokenNode * closeSquareBracket;
-};
+    struct tTokenNode * openSquareBracket;
+    struct tTokenNode * closeSquareBracket;
+}tEmptySquareBrackets;
 
 /**
  * @Subnode
@@ -705,30 +871,21 @@ typedef struct tEmptySquareBrackets{
  * Used in tParameters.
  */
 typedef struct tCommaNextParameters{
-    tTokenNode * comma;
-    tParameters * nextParameters;
+    struct tTokenNode * comma;
+    struct tParameters * nextParameters;
 }tCommaNextParameters;
 
 /**
  * @Subnode
  * "value;"
  *
- * Subnode used in tArrayAssignation.
+ * Subnode used in tArrayAssignation, tSimpleAssignationSubnode.
  */
 typedef struct tArrayValueSemicolon{
-    tValue * value;
-    tTokenNode * semicolon;
+    struct tValue * value;
+    struct tTokenNode * semicolon;
 }tArrayValueSemicolon;
 
-/**
- * @Subnode
- * value;
- * Subnode used in tArrayAssignation.
- */
-typedef struct tArrayValueSemicolon{
-    tValue * value;
-    tTokenNode * semicolon;
-}tArrayValueSemicolon;
 
 /**
 * @subnode Declaration with Object as data type
@@ -745,13 +902,13 @@ typedef struct tArrayValueSemicolon{
 * @note Uses @subnode tEmptySquareBrackets, tSquareBracketsWithSize and tAssignationWithMethodFunctionInstantiation
 */
 typedef struct tDeclarationWithObjectDataType{
-    tTokenNode * objectDataType;
-    tTokenNode * name;
+    struct tTokenNode * objectDataType;
+    struct tTokenNode * name;
     union {
-        tTokenNode * semicolon;
-        tEmptySquareBrackets * emptySquareBrackets;
-        tSquareBracketsWithSize * squareBracketsWithSize;
-        tAssignationWithMethodFunctionInstantiation * assignationWithMethodFunctionInstantiation;
+        struct tTokenNode * semicolon;
+        struct tEmptySquareBrackets * emptySquareBrackets;
+        struct tSquareBracketsWithSize * squareBracketsWithSize;
+        struct tAssignationWithMethodFunctionInstantiation * assignationWithMethodFunctionInstantiation;
     };
 }tDeclarationWithObjectDataType;
 
@@ -765,9 +922,9 @@ typedef struct tDeclarationWithObjectDataType{
  * @note size is an integer expression
  */
 typedef struct tSquareBracketsWithSize{
-    tTokenNode * openSquareBracket;
-    tIntegerExpression * size;
-    tTokenNode * closeSquareBracket;
+    struct tTokenNode * openSquareBracket;
+    struct tIntegerExpression * size;
+    struct tTokenNode * closeSquareBracket;
 }tSquareBracketsWithSize;
 
 /**
@@ -780,11 +937,87 @@ typedef struct tSquareBracketsWithSize{
  * Used in @subnode tDeclarationWithObjectDataType
  */
 typedef struct tAssignationWithMethodFunctionInstantiation{
-    tTokenNode * assignation;
+    struct tTokenNode * assignation;
     union {
-        tFunctionCall * functionCall;
-        tMethodCall * methodCall;
-        tInstantiation * instantiation;
+        struct tFunctionCall * functionCall;
+        struct tMethodCall * methodCall;
+        struct tInstantiation * instantiation;
     };
 }tAssignationWithMethodFunctionInstantiation;
+
+/**
+ * @subnode Extends Name
+ *
+ * extends ExtendedClassName
+ *
+ * @note Used in @node tClass
+ */
+typedef struct tExtendsName{
+    struct tTokenNode * extends;
+    struct tTokenNode * extendedClassName;
+}tExtendsName;
+
+/**
+ * @subnode Classes and main
+ *
+ * classes main
+ *
+ * @note Used in @node tProgram
+ */
+typedef struct tClassesAndMain{
+    union {
+        struct tClassAux* class;
+        struct tProgram * program;
+    };
+}tClassesAndMain;
+
+/**
+ * @subnode Comma Character Array
+ *
+ * ", character_array"
+ *
+ * @note Used in tCharacterArray
+ */
+typedef struct tCommaCharacterArray{
+    struct tTokenNode* comma;
+    struct tCharacterArray* next;
+}tCommaCharacterArray;
+
+
+/**
+ * @subnode Comma Integer Array
+ *
+ * ", integer_array"
+ *
+ * @note Used in tIntegerArray
+ */
+typedef struct tCommaIntegerArray{
+    struct tTokenNode* comma;
+    struct tIntegerArray* next;
+}tCommaIntegerArray;
+
+/**
+ * @subnode -Integer
+ *
+ * -Integer
+ *
+ * @note Used in @node tFactor
+ */
+typedef struct tSubInteger{
+    tTokenNode * sub;
+    tTokenNode * integer;
+}tSubInteger;
+
+/**
+ * @Subnode
+ *
+ * , genericValueArray
+ *
+ * Used in tGenericValueArray
+ */
+
+typedef struct tCommaGenericValueArray{
+    tTokenNode* comma;
+    tGenericValueArray* genericValueArray;
+};
 #endif
