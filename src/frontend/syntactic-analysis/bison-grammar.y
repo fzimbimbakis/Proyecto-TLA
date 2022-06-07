@@ -7,6 +7,7 @@
 %}
 
 %union{
+	tTokenNode* TokenNode;
 	tDataType* DataType;
 	tFactor* Factor;
 	tValue* Value;
@@ -58,6 +59,11 @@
     tParameters* Parameters;
     tDeclaration* Declaration;
     tIntegerExpression* IntegerExpression;
+    tCharArrayAssignationDeclaration* CharArrayAssignationDeclaration;
+    int integer;
+    int token;
+    char * string;
+    char character;
 }
 
 %type <DataType> datatype
@@ -105,9 +111,8 @@
 %type <Function> function
 %type <Parameters> parameters
 %type <Declaration> declaration
-%type <CharArrayAssignationDeclaration> char_array_assignation_declaration
 %type <IntegerExpression> integer_expression
-
+%type <CharArrayAssignationDeclaration> char_array_assignation_declaration
 // IDs de los tokens generados desde Flex:
 %token <token> MODULO
 %token <token> INCREMENT
@@ -136,8 +141,8 @@
 %token <token> VOID
 %token <token> INT
 %token <token> CHAR
-%token <token> CHARACTER
-%token <token> STRING
+%token <character> CHARACTER
+%token <string> STRING
 
 %token <token> VARNAME
 %token <token> EQUAL_OP
@@ -152,7 +157,7 @@
 %token <token> OPEN_PARENTHESIS
 %token <token> CLOSE_PARENTHESIS
 
-%token <token> INTEGER
+%token <integer> INTEGER
 %token <token> POINT
 %token <token> MAIN
 
@@ -163,17 +168,17 @@
 %%
 
 //
-program: main_function { $$ = ProgramGrammarActionWithMain($1); }
- | class program { $$ = ProgramGrammarActionWithClassAndProg($1,$2); };
+program: main_function { state.succeed = true;  state.result = 1; state.root = ProgramGrammarActionWithMain($1); }
+ | class program {state.succeed = true ;  state.result = 1; state.root = ProgramGrammarActionWithClassAndProg($1,$2); };
 
 //
 class: CLASS VARNAME OPEN_BRACE  class_in CLOSE_BRACE  {$$ = ClassGrammarAction($1, $2, $3 ,$4 ,$5);}
-| CLASS VARNAME EXTENDS VARNAME OPEN_BRACE class_in CLOSE_BRACE {$$ = ClassGrammarAction($1, $2, $3 ,$4 ,$5,$6,$7);}
+| CLASS VARNAME EXTENDS VARNAME OPEN_BRACE class_in CLOSE_BRACE {$$ = ClassGrammarActionWithHerency($1, $2, $3 ,$4 ,$5,$6,$7);}
 ;
 
 
 
-class_in: attributes constructor methods  {$$ = tClassIn  * classInGrammarAction($1,$2,$3);}
+class_in: attributes constructor methods  {$$ = classInGrammarAction($1,$2,$3);}
 ;
 
 instantiation: NEW function_call SEMICOLON {$$ = instantiationGrammarAction($1,$2,$3);}
@@ -188,12 +193,12 @@ declaration: char_declaration	{ $$ = charDeclarationGrammarAction($1); }
 | char_assignation_declaration	{ $$ = charAssignationDeclarationGrammarAction($1); }
 | integer_array_assignation_declaration	{ $$ = integerArrayAssignationDeclaration($1); }
 | char_array_assignation_declaration	{ $$ = charArrayAssignationDeclarationGrammarAction($1); }
-| VARNAME VARNAME SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarAction($1); }
-| VARNAME VARNAME ASSIGNATION method_call SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarAction($1); }
-| VARNAME VARNAME ASSIGNATION function_call SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarAction($1); }
-| VARNAME VARNAME ASSIGNATION instantiation	{ $$ = declarationWithObjectDataTypeGrammarAction($1); }
-| VARNAME VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarAction($1); }
-| VARNAME VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarAction($1); }
+| VARNAME VARNAME SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarActionBasic($1, $2, $3); }
+| VARNAME VARNAME ASSIGNATION method_call SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarActionMethodFunction($1, $2, $3, $4, $5); }
+| VARNAME VARNAME ASSIGNATION function_call SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarActionMethodFunction($1, $2, $3, $4, $5); }
+| VARNAME VARNAME ASSIGNATION instantiation	{ $$ = declarationWithObjectDataTypeGrammarActionInstantiation($1, $2, $3, $4); }
+| VARNAME VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarActionArrayNoSize($1, $2, $3, $4, $5); }
+| VARNAME VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET SEMICOLON	{ $$ = declarationWithObjectDataTypeGrammarActionArrayWithSize($1, $2, $3, $4, $5, $6); }
 
 ;
 
@@ -222,7 +227,7 @@ char_array_assignation_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUAR
 
 
 integer_array: integer_expression {$$ =tIntegerArrayGrammarAction($1); }
-| integer_expression COMMA integer_array {$$ =tIntegerArrayCommaGrammarAction($1,$2,$3); }
+| integer_expression COMMA integer_array {$$ = tIntegerArrayWithCommaGrammarAction($1,$2,$3); }
 ;
 
 
@@ -259,7 +264,7 @@ char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET integer_expression CLOS
 assignation: VARNAME ASSIGNATION value SEMICOLON {$$ = assignationGrammarAction($1,$2,$3,$4);}
 | VARNAME ASSIGNATION instantiation  {$$ = assignationRule2GrammarAction($1,$2,$3);}
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE generic_value_array CLOSE_BRACE SEMICOLON {$$ = assignationRule3GrammarAction($1,$2,$3,$4,$5,$6,$7,$8);}
-| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON {$$ = assignationRule3GrammarAction( $1,$2,$3,$4,$5,$6);}
+| VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON {$$ = assignationRule4GrammarAction( $1,$2,$3,$4,$5,$6);}
 | array_assignation {$$ = assignationRule5GrammarAction($1);}
 | object_attribute ASSIGNATION value SEMICOLON {$$ = assignationRule6GrammarAction($1,$2,$3,$4);}
 | object_attribute ASSIGNATION instantiation {$$ = assignationRule7GrammarAction($1,$2,$3);}
@@ -300,7 +305,7 @@ char_value: CHARACTER { $$ =  charValue($1); }
 ;
 
 
-array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = funcarrayAssignationValue($1, $2, $3, $4, $5, $6, $7); }
+array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = arrayAssignationValue($1, $2, $3, $4, $5, $6, $7); }
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = arrayAssignationValue($1, $2, $3, $4, $5, $6, $7); }
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation { $$ = arrayAssignationSemicolon($1, $2, $3, $4, $5, $6); }
 | VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation { $$ = arrayAssignationSemicolon($1, $2, $3, $4, $5, $6); }
@@ -419,7 +424,7 @@ program_statements: program_unit_statements program_statements {$$ = programStat
 ;
 
 
-array_desreferencing: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET {$$ = arrayDesreferencing($1, $2, $3)}
+array_desreferencing: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET {$$ = arrayDesreferencing($1, $2, $3, $4)}
 ;
 
 
@@ -437,7 +442,7 @@ integer_expression: integer_expression ADD integer_expression {$$ = integerExpre
 | integer_expression DECREMENT {$$ = integerExpressionIncrementDecrement($1, $2)}
 | integer_expression INCREMENT {$$ = integerExpressionIncrementDecrement($1, $2)}
 | OPEN_PARENTHESIS integer_expression CLOSE_PARENTHESIS {$$ = integerExpressionEnclosed($1, $2, $3)}
-| factor {$$ = factorObjectAttribute($1);}
+| factor {$$ = integerExpressionFactor($1);}
 ;
 
 

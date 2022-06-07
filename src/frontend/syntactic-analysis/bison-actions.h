@@ -25,14 +25,21 @@ tInstantiation * instantiationGrammarAction(tTokenNode *  new , tFunctionCall * 
 
 ////declaration
 tDeclaration  * charDeclarationGrammarAction(tCharDeclaration * charDeclaration );
-tDeclaration * integerDeclarationGrammarAction( struct tIntegerDeclaration * tIntegerDeclaration );
+tDeclaration * integerDeclarationGrammarAction( struct tIntDeclaration * tIntegerDeclaration );
 tDeclaration * charArrayDeclarationGrammarAction( struct tCharArrayDeclaration * tCharArrayDeclaration);
 tDeclaration * integerArrayDeclarationGrammarAction( struct tIntegerArrayDeclaration * tIntegerArrayDeclaration);
 tDeclaration * integerAssignationDeclarationGrammarAction( struct tIntegerAssignationDeclaration * tIntegerAssignationDeclaration);
 tDeclaration * charAssignationDeclarationGrammarAction( struct tCharAssignationDeclaration * tCharAssignationDeclaration);
 tDeclaration * integerArrayAssignationDeclaration( tIntegerArrayAssignationDeclaration * IntegerArrayAssignationDeclaration) ;
 tDeclaration * charArrayAssignationDeclarationGrammarAction(  tCharArrayAssignationDeclaration * CharArrayAssignationDeclaration);
-tDeclaration * declarationWithObjectDataTypeGrammarAction(  tDeclarationWithObjectDataType * declarationWithObjectDataType);
+tDeclaration * declarationWithObjectDataTypeGrammarActionBasic(tTokenNode* name, tTokenNode* datatype, tTokenNode* semicolon);
+tDeclaration * declarationWithObjectDataTypeGrammarActionMethodFunction(tTokenNode* name, tTokenNode* datatype, tTokenNode* assignation, void * call, tTokenNode* semicolon);
+tDeclaration * declarationWithObjectDataTypeGrammarActionInstantiation(tTokenNode* name, tTokenNode* datatype, tTokenNode* assignation, tInstantiation* instantiation);
+tDeclaration * declarationWithObjectDataTypeGrammarActionArrayNoSize(tTokenNode* name, tTokenNode* datatype, tTokenNode* openSQ, tTokenNode* closeSQ, tTokenNode* semicolon);
+tDeclaration * declarationWithObjectDataTypeGrammarActionArrayWithSize(tTokenNode* name, tTokenNode* datatype, tTokenNode* openSQ, tIntegerExpression* integerExpression, tTokenNode* closeSQ, tTokenNode* semicolon);
+
+
+tCharArrayAssignationDeclaration  * charArrayAssignationDeclarationRule2GrammarAction(tTokenNode * charReserved , tTokenNode * varname , tTokenNode * openSquareBracket,tTokenNode * closeSquareBracket,tTokenNode * assignation , tTokenNode  * string, tTokenNode * semicolon);
 
 ////integer_assignation_declaration
 tIntegerAssignationDeclaration * integerAssignationDeclarationRuleGrammarAction(tTokenNode * intReserved , tTokenNode * varname , tTokenNode * assignation , tIntegerExpression * integerExpression , tTokenNode * semicolon);
@@ -48,7 +55,10 @@ tCharArrayAssignationDeclaration * charArrayAssignationDeclarationRuleGrammarAct
 
 ////integer_array
 tIntegerArray  * tIntegerArrayGrammarAction(tIntegerExpression * integerExpression );
-tIntegerArray  * tIntegerArraywithCommaGrammarAction(tIntegerExpression * integerExpression ,tTokenNode * comma , tIntegerArray * integerArray);
+tIntegerArray  * tIntegerArrayWithCommaGrammarAction(tIntegerExpression * integerExpression ,tTokenNode * comma , tIntegerArray * integerArray);
+
+
+tCharacterArray  * characterArrayRule2GrammarAction(tCharValue * charValue ,tTokenNode * comma , tCharacterArray * characterArray );
 
 ////character_array
 tCharacterArray  * characterArrayGrammarAction(tCharValue * charValue );
@@ -77,7 +87,10 @@ tAssignation  * assignationRule7GrammarAction(tObjectAttribute* objectAttribute,
 tAssignation * assignationRule8GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket,tTokenNode * assignation, tTokenNode* openBrace, tGenericValueArray * genericValueArray ,tTokenNode* closeBrace, tTokenNode* semicolon);
 tAssignation  * assignationRule9GrammarAction(tObjectAttribute* objectAttribute, tTokenNode* openSquareBracket, tTokenNode* closeSquareBracket,  tTokenNode * assignation, tTokenNode* string, tTokenNode* semicolon);
 
-;
+tConstructor * constructor(tTokenNode* constructor, tFunction* function);
+
+tGenericValue * genericValue(void * value);
+
 tTokenNode * tokenGrammarActionWithChar(const int tokenId,char character);
 tTokenNode * tokenGrammarActionWithInt(const int tokenId,int integer);
 tTokenNode * tokenGrammarActionWitString(const int tokenId,char * string);
@@ -150,7 +163,7 @@ tAttributes* attributes(tTokenNode* attributes, tTokenNode* openBrace,
 tComparisonOperator * comparisonOperator(tTokenNode* token);
 
 ////logical_operator
-tLogicalOperator * logicalOperator(tTokenNode* token);
+tLogicalOperator * logicalOperator(unsigned tokenId);
 
 ////comparation
 tComparation * comparation(tValue* lValue, tComparisonOperator* comparisonOperator,
@@ -174,6 +187,8 @@ tClause * clause(tTokenNode* openBrace, tProgramStatements* programStatements,
 ////while_loop
 tWhileLoop * whileLoop(tTokenNode* whileToken, tCondition* condition,
                        tClause* clause);
+
+tProgram * ProgramGrammarActionWithMain( tMainFunction * mainFunction);
 
 ////if
 tIf* If(tTokenNode* ifToken, tCondition* condition, tClause* clause);

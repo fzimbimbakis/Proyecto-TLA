@@ -6,11 +6,11 @@
  * Implementación de "flex-rules.h".
  */
 
-//unsigned IntegerPatternAction(const char * lexeme) {
-//	LogDebug("IntegerPatternAction: '%s'.", lexeme);
+unsigned IntegerPatternAction(const char * lexeme) {
+	LogDebug("IntegerPatternAction: '%s'.", lexeme);
 //	yylval = atoi(lexeme);
-//	return INTEGER;
-//}
+	return INTEGER;
+}
 //TokenID NegativeIntegerPatternAction(const char * lexeme) {
 //    LogDebug("IntegerPatternAction: '%s'.", lexeme);
 //    yylval = atoi(lexeme);

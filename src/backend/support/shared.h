@@ -46,6 +46,7 @@ typedef struct {
 
 	// Agregar una pila para almacenar tokens/nodos.
 	// Agregar un nodo hacia la raíz del árbol de sintaxis abstracta.
+    struct tProgram * root;
 	// Agregar una tabla de símbolos.
 	// ...
 
@@ -440,7 +441,7 @@ typedef struct tCharValue{
 
 typedef struct tIf{
     struct tTokenNode * ifReserved;
-    struct tConditionClause * condition;
+    struct tCondition * condition;
     struct tClause * clause ;
     struct tIfElseStatement* ifElseStatement; //// Nullable
 
@@ -708,8 +709,8 @@ typedef struct tArrayAssignationSubnode{
 typedef struct tSimpleAssignationSubnode{
     struct tTokenNode* assignation;
     union{
+        struct tInstantiation* instantation;
         struct tArrayValueSemicolon* arrayValueSemicolon;
-        struct tInstantation* instantation;
     };
 }tSimpleAssignationSubnode;
 
@@ -785,7 +786,7 @@ typedef struct tParameters{
 typedef struct tDeclaration{
     union {
         struct tCharDeclaration * charDeclaration;
-        struct tIntegerDeclaration * integerDeclaration;
+        struct tIntDeclaration * integerDeclaration;
         struct tIntegerArrayDeclaration * integerArrayDeclaration;
         struct tCharArrayDeclaration * charArrayDeclaration;
         struct tIntegerAssignationDeclaration * integerAssignationDeclaration;
@@ -862,6 +863,7 @@ typedef struct tIntegerArrayWithBrackets{
 typedef struct tEmptySquareBrackets{
     struct tTokenNode * openSquareBracket;
     struct tTokenNode * closeSquareBracket;
+    struct tTokenNode* semicolon;
 }tEmptySquareBrackets;
 
 /**
@@ -925,6 +927,7 @@ typedef struct tSquareBracketsWithSize{
     struct tTokenNode * openSquareBracket;
     struct tIntegerExpression * size;
     struct tTokenNode * closeSquareBracket;
+    struct tTokenNode* semicolon;
 }tSquareBracketsWithSize;
 
 /**
@@ -939,12 +942,17 @@ typedef struct tSquareBracketsWithSize{
 typedef struct tAssignationWithMethodFunctionInstantiation{
     struct tTokenNode * assignation;
     union {
-        struct tFunctionCall * functionCall;
-        struct tMethodCall * methodCall;
+        struct tAuxStructForMethodCallFunctionCall * auxStructForMethodCallFunctionCall;
         struct tInstantiation * instantiation;
     };
 }tAssignationWithMethodFunctionInstantiation;
-
+typedef struct tAuxStructForMethodCallFunctionCall{
+    union {
+        struct tFunctionCall * functionCall;
+        struct tMethodCall * methodCall;
+    };
+    tTokenNode* semicolon;
+}tAuxStructForMethodCallFunctionCall;
 /**
  * @subnode Extends Name
  *
