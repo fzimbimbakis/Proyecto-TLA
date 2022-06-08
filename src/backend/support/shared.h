@@ -62,7 +62,7 @@ extern CompilerState state;
  * Every possible token
  */
 typedef struct tTokenNode{
-    unsigned tokenId;
+    int tokenId;
     union {
         char * varname;
         int integerValue;

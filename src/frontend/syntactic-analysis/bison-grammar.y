@@ -144,7 +144,7 @@
 %token <character> CHARACTER
 %token <string> STRING
 
-%token <token> VARNAME
+%token <string> VARNAME
 %token <token> EQUAL_OP
 %token <token> NOT_EQUAL_OP
 %token <token> LOWER_OP
@@ -274,8 +274,8 @@ assignation: VARNAME ASSIGNATION value SEMICOLON {$$ = assignationGrammarAction(
 
 
 value: integer_expression { $$ =  valueSingle($1); }
-| CHARACTER { $$ =  valueSingle($1); }
-| STRING { $$ =  valueSingle($1); }
+| CHARACTER { $$ =  valueSingleCharacter($1); }
+| STRING { $$ =  valueSingleString($1); }
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4); };
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6); }
 ;
@@ -285,30 +285,30 @@ generic_value { $$ =  genericValueArraySingle($1); }
 | generic_value COMMA generic_value_array { $$ =  genericValueArrayPlural($1,$2,$3); };
 
 generic_value:
-CHARACTER { $$ =  genericValue($1); }
-|INTEGER { $$ =  genericValue($1); }
+CHARACTER { $$ =  genericValueCharacter($1); }
+|INTEGER { $$ =  genericValueInteger($1); }
 | object_attribute { $$ =  genericValue($1); }
 | function_call { $$ =  genericValue($1); }
 | method_call { $$ =  genericValue($1); }
-| VARNAME { $$ =  genericValue($1); }
+| VARNAME { $$ =  genericValueVarname($1); }
 | array_desreferencing { $$ =  genericValue($1); }
 ;
 
 
 
-char_value: CHARACTER { $$ =  charValue($1); }
+char_value: CHARACTER { $$ =  charValueCharacter($1); }
 | object_attribute  { $$ =  charValue($1); }
 | function_call { $$ =  charValue($1); }
 | method_call { $$ =  charValue($1); }
 | VARNAME { $$ =  charValue($1); }
-| array_desreferencing { $$ =  charValue($1); }
+| array_desreferencing { $$ =  charValueVarname($1); }
 ;
 
 
-array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = arrayAssignationValue($1, $2, $3, $4, $5, $6, $7); }
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = arrayAssignationValue($1, $2, $3, $4, $5, $6, $7); }
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation { $$ = arrayAssignationSemicolon($1, $2, $3, $4, $5, $6); }
-| VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation { $$ = arrayAssignationSemicolon($1, $2, $3, $4, $5, $6); }
+array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = arrayAssignationValueA($1, $2, $3, $4, $5, $6, $7); }
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = arrayAssignationValueB($1, $2, $3, $4, $5, $6, $7); }
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation { $$ = arrayAssignationSemicolonB($1, $2, $3, $4, $5, $6); }
+| VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation { $$ = arrayAssignationSemicolonA($1, $2, $3, $4, $5, $6); }
 ;
 
 
