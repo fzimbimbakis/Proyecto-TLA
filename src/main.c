@@ -13,6 +13,8 @@ const int main(const int argumentCount, const char ** arguments) {
 	state.result = 0;
 	state.succeed = false;
 
+    FILE * file = fopen("result.c", "w");
+
 	// Mostrar parámetros recibidos por consola.
 	for (int i = 0; i < argumentCount; ++i) {
 		LogInfo("Argumento %d: '%s'", i, arguments[i]);
@@ -20,13 +22,14 @@ const int main(const int argumentCount, const char ** arguments) {
 
 	// Compilar el programa de entrada.
 	LogInfo("Compilando...\n");
+    int final_result;
 	const int result = yyparse();
 	switch (result) {
 		case 0:
 			if (state.succeed) {
-				LogInfo("La compilacion fue exitosa.");
-//				Generator(state.result);
-			}
+                LogInfo("La compilacion fue exitosa.");
+                final_result = Generator(state.root, file);
+            }
 			else {
 				LogError("Se produjo un error en la aplicacion.");
 				return -1;
@@ -42,5 +45,9 @@ const int main(const int argumentCount, const char ** arguments) {
 			LogError("Error desconocido mientras se ejecutaba el analizador Bison (codigo %d).", result);
 	}
 	LogInfo("Fin.");
+    if(final_result != 0){
+        LogError("Se produjo un error en la aplicacion.");
+    }
+    fclose(file);
 	return result;
 }

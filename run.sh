@@ -72,9 +72,9 @@ if [ "$1" = "--all" ]; then
     do
     	echo prueba"$i"
           if test -f ./test/accept/prueba"$i"; then
-          ./bin/Compiler < ./test/accept/prueba"$i" | egrep "INFO"
+          ./bin/Compiler < ./test/accept/prueba"$i"
           elif test -f ./test/reject/prueba"$i"; then
-              ./bin/Compiler < ./test/reject/prueba"$i" | egrep "INFO"
+              ./bin/Compiler < ./test/reject/prueba"$i"
           else
             echo "No existe el test $i"
           fi
@@ -87,9 +87,9 @@ for var in "$@"
 do
     echo "$var"
     if test -f ./test/accept/"$var"; then
-    ./bin/Compiler < ./test/accept/"$var" | egrep "INFO"
+    ./bin/Compiler < ./test/accept/"$var"
     elif test -f ./test/reject/"$var"; then
-        ./bin/Compiler < ./test/reject/"$var" | egrep "INFO"
+        ./bin/Compiler < ./test/reject/"$var"
     else
       echo "No existe el test $var"
     fi

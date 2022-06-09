@@ -4,6 +4,7 @@
 #include "bison-parser.h"
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 /**
  * Implementación de "bison-grammar.h".
@@ -20,13 +21,23 @@ void yyerror(const char * string) {
 	LogErrorRaw("\n\n");
 }
 
+int strl(char * name){
+    int x =0;
+    while(isalpha(name[x])){
+        x++;
+    }
+
+    return x;
+
+}
 
 tTokenNode * varnameNode(char * varname){
     tTokenNode * node = malloc(sizeof(tTokenNode));
     node->tokenId=VARNAME;
-    node->associated_value.varname = malloc(sizeof(char)*strlen(varname)+1);
+    node->associated_value.varname = malloc(sizeof(char)*strl(varname)+1);
     strcpy(node->associated_value.varname, varname);
-    printf("%s\n", varname);
+    node->associated_value.varname[strl(varname)] = 0;
+    printf("%s\n", node->associated_value.varname);
     return node;
 }
 
@@ -52,9 +63,10 @@ tTokenNode * tokenNode(int token){
     tTokenNode * node = malloc(sizeof(tTokenNode));
     node->tokenId=token;
 //    switch (token) {
-//        case
+//        case expression:
 //
 //    }
+//    printf("%d\n", token);
     return node;
 }
 

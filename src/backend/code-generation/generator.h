@@ -1,6 +1,6 @@
 #ifndef GENERATOR_HEADER
 #define GENERATOR_HEADER
-
-void Generator(int result);
+#include "../support/shared.h"
+int Generator(tProgram * result, FILE * fd);
 
 #endif

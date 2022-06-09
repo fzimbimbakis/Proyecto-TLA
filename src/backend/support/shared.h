@@ -212,10 +212,10 @@ typedef struct tFunctionCall{
  * @note Uses @subnode tClassesAndMain
  */
 typedef struct tProgram{
-    union {
+//    union {
         struct tMainFunction* mainFunction;
         struct tClassesAndMain* classesAndMain;
-    };
+//    };
 }tProgram;
 
 

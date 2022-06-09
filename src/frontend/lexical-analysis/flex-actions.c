@@ -19,7 +19,7 @@ unsigned IntegerPatternAction(const char * lexeme) {
 
 
 void IgnoredPatternAction(const char * lexeme) {
-	LogDebug("IgnoredPatternAction: '%s'.", lexeme);
+//	LogDebug("IgnoredPatternAction: '%s'.", lexeme);
 }
 
 unsigned UnknownPatternAction(const char * lexeme) {
