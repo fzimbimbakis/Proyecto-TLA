@@ -105,7 +105,15 @@ typedef struct tDataType{
  *
  * @note Uses @subnode tSubInteger
  */
+#define FACTOR_OBJECT_ATT 0
+#define FACTOR_FUNCTION_CALL 1
+#define FACTOR_VARNAME 2
+#define FACTOR_METHOD_CALL 3
+#define FACTOR_ARRAY_DESR 4
+#define FACTOR_SUB_INT 5
+#define FACTOR_INT 6
 typedef struct tFactor{
+    int type;
     union{
         struct tObjectAttribute * object_attribute;
         struct tFunctionCall * function_call;
@@ -211,11 +219,14 @@ typedef struct tFunctionCall{
  *
  * @note Uses @subnode tClassesAndMain
  */
+#define PROGRAM_MAIN 0
+#define PROGRAM_CLASS 1
 typedef struct tProgram{
-//    union {
+    int type;
+    union {
         struct tMainFunction* mainFunction;
         struct tClassesAndMain* classesAndMain;
-//    };
+    };
 }tProgram;
 
 
@@ -393,8 +404,12 @@ typedef  struct enclosedCommonIntegerExpression{
 } enclosedCommonIntegerExpression;
 
 
-
+#define INTEGER_EXPRESSION_COMMON 0
+#define INTEGER_EXPRESSION_FACTOR 1
+#define INTEGER_EXPRESSION_ENCLOSED 2
+#define INTEGER_EXPRESSION_INCREMENT_DECREMENT 3
 typedef  struct tIntegerExpression{
+    int type;
     union {
         struct commonIntegerExpression * commonIntegerExpression;
         struct tFactor * factor;
@@ -783,7 +798,17 @@ typedef struct tParameters{
  *
  * @note Uses @subnode tDeclarationWithObjectDataType for declarations with an Object as DataType
  */
+#define CHAR_DECLARATION 0
+#define INTEGER_DECLARATION 1
+#define INTEGER_ARRAY_DECLARATION 2
+#define CHAR_ARRAY_DECLARATION 3
+#define INTEGER_ASSIGNATION_DECLARATION 4
+#define CHAR_ASSIGNATION_DECLARATION_DECLARATION 5
+#define INTEGER_ARRAY_ASSIGNATION_DECLARATION 6
+#define CHAR_ARRAY_ASSIGNATION_DECLARATION 7
+#define DECLARATION_WITH_OBJECT_TYPE 8
 typedef struct tDeclaration{
+    int type;
     union {
         struct tCharDeclaration * charDeclaration;
         struct tIntDeclaration * integerDeclaration;
@@ -808,11 +833,14 @@ typedef struct tDeclaration{
    *
    * @note Uses @subnode tEmptySquareBrackets
    */
+#define CHAR_ARRAY_WITH_BRACKETS 0
+#define CHAR_ARRAY_STRING 0
    typedef struct tCharArrayAssignationDeclaration{
        struct tTokenNode * charType;
        struct tTokenNode * name;
        struct tEmptySquareBrackets * emptySquareBrackets;
        struct tTokenNode * assignation;
+       int type;
        union {
            struct tCharArrayWithBrackets * charArrayWithBrackets;
            struct tTokenNode * string;

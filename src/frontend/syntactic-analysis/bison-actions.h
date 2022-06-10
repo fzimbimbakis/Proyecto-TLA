@@ -199,14 +199,14 @@ tParameters * multiObjectParameters( char* objectType, char* paramName,
 tParameters * arrayParameters(tDataType* dataType, char * paramName,
                               int openSquareBracket, int closeSquareBracket);
 
-tParameters * multiArrayParameters(tDataType* dataType, int paramName,
+tParameters * multiArrayParameters(tDataType* dataType, char* paramName,
                                    int openSquareBracket, int closeSquareBracket,
                                    int comma, tParameters* parameters);
 
-tParameters * objectArrayParameters(int objectType, int paramName,
+tParameters * objectArrayParameters(int objectType, char* paramName,
                                     int openSquareBracket, int closeSquareBracket);
 
-tParameters * multiObjectArrayParameters(int objectType, int paramName,
+tParameters * multiObjectArrayParameters(int objectType, char* paramName,
                                          int openSquareBracket, int closeSquareBracket,
                                          int comma, tParameters* parameters) ;
 

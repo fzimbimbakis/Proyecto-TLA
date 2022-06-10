@@ -34,10 +34,11 @@ int strl(char * name){
 tTokenNode * varnameNode(char * varname){
     tTokenNode * node = malloc(sizeof(tTokenNode));
     node->tokenId=VARNAME;
-    node->associated_value.varname = malloc(sizeof(char)*strl(varname)+1);
-    strcpy(node->associated_value.varname, varname);
-    node->associated_value.varname[strl(varname)] = 0;
-    printf("%s\n", node->associated_value.varname);
+    int n = strl(varname);
+    node->associated_value.varname = malloc(sizeof(char)*n+1);
+    strncpy(node->associated_value.varname, varname, n);
+    node->associated_value.varname[n] = 0;
+//    printf("%s\n", node->associated_value.varname);
     return node;
 }
 
@@ -45,7 +46,7 @@ tTokenNode * integerNode(int intValue){
     tTokenNode * node = malloc(sizeof(tTokenNode));
     node->tokenId=INTEGER;
     node->associated_value.integerValue = intValue;
-    printf("%d\n", intValue);
+//    printf("%d\n", intValue);
     return node;
 }
 
@@ -55,7 +56,7 @@ tTokenNode * charNode(char character){
     tTokenNode * node = malloc(sizeof(tTokenNode));
     node->tokenId=CHARACTER;
     node->associated_value.charValue = character;
-    printf("%c\n", character);
+//    printf("%c\n", character);
     return node;
 }
 
@@ -76,6 +77,7 @@ tTokenNode * tokenNode(int token){
 tProgram * ProgramGrammarActionWithMain( tMainFunction * mainFunction) {
     tProgram *  newNode = malloc (sizeof (tProgram));
     newNode->mainFunction = mainFunction;
+    newNode->type = PROGRAM_MAIN;
     return newNode;
 }
 
@@ -84,6 +86,7 @@ tProgram  *  ProgramGrammarActionWithClassAndProg(tClass * class , tProgram * pr
     newNode->classesAndMain = malloc(sizeof(*(newNode->classesAndMain)));
     newNode->classesAndMain->class = class;
     newNode->classesAndMain->program = program;
+    newNode->type = PROGRAM_CLASS;
     return newNode;
 }
 ////class
@@ -105,7 +108,7 @@ tClass  * ClassGrammarAction(int class, char * varname, int openBrace ,tClassIn 
 }
 
 //
-tClass * ClassGrammarActionWithHerency(int class, char * fatherName,int extends,char * className , int openBrace ,tClassIn * classIn , int closeBrace){
+tClass * ClassGrammarActionWithHerency(int class, char * className,int extends,char * fatherName , int openBrace ,tClassIn * classIn , int closeBrace){
     tClass  * newNode = malloc(sizeof(tClass));
 
     newNode->class= tokenNode(class);
@@ -149,58 +152,66 @@ tInstantiation * instantiationGrammarAction(int  new , tFunctionCall * functionC
 tDeclaration  * charDeclarationGrammarAction(tCharDeclaration * charDeclaration ){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->charDeclaration = charDeclaration;
+    newNode->type = CHAR_DECLARATION;
     return newNode;
 }
 
 tDeclaration * integerDeclarationGrammarAction( struct tIntDeclaration * tIntegerDeclaration ){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->integerDeclaration = tIntegerDeclaration;
+    newNode->type = INTEGER_DECLARATION;
     return newNode;
 }
 
 tDeclaration * charArrayDeclarationGrammarAction( struct tCharArrayDeclaration * tCharArrayDeclaration){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->charArrayDeclaration = tCharArrayDeclaration;
+    newNode->type = CHAR_ARRAY_DECLARATION;
     return newNode;
 }
 
 tDeclaration * integerArrayDeclarationGrammarAction( struct tIntegerArrayDeclaration * tIntegerArrayDeclaration){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->integerArrayDeclaration = tIntegerArrayDeclaration;
+    newNode->type = INTEGER_ARRAY_DECLARATION;
     return newNode;
 }
 
 tDeclaration * integerAssignationDeclarationGrammarAction( struct tIntegerAssignationDeclaration * tIntegerAssignationDeclaration){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->integerAssignationDeclaration = tIntegerAssignationDeclaration;
+    newNode->type = INTEGER_ASSIGNATION_DECLARATION;
     return newNode;
 }
 
 tDeclaration * charAssignationDeclarationGrammarAction( struct tCharAssignationDeclaration * tCharAssignationDeclaration){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->charAssignationDeclaration= tCharAssignationDeclaration;
+    newNode->type = CHAR_ASSIGNATION_DECLARATION_DECLARATION;
     return newNode;
 }
 
 tDeclaration * integerArrayAssignationDeclaration( tIntegerArrayAssignationDeclaration * IntegerArrayAssignationDeclaration){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->integerArrayAssignationDeclaration= IntegerArrayAssignationDeclaration;
+    newNode->type = CHAR_ARRAY_ASSIGNATION_DECLARATION;
     return newNode;
 }
 
 tDeclaration * charArrayAssignationDeclarationGrammarAction(  tCharArrayAssignationDeclaration * CharArrayAssignationDeclaration){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->charArrayAssignationDeclaration = CharArrayAssignationDeclaration;
+    newNode->type = CHAR_ARRAY_ASSIGNATION_DECLARATION;
     return newNode;
 }
 
-//
 tDeclaration * declarationWithObjectDataTypeGrammarActionBasic(char* name, char* datatype, int semicolon){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->declarationAux = malloc(sizeof(*(newNode->declarationAux)));
     newNode->declarationAux->name = varnameNode(name);
     newNode->declarationAux->objectDataType = varnameNode(datatype);
     newNode->declarationAux->semicolon = tokenNode(semicolon);
+    newNode->type = DECLARATION_WITH_OBJECT_TYPE;
     return newNode;
 }
 tDeclaration * declarationWithObjectDataTypeGrammarActionMethodFunction(char * name, char * datatype, int assignation, void * call, int semicolon){
@@ -214,6 +225,7 @@ tDeclaration * declarationWithObjectDataTypeGrammarActionMethodFunction(char * n
             sizeof(*(newNode->declarationAux->assignationWithMethodFunctionInstantiation->auxStructForMethodCallFunctionCall)));
     newNode->declarationAux->assignationWithMethodFunctionInstantiation->auxStructForMethodCallFunctionCall->functionCall = call;
     newNode->declarationAux->assignationWithMethodFunctionInstantiation->auxStructForMethodCallFunctionCall->semicolon = tokenNode(semicolon);
+    newNode->type = DECLARATION_WITH_OBJECT_TYPE;
     return newNode;
 }
 //
@@ -225,6 +237,7 @@ tDeclaration * declarationWithObjectDataTypeGrammarActionInstantiation(char* nam
     newNode->declarationAux->assignationWithMethodFunctionInstantiation = malloc(sizeof(*(newNode->declarationAux->assignationWithMethodFunctionInstantiation)));
     newNode->declarationAux->assignationWithMethodFunctionInstantiation->instantiation = instantiation;
     newNode->declarationAux->assignationWithMethodFunctionInstantiation->assignation = tokenNode(assignation);
+    newNode->type = DECLARATION_WITH_OBJECT_TYPE;
     return newNode;
 }
 tDeclaration * declarationWithObjectDataTypeGrammarActionArrayNoSize(char * name, char * datatype, int openSQ, int closeSQ, int semicolon){
@@ -236,6 +249,7 @@ tDeclaration * declarationWithObjectDataTypeGrammarActionArrayNoSize(char * name
     newNode->declarationAux->emptySquareBrackets->closeSquareBracket = tokenNode(closeSQ);
     newNode->declarationAux->emptySquareBrackets->openSquareBracket = tokenNode(openSQ);
     newNode->declarationAux->emptySquareBrackets->semicolon = tokenNode(semicolon);
+    newNode->type = DECLARATION_WITH_OBJECT_TYPE;
     return newNode;
 }
 
@@ -250,6 +264,7 @@ tDeclaration * declarationWithObjectDataTypeGrammarActionArrayWithSize(char* nam
     newNode->declarationAux->squareBracketsWithSize->closeSquareBracket = tokenNode(closeSQ);
     newNode->declarationAux->squareBracketsWithSize->openSquareBracket = tokenNode(openSQ);
     newNode->declarationAux->squareBracketsWithSize->semicolon = tokenNode(semicolon);
+    newNode->type = DECLARATION_WITH_OBJECT_TYPE;
     return newNode;
 }
 
@@ -304,6 +319,7 @@ tCharArrayAssignationDeclaration * charArrayAssignationDeclarationRuleGrammarAct
     arrayWithBrackets->openBrace = tokenNode(openBrace);
     arrayWithBrackets->characterArray = characterArray;
     arrayWithBrackets->closeBrace = tokenNode(closeBrace);
+    newNode->type = CHAR_ARRAY_WITH_BRACKETS;
     newNode->charArrayWithBrackets = arrayWithBrackets;
     newNode->semicolon = tokenNode(semicolon);
     return newNode;
@@ -318,6 +334,7 @@ tCharArrayAssignationDeclaration  * charArrayAssignationDeclarationRule2GrammarA
     emptySquareBrackets->closeSquareBracket = tokenNode(closeSquareBracket);
     newNode->emptySquareBrackets = emptySquareBrackets;
     newNode->assignation = tokenNode(assignation);
+    newNode->type = CHAR_ARRAY_STRING;
     newNode->string = varnameNode(string);
     newNode -> semicolon = tokenNode(semicolon);
     return newNode;
@@ -796,7 +813,7 @@ tParameters * arrayParameters(tDataType* dataType, char * paramName,
     return newNode;
 }
 
-tParameters * multiArrayParameters(tDataType* dataType, int paramName,
+tParameters * multiArrayParameters(tDataType* dataType, char * paramName,
                               int openSquareBracket, int closeSquareBracket,
                               int comma, tParameters* parameters){
     tParameters * newNode= arrayParameters(dataType, paramName, openSquareBracket, closeSquareBracket);
@@ -806,7 +823,7 @@ tParameters * multiArrayParameters(tDataType* dataType, int paramName,
     return newNode;
 }
 
-tParameters * objectArrayParameters(int objectType, int paramName,
+tParameters * objectArrayParameters(int objectType, char * paramName,
                               int openSquareBracket, int closeSquareBracket){
     tParameters * newNode= objectParameters(objectType,paramName);
     newNode->squareBrackets= malloc(sizeof(tEmptySquareBrackets));
@@ -815,7 +832,7 @@ tParameters * objectArrayParameters(int objectType, int paramName,
     return newNode;
 }
 
-tParameters * multiObjectArrayParameters(int objectType, int paramName,
+tParameters * multiObjectArrayParameters(int objectType, char * paramName,
                                     int openSquareBracket, int closeSquareBracket,
                                     int comma, tParameters* parameters) {
     tParameters * newNode= objectArrayParameters(objectType,paramName, openSquareBracket, closeSquareBracket);
@@ -1109,12 +1126,14 @@ tIntegerExpression * integerExpressionCommon(tIntegerExpression * integerExpress
     integerExpression->commonIntegerExpression->leftIntegerExpression = integerExpression1;
     integerExpression->commonIntegerExpression->operator = tokenNode(operator);
     integerExpression->commonIntegerExpression->rightIntegerExpression = integerExpression2;
+    integerExpression->type = INTEGER_EXPRESSION_COMMON;
     return integerExpression;
 }
 //
 tIntegerExpression  * integerExpressionFactor(tFactor * factor){
     tIntegerExpression * integerExpression = malloc(sizeof(tIntegerExpression));
     integerExpression->factor = factor;
+    integerExpression->type = INTEGER_EXPRESSION_FACTOR;
     return integerExpression;
 }
 //
@@ -1123,6 +1142,7 @@ tIntegerExpression * integerExpressionIncrementDecrement(tIntegerExpression * ex
     integerExpression->decrementIncrementIntegerExpression = malloc(sizeof(*(integerExpression->decrementIncrementIntegerExpression)));
     integerExpression->decrementIncrementIntegerExpression->leftIntegerExpression = expression;
     integerExpression->decrementIncrementIntegerExpression->operator = tokenNode(operator);
+    integerExpression->type = INTEGER_EXPRESSION_INCREMENT_DECREMENT;
     return integerExpression;
 }
 //
@@ -1132,6 +1152,7 @@ tIntegerExpression * integerExpressionEnclosed(int openP, tIntegerExpression * e
     integerExpression->enclosedCommonIntegerExpression->openParenthesis = tokenNode(openP);
     integerExpression->enclosedCommonIntegerExpression->integerExpression = expression;
     integerExpression->enclosedCommonIntegerExpression->closeParenthesis = tokenNode(closeP);
+    integerExpression->type = INTEGER_EXPRESSION_ENCLOSED;
     return integerExpression;
 }
 
@@ -1139,34 +1160,39 @@ tIntegerExpression * integerExpressionEnclosed(int openP, tIntegerExpression * e
  * @section
  * factor
  */
- //
+
  tFactor * factorObjectAttribute(tObjectAttribute * objectAttribute){
     tFactor * factor = malloc(sizeof(tFactor));
     factor->object_attribute = objectAttribute;
+    factor->type = FACTOR_OBJECT_ATT;
     return factor;
  }
  //
 tFactor * factorFunctionCall(tFunctionCall * functionCall){
     tFactor * factor = malloc(sizeof(tFactor));
     factor->function_call = functionCall;
+     factor->type = FACTOR_FUNCTION_CALL;
     return factor;
 }
 //
 tFactor * factorMethodCall(tMethodCall * methodCall){
     tFactor * factor = malloc(sizeof(tFactor));
     factor->method_call = methodCall;
+    factor->type = FACTOR_METHOD_CALL;
     return factor;
 }
 //
 tFactor * factorVarname(char * varname){
     tFactor * factor = malloc(sizeof(tFactor));
     factor->varname = varnameNode(varname);
+    factor->type = FACTOR_VARNAME;
     return factor;
 }
 //
 tFactor * factorArrayDesreferencing(tArrayDesreferencing * arrayDesreferencing){
     tFactor * factor = malloc(sizeof(tFactor));
     factor->array_desreferencing = arrayDesreferencing;
+    factor->type = FACTOR_ARRAY_DESR;
     return factor;
 }
 //
@@ -1176,12 +1202,14 @@ tFactor * factorSubInteger(int sub, int integer){
     subInteger->integer = integerNode(integer);
     subInteger->sub = tokenNode(sub);
     factor->subInteger = subInteger;
+    factor->type = FACTOR_SUB_INT;
     return factor;
 }
 //
 tFactor * factorInteger(int integer){
     tFactor * factor = malloc(sizeof(tFactor));
     factor->integer = integerNode(integer);
+    factor->type = FACTOR_INT;
     return factor;
 }
 
@@ -1193,6 +1221,7 @@ tFactor * factorInteger(int integer){
 tObjectAttribute * objectAttributeFromVarname(char * object, int point, char * attributeName){
     tObjectAttribute * objectAttribute = malloc(sizeof(tObjectAttribute));
     objectAttribute->varnameLeft = varnameNode(object);
+    //// Falta tipo de varnameLeft acá?
     objectAttribute->point = tokenNode(point);
     objectAttribute->varnameRight = varnameNode(attributeName);
     return objectAttribute;

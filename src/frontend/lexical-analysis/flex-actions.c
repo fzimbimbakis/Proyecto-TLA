@@ -7,7 +7,7 @@
  */
 
 unsigned IntegerPatternAction(const char * lexeme) {
-	LogDebug("IntegerPatternAction: '%s'.", lexeme);
+//	LogDebug("IntegerPatternAction: '%s'.", lexeme);
 //	yylval = atoi(lexeme);
 	return INTEGER;
 }

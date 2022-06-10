@@ -109,6 +109,7 @@
 %type <IntegerArrayAssignationDeclaration> integer_array_assignation_declaration
 %type <Assignation> assignation
 %type <Function> function
+%type <Function> constructor_function
 %type <Parameters> parameters
 %type <Declaration> declaration
 %type <IntegerExpression> integer_expression
@@ -168,8 +169,8 @@
 %%
 
 //
-program: main_function { state.succeed = true;  state.result = 1; state.root = ProgramGrammarActionWithMain($1); }
- | class program {state.succeed = true ;  state.result = 1; state.root = ProgramGrammarActionWithClassAndProg($1,$2); };
+program: main_function { state.succeed = true;  state.result = 1; state.root = ProgramGrammarActionWithMain($1); $$ = state.root; }
+ | class program {state.succeed = true ;  state.result = 1; state.root = ProgramGrammarActionWithClassAndProg($1,$2); $$ = state.root; };
 
 //
 class: CLASS VARNAME OPEN_BRACE  class_in CLOSE_BRACE  {$$ = ClassGrammarAction($1, $2, $3 ,$4 ,$5);}
@@ -347,8 +348,9 @@ function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BR
 ;
 
 //
-constructor: CONSTRUCTOR function { $$ = constructor($1, $2); };
+constructor: CONSTRUCTOR constructor_function { $$ = constructor($1, $2); };
 
+constructor_function: VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE { $$ = functionRuleNoType($1, $2, $3, $4, $5, $6, $7); };
 
 declarations: declaration declarations { $$ = declarations($1, $2); }
 | /* empty */ { $$ = NULL; }

@@ -13,7 +13,11 @@ const int main(const int argumentCount, const char ** arguments) {
 	state.result = 0;
 	state.succeed = false;
 
-    FILE * file = fopen("result.c", "w");
+    FILE * file;
+    if(argumentCount > 1)
+        file = fopen(arguments[1], "w");
+    else
+        file = fopen("result.c", "w");
 
 	// Mostrar parámetros recibidos por consola.
 	for (int i = 0; i < argumentCount; ++i) {
