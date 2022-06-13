@@ -10,7 +10,6 @@
 	tTokenNode* TokenNode;
 	tDataType* DataType;
 	tFactor* Factor;
-	tValue* Value;
 	tArgumentValues* ArgumentValues;
 	tFunctionCall* FunctionCall;
 	tProgram* Program;
@@ -68,7 +67,6 @@
 
 %type <DataType> datatype
 %type <Factor> factor
-%type <Value> value
 %type <ArgumentValues> argument_values
 %type <FunctionCall> function_call
 %type <Program> program
@@ -262,19 +260,19 @@ char_array_declaration: CHAR VARNAME OPEN_SQUARE_BRACKET integer_expression CLOS
 **************/
 
 
-assignation: VARNAME ASSIGNATION value SEMICOLON {$$ = assignationGrammarAction($1,$2,$3,$4);}
+assignation: VARNAME ASSIGNATION generic_value SEMICOLON {$$ = assignationGrammarAction($1,$2,$3,$4);}
 | VARNAME ASSIGNATION instantiation  {$$ = assignationRule2GrammarAction($1,$2,$3);}
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE generic_value_array CLOSE_BRACE SEMICOLON {$$ = assignationRule3GrammarAction($1,$2,$3,$4,$5,$6,$7,$8);}
 | VARNAME OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON {$$ = assignationRule4GrammarAction( $1,$2,$3,$4,$5,$6);}
 | array_assignation {$$ = assignationRule5GrammarAction($1);}
-| object_attribute ASSIGNATION value SEMICOLON {$$ = assignationRule6GrammarAction($1,$2,$3,$4);}
+| object_attribute ASSIGNATION generic_value SEMICOLON {$$ = assignationRule6GrammarAction($1,$2,$3,$4);}
 | object_attribute ASSIGNATION instantiation {$$ = assignationRule7GrammarAction($1,$2,$3);}
 | object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION OPEN_BRACE generic_value_array CLOSE_BRACE SEMICOLON { $$ =  assignationRule8GrammarAction($1,$2,$3,$4,$5,$6,$7,$8);}
 | object_attribute OPEN_SQUARE_BRACKET CLOSE_SQUARE_BRACKET ASSIGNATION STRING SEMICOLON { $$ =  assignationRule9GrammarAction($1,$2,$3,$4,$5,$6);}
 ;
 
 
-value: generic_value
+//value: generic_value
 //integer_expression { $$ =  valueSingle($1);}
 //| CHARACTER { $$ =  valueSingleCharacter($1);}
 //| STRING { $$ =  valueSingleString($1);}
@@ -294,7 +292,7 @@ CHARACTER { $$ =  genericValueCharacter($1);}
 | method_call { $$ =  genericValue($1);}
 | VARNAME { $$ =  genericValueVarname($1);}
 | array_desreferencing { $$ =  genericValue($1);}
-| integer_expression { $$ =  valueSingle($1);}
+| integer_expression { $$ =  genericValueIntegerExpression($1);}
 //| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4);};
 //| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6);}
 ;
@@ -311,8 +309,8 @@ char_value: CHARACTER { $$ =  charValueCharacter($1);}
 ;
 
 
-array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = arrayAssignationValueA($1, $2, $3, $4, $5, $6, $7);}
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION value SEMICOLON { $$ = arrayAssignationValueB($1, $2, $3, $4, $5, $6, $7);}
+array_assignation: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION generic_value SEMICOLON { $$ = arrayAssignationValueA($1, $2, $3, $4, $5, $6, $7);}
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION generic_value SEMICOLON { $$ = arrayAssignationValueB($1, $2, $3, $4, $5, $6, $7);}
 | object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation { $$ = arrayAssignationSemicolonB($1, $2, $3, $4, $5, $6);}
 | VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET ASSIGNATION instantiation { $$ = arrayAssignationSemicolonA($1, $2, $3, $4, $5, $6);}
 ;
@@ -380,12 +378,12 @@ logical_operator: AND { $$ = logicalOperator($1);}
 ;
 
 
-comparation: value comparison_operator value { $$ = comparation($1, $2, $3);}
+comparation: generic_value comparison_operator generic_value { $$ = comparation($1, $2, $3);}
 ;
 
 
 condition_unit: comparation { $$ = conditionUnitComparation($1);}
-| value logical_operator value { $$ = conditionUnitValOpVal($1,$2,$3);}
+| generic_value logical_operator generic_value { $$ = conditionUnitValOpVal($1,$2,$3);}
 | comparation logical_operator condition_unit { $$ = conditionUnitCompOpCond($1, $2, $3);}
 | condition { $$ = simpleConditionUnit($1);}
 ;
@@ -410,8 +408,8 @@ if: IF condition clause { $$ = If($1,$2,$3);}
 
 
 
-argument_values: value {$$ = argumentValuesSingle($1);}
-| value COMMA argument_values {$$ = argumentValuesPlural($1, $2, $3);}
+argument_values: generic_value {$$ = argumentValuesSingle($1);}
+| generic_value COMMA argument_values {$$ = argumentValuesPlural($1, $2, $3);}
 | /* empty */ {$$ = NULL ;}
 ;
 
@@ -435,7 +433,7 @@ array_desreferencing: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUAR
 ;
 
 
-return: RETURN value SEMICOLON {$$ = returnRuleValue($1, $2, 0, $3);}
+return: RETURN generic_value SEMICOLON {$$ = returnRuleValue($1, $2, 0, $3);}
 | RETURN condition_unit SEMICOLON {$$ = returnRuleValue($1, $2, 1, $3);}
 | RETURN SEMICOLON {$$ = returnRuleNoValue($1, $2);}
 ;

@@ -111,7 +111,7 @@ tCharArrayDeclaration * charArrayDeclarationRuleGrammarAction(int charReserved ,
 
 tCharArrayDeclaration * charArrayDeclarationRule2GrammarAction(int charReserved , char * varname , int openSquareBracket, int closeSquareBracket, int semicolon);
 ////assignation
-tAssignation  * assignationGrammarAction(char * varname, int assignation , tValue * value , int semicolon);
+tAssignation  * assignationGrammarAction(char * varname, int assignation , tGenericValue * value , int semicolon);
 
 
 tAssignation  * assignationRule2GrammarAction(char * varname, int assignation , tInstantiation * instantiation);
@@ -125,7 +125,7 @@ tAssignation  * assignationRule4GrammarAction(char * varname , int openSquareBra
 tAssignation  * assignationRule5GrammarAction(tArrayAssignation* arrayAssignation);
 
 tAssignation  * assignationRule6GrammarAction(tObjectAttribute* objectAttribute, int assignation,
-                                              tValue* value, int semicolon);
+                                              tGenericValue* value, int semicolon);
 
 tAssignation  * assignationRule7GrammarAction(tObjectAttribute* objectAttribute, int assignation,
                                               tInstantiation* instantiation);
@@ -139,12 +139,12 @@ tAssignation  * assignationRule9GrammarAction(tObjectAttribute* objectAttribute,
  * @section
  * value
  */
-tValue * valueSingle(void * value);
-tValue * valueSingleCharacter(char value);
-tValue * valueSingleString(char * value);
-tValue * valueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket);
-tValue * valueObjectAttributeDesreferencingAttribute(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * varname);
-
+tGenericValue * valueSingle(void * value);
+tGenericValue * valueSingleCharacter(char value);
+tGenericValue * valueSingleString(char * value);
+tGenericValue * valueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket);
+tGenericValue * valueObjectAttributeDesreferencingAttribute(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * varname);
+tGenericValue * genericValueIntegerExpression(tIntegerExpression * integerExpression);
 /**
  * @section
  * generic_value_array
@@ -171,8 +171,8 @@ tCharValue * charValueVarname(char * value);
  * @section
  * array_assignation
  */
-tArrayAssignation * arrayAssignationValueA(char * name, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int assignation, tValue* value, int semicolon);
-tArrayAssignation * arrayAssignationValueB(tObjectAttribute * name, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int assignation, tValue* value, int semicolon);
+tArrayAssignation * arrayAssignationValueA(char * name, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int assignation, tGenericValue* value, int semicolon);
+tArrayAssignation * arrayAssignationValueB(tObjectAttribute * name, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int assignation, tGenericValue* value, int semicolon);
 tArrayAssignation * arrayAssignationSemicolonA(char * name, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int assignation, tInstantiation* instantiation);
 tArrayAssignation * arrayAssignationSemicolonB(tObjectAttribute * name, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int assignation, tInstantiation* instantiation);
 
@@ -245,13 +245,13 @@ tComparisonOperator * comparisonOperator(int token);
 ////logical_operator
 tLogicalOperator * logicalOperator(int tokenId);
 ////comparation
-tComparation * comparation(tValue* lValue, tComparisonOperator* comparisonOperator,
-                           tValue* rValue);
+tComparation * comparation(tGenericValue* lValue, tComparisonOperator* comparisonOperator,
+                           tGenericValue* rValue);
 ////condition_unit
 tConditionUnit * simpleConditionUnit(tCondition* condition);
 
-tConditionUnit * conditionUnitValOpVal(tValue* lValue, struct tLogicalOperator* logicalOperator,
-                                       tValue* rValue);
+tConditionUnit * conditionUnitValOpVal(tGenericValue* lValue, struct tLogicalOperator* logicalOperator,
+                                       tGenericValue* rValue);
 
 tConditionUnit * conditionUnitCompOpCond(tComparation* comparation,tLogicalOperator* logicalOperator,
                                          tConditionUnit* conditionUnit);
@@ -280,9 +280,9 @@ tIf* IfElse(int ifToken, struct tCondition* condition, tClause* ifClause, int el
  * argument_values
  */
 //
-tArgumentValues * argumentValuesSingle(tValue * value);
+tArgumentValues * argumentValuesSingle(tGenericValue * value);
 //
-tArgumentValues * argumentValuesPlural(tValue * value, int comma, tArgumentValues * argumentValues1);
+tArgumentValues * argumentValuesPlural(tGenericValue * value, int comma, tArgumentValues * argumentValues1);
 
 /**
  * @section

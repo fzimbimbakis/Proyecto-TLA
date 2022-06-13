@@ -149,21 +149,21 @@ typedef struct tFactor{
  *
  * @note Uses @subnode tObjectAttributeDesreferencing
  */
- enum tValueType{
-     VALUE_CHARACTER,
-     VALUE_STRING,
-     VALUE_INTEGER_EXPRESSION,
-     VALUE_OBJECT_ATTRIBUTE_DESREFERENCING
- };
-typedef struct tValue{
-    int type;
-    union {
-        struct tTokenNode * character;
-        struct tTokenNode * string;
-        struct tIntegerExpression * integerExpression;
-        struct tObjectAttributeDesreferencing * objectAttributeDesreferencing;
-    };
-}tValue;
+// enum tValueType{
+//     VALUE_CHARACTER,
+//     VALUE_STRING,
+//     VALUE_INTEGER_EXPRESSION,
+//     VALUE_OBJECT_ATTRIBUTE_DESREFERENCING
+// };
+//typedef struct tValue{
+//    int type;
+//    union {
+//        struct tTokenNode * character;
+//        struct tTokenNode * string;
+//        struct tIntegerExpression * integerExpression;
+//        struct tObjectAttributeDesreferencing * objectAttributeDesreferencing;
+//    };
+//}tValue;
 
 /**
  * @subnode Object Attribute Desreferencing
@@ -202,7 +202,7 @@ typedef struct tInnerAttribute{
  * @note Uses @subnode tCommaNextArgumentValue
  */
 typedef struct tArgumentValues{
-    struct tValue * value;
+    struct tGenericValue * value;
     struct tCommaNextArgumentValue * commaNextArgumentValue;
 }tArgumentValues;
 /**
@@ -373,7 +373,8 @@ enum tGenericValueType{
     GENERIC_VALUE_METHOD_CALL,
     GENERIC_VALUE_FUNCTION_CALL,
     GENERIC_VALUE_VARNAME,
-    GENERIC_VALUE_ARRAY_DESREFERENCING
+    GENERIC_VALUE_ARRAY_DESREFERENCING,
+    GENERIC_VALUE_INTEGER_EXPRESSION
 };
 
 typedef struct tGenericValue{
@@ -386,6 +387,7 @@ typedef struct tGenericValue{
         struct tMethodCall* methodCall;
         struct tTokenNode* varname;
         struct tArrayDesreferencing* arrayDesreferencing;
+        struct tIntegerExpression * integerExpression;
     };
 }tGenericValue;
 
@@ -415,7 +417,7 @@ typedef struct tReturn{
     enum tReturnType type;
     struct tTokenNode * returnToken ;
     union valueUnion{
-        struct tValue * value;
+        struct tGenericValue * value;
         struct tConditionUnit * conditionUnit;
     }valueUnion;
     struct tTokenNode *  semicolon;
@@ -581,9 +583,9 @@ typedef struct tClause{
 }tClause;
 
 typedef struct tComparation{
-    struct tValue* lValue;
+    struct tGenericValue* lValue;
     struct tComparisonOperator* comparisonOperator;
-    struct tValue* rValue;
+    struct tGenericValue* rValue;
 }tComparation;
 
 typedef struct tLogicalOperator{
@@ -639,9 +641,9 @@ typedef struct tConditionUnit{
 }tConditionUnit;
 
 typedef struct tValueComparatorValue{
-    struct tValue* lValue;
+    struct tGenericValue* lValue;
     struct tLogicalOperator* logicalOperator;
-    struct tValue* rValue;
+    struct tGenericValue* rValue;
 }tValueComparatorValue;
 
 typedef struct tLogicalComparationUnit{
@@ -1085,6 +1087,9 @@ typedef struct tSquareBracketsWithSize{
  *
  * Used in @subnode tDeclarationWithObjectDataType
  */
+
+
+
 typedef struct tAssignationWithMethodFunctionInstantiation{
     struct tTokenNode * assignation;
     union {

@@ -41,7 +41,7 @@ void ArrayParameters(tParameters * parameters);
 void MultiArrayParameters(tParameters * parameters);
 void ObjectArrayParameters(tParameters * parameters);
 void MultiObjectArrayParameters(tParameters * parameters );
-void Value(tValue * value);
+//void Value(tValue * value);
 void ArgumentValues(tArgumentValues * argumentValues);
 void If(tIf * if_node);
 void Assignation(tAssignation * assignation);
@@ -202,6 +202,24 @@ if(DECLARATION_WITH_OBJECT_TYPE == declaration->type){
 void DeclarationWithObjectType(tDeclarationWithObjectDataType * declarationWithObjectDataType){
     fprintf(fd,"%s ",declarationWithObjectDataType->objectDataType->associated_value.varname);
     fprintf(fd,"%s ", declarationWithObjectDataType->name->associated_value.varname);
+    switch (declarationWithObjectDataType->type) {
+        case  ONLY_DECLARATION:
+            fprintf(fd,";\n");
+            break;
+        case  ARRAY_ONLY_DECLARATION:
+            fprintf(fd,"[];\n");
+            break;
+        case  ARRAY_WITH_INDEX_DECLARATION:
+            fprintf(fd,"[");
+            IntegerExpression(declarationWithObjectDataType->squareBracketsWithSize->size);
+            fprintf(fd,"];\n");
+            break;
+        case  INSTANTIATION:
+            fprintf(fd," = ");
+            Instantiation(declarationWithObjectDataType->assignationWithMethodFunctionInstantiation->instantiation);
+            break;
+
+    }
 
 }
 
@@ -390,7 +408,7 @@ void FunctionCall(tFunctionCall * objectAttribute){
 void ArgumentValues(tArgumentValues * argumentValues){
     if(argumentValues == NULL)
         return;
-    Value(argumentValues->value);
+    GenericValue(argumentValues->value);
     if(argumentValues->commaNextArgumentValue!=NULL){
         fprintf(fd,",");
         ArgumentValues(argumentValues->commaNextArgumentValue->nextArgument);
@@ -539,9 +557,9 @@ void LogicalOperator(tLogicalOperator * logicalOperator){
 
 
 void Comparation(tComparation * comparation){
-    Value(comparation->lValue);
+    GenericValue(comparation->lValue);
     ComparisonOperator(comparation->comparisonOperator);
-    Value(comparation->rValue);
+    GenericValue(comparation->rValue);
 }
 
 void ConditionUnit(tConditionUnit * conditionUnit){
@@ -551,9 +569,9 @@ void ConditionUnit(tConditionUnit * conditionUnit){
             break;
         }
         case CUT_VALUE_COMPARATOR_VALUE:{
-            Value(conditionUnit->valueComparatorValue->lValue);
+            GenericValue(conditionUnit->valueComparatorValue->lValue);
             LogicalOperator(conditionUnit->valueComparatorValue->logicalOperator);
-            Value(conditionUnit->valueComparatorValue->rValue);
+            GenericValue(conditionUnit->valueComparatorValue->rValue);
             break;
         }
         case CUT_LOGICAL_COMPARATION_UNIT:{
@@ -573,29 +591,29 @@ void ConditionUnit(tConditionUnit * conditionUnit){
     }
 }
 
-void Value(tValue * value){
-    switch (value->type) {
-        case VALUE_CHARACTER:{
-            fprintf(fd, "'%c'", value->character->associated_value.charValue);
-            break;
-        }
-        case VALUE_STRING:{
-            fprintf(fd, "\"%s\"", value->string->associated_value.varname);
-            break;
-        }
-        case VALUE_INTEGER_EXPRESSION:{
-            IntegerExpression(value->integerExpression);
-            break;
-        }
-        case VALUE_OBJECT_ATTRIBUTE_DESREFERENCING:{
-            ObjectAttribute(value->objectAttributeDesreferencing->objectAttribute);
-            fprintf(fd, "[");
-            IntegerExpression(value->objectAttributeDesreferencing->index);
-            fprintf(fd, "]->%s", value->objectAttributeDesreferencing->pointInnerAtributte->innerAttributeName->associated_value.varname);
-            break;
-        }
-    }
-}
+//void Value(tValue * value){
+//    switch (value->type) {
+//        case VALUE_CHARACTER:{
+//            fprintf(fd, "'%c'", value->character->associated_value.charValue);
+//            break;
+//        }
+//        case VALUE_STRING:{
+//            fprintf(fd, "\"%s\"", value->string->associated_value.varname);
+//            break;
+//        }
+//        case VALUE_INTEGER_EXPRESSION:{
+//            IntegerExpression(value->integerExpression);
+//            break;
+//        }
+//        case VALUE_OBJECT_ATTRIBUTE_DESREFERENCING:{
+//            ObjectAttribute(value->objectAttributeDesreferencing->objectAttribute);
+//            fprintf(fd, "[");
+//            IntegerExpression(value->objectAttributeDesreferencing->index);
+//            fprintf(fd, "]->%s", value->objectAttributeDesreferencing->pointInnerAtributte->innerAttributeName->associated_value.varname);
+//            break;
+//        }
+//    }
+//}
 
 void WhileLoop(tWhileLoop * whileLoop){
     fprintf(fd, "while(");
@@ -636,7 +654,7 @@ void ArrayAssignation(tArrayAssignation * assignation){
     fprintf(fd, " ] = ");
     switch(assignation->typeAssignatedValue){
         case ARRAY_ASSIG_VALUE_SEMICOLON:
-            Value(assignation->valueSemicolon->value);
+            GenericValue(assignation->valueSemicolon->value);
             break;
         case ARRAY_ASSIG_INSTANTIATION:
             Instantiation(assignation->instantiation);
@@ -714,7 +732,7 @@ void SuperSubnode(tSuperSubnode * subnode){
             switch (subnode->simpleAssignationSubnode->type)
             {
             case SIMPLE_ASSIG_SUB_NODE_ARRAY_VALUE_SEMICOLON:{
-                Value(subnode->simpleAssignationSubnode->arrayValueSemicolon->value);
+                GenericValue(subnode->simpleAssignationSubnode->arrayValueSemicolon->value);
                 fprintf(fd, ";\n");
                 break;
             }
@@ -748,7 +766,7 @@ void Return(tReturn * return_node){
             ConditionUnit(return_node->valueUnion.conditionUnit);
             break;
         case RETURN_VALUE:
-            Value(return_node->valueUnion.value);
+            GenericValue(return_node->valueUnion.value);
             break;
         case RETURN_VOID:
             break;
