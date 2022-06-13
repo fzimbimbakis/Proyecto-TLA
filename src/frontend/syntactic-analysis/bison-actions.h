@@ -70,6 +70,8 @@ tDeclaration * declarationWithObjectDataTypeGrammarActionBasic(char* name, char*
 tDeclaration * declarationWithObjectDataTypeGrammarActionInstantiation(char* name, char* datatype, int assignation, tInstantiation* instantiation);
 tDeclaration * declarationWithObjectDataTypeGrammarActionArrayNoSize(char * name, char * datatype, int openSQ, int closeSQ, int semicolon);
 
+tDeclaration * declarationWithObjectDataTypeGrammarActionMethodFunction(char * name, char * datatype, int assignation, void * call, int semicolon);
+
 //
 tDeclaration * declarationWithObjectDataTypeGrammarActionArrayWithSize(char* name, char* datatype, int openSQ, tIntegerExpression* integerExpression, int closeSQ, int semicolon);
 
@@ -122,6 +124,8 @@ tAssignation  * assignationRule4GrammarAction(char * varname , int openSquareBra
 
 tAssignation  * assignationRule5GrammarAction(tArrayAssignation* arrayAssignation);
 
+tAssignation  * assignationRule6GrammarAction(tObjectAttribute* objectAttribute, int assignation,
+                                              tValue* value, int semicolon);
 
 tAssignation  * assignationRule7GrammarAction(tObjectAttribute* objectAttribute, int assignation,
                                               tInstantiation* instantiation);
@@ -136,8 +140,8 @@ tAssignation  * assignationRule9GrammarAction(tObjectAttribute* objectAttribute,
  * value
  */
 tValue * valueSingle(void * value);
-tValue * valueSingleCharacter(char * value);
-tValue * valueSingleString(char value);
+tValue * valueSingleCharacter(char value);
+tValue * valueSingleString(char * value);
 tValue * valueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket);
 tValue * valueObjectAttributeDesreferencingAttribute(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * varname);
 
@@ -199,16 +203,19 @@ tParameters * multiObjectParameters( char* objectType, char* paramName,
 tParameters * arrayParameters(tDataType* dataType, char * paramName,
                               int openSquareBracket, int closeSquareBracket);
 
-tParameters * multiArrayParameters(tDataType* dataType, int paramName,
+tParameters * multiArrayParameters(tDataType* dataType, char * paramName,
                                    int openSquareBracket, int closeSquareBracket,
                                    int comma, tParameters* parameters);
 
-tParameters * objectArrayParameters(int objectType, int paramName,
+tParameters * objectArrayParameters(char * objectType, char * paramName,
                                     int openSquareBracket, int closeSquareBracket);
 
-tParameters * multiObjectArrayParameters(int objectType, int paramName,
+tParameters * objectArrayParameters(char * objectType, char * paramName,
+                                    int openSquareBracket, int closeSquareBracket);
+
+tParameters * multiObjectArrayParameters(char *  objectType, char * paramName,
                                          int openSquareBracket, int closeSquareBracket,
-                                         int comma, tParameters* parameters) ;
+                                         int comma, tParameters* parameters);
 
 /**
  * @section
@@ -221,8 +228,9 @@ tMainFunction * mainFunctionRule(int integerType, int main, int openP, tParamete
  * @section
  * function
  */
+tFunction * functionRule3GrammarAction(char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
 tFunction * functionRuleWithType(void * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
-tFunction * functionRuleNoType(char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
+tFunction * functionRuleNoType(int voidToken , char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
 ////constructor
 tConstructor * constructor(int constructor, tFunction* function);
 ////declarations
