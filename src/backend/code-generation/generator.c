@@ -8,7 +8,7 @@
 int recursiveProgram(tProgram * program);//
 int Class(tClass * class);//
 void Methods(tMethods * methods);
-int Main(tMainFunction * mainFunction);
+void Main(tMainFunction * mainFunction);
 int Attributes(tAttributes * attributes);
 int Constructor(tConstructor * attributes);
 int MethodsRecursive(tMethods * attributes);
@@ -48,6 +48,7 @@ void Assignation(tAssignation * assignation);
 void Instantiation(tInstantiation * instantiation);
 void Return(tReturn * return_node);
 void ArrayAssignation(tArrayAssignation * assignation);
+void GenericValue(tGenericValue* genericValue);
 
 
 void Methods(tMethods * methods);
@@ -81,8 +82,12 @@ void IntegerAssignationDeclaration(tIntegerAssignationDeclaration* integerAssign
 }
 
 void CharAssignationDeclaration(tCharAssignationDeclaration* charAssignationDeclaration) {
-
+    fprintf(fd, " char %s =", charAssignationDeclaration->varname->associated_value.varname);
+    CharValue(charAssignationDeclaration->charValue);
+    fprintf(fd, ";/n");
 }
+
+
 
 void Methods(tMethods * methods){
     Function(methods->function);
@@ -293,9 +298,12 @@ int MethodsRecursive(tMethods * methods){
     return 0;
 }
 
-int Main(tMainFunction * mainFunction){
-    int result = 0;
-    return result;
+void Main(tMainFunction * mainFunction){
+    fprintf(fd,"int main("); 
+    Parameters(mainFunction->parameters); 
+    fprintf(fd,"){");
+    ProgramStatements(mainFunction->programStatements); 
+    fprintf(fd,"}");
 }
 
 void Function(tFunction * function){
@@ -592,7 +600,28 @@ void If_translation(tIf * if_node){
 }
 
 void ArrayAssignation(tArrayAssignation * assignation){
+    switch (assignation->typeVariable)
+    {
+    case ARRAY_ASSIG_VARNAME:
+        fprintf(fd, "%s", assignation->varname->associated_value.varname);
+        break;
+    case ARRAY_ASSIG_OBJECT_ATT:
+        ObjectAttribute(assignation->objectAttribute);
+        break;
+    default:
+        break;
+    }
 
+    fprintf(fd, " [ ");
+    IntegerExpression(assignation->index);
+    fprintf(fd, " ] = ");
+    switch(assignation->typeAssignatedValue){
+        case ARRAY_ASSIG_VALUE_SEMICOLON:
+            Value(assignation->valueSemicolon->value);
+            break;
+        case ARRAY_ASSIG_INSTANTIATION:
+            Instantiation(assignation->instantiation);
+    }
 }
 
 void GenericValueArray(tGenericValueArray * genericValueArray){
@@ -602,7 +631,20 @@ void GenericValueArray(tGenericValueArray * genericValueArray){
         return;
     GenericValue(genericValueArray->genericValue);
     if(genericValueArray->commaGenericValueArray != NULL){
+        fprintf(fd, ", ");
+        GenericValueArray(genericValueArray->commaGenericValueArray->genericValueArray);
+    }
+}
 
+void CharValueArray(tCharacterArray * characterArray){
+    if(characterArray == NULL)
+        return;
+    if(characterArray->charValue == NULL)
+        return;
+    CharValue(characterArray->charValue);
+    if(characterArray->commaCharacterArray != NULL){
+        fprintf(fd, ", ");
+        CharValueArray(characterArray->commaCharacterArray->next);
     }
 }
 
@@ -636,7 +678,7 @@ void SuperSubnode(tSuperSubnode * subnode){
                 }
                 case ARRAY_ASSIG_SUB_NODE_CHARACTER_ARRAY:{
                     fprintf(fd, "{ ");
-                    CharValueArray(subnode->arrayAssignationSubnode->characterArray->characterArray->commaCharacterArray);
+                    CharValueArray(subnode->arrayAssignationSubnode->characterArray->characterArray);
                     fprintf(fd, " }\n");
                     break;
                 }
@@ -645,11 +687,22 @@ void SuperSubnode(tSuperSubnode * subnode){
                     break;
                 }
             }
-            fprintf(fd, ";");
+            fprintf(fd, ";\n");
             break;
         }
         case SUPER_SUB_NODE_SIMPLE_ASSIG_SUB_NODE:{
-
+            fprintf(fd, " = ");
+            switch (subnode->simpleAssignationSubnode->type)
+            {
+            case SIMPLE_ASSIG_SUB_NODE_ARRAY_VALUE_SEMICOLON:{
+                Value(subnode->simpleAssignationSubnode->arrayValueSemicolon->value);
+                fprintf(fd, ";\n");
+                break;
+            }
+            case SIMPLE_ASSIG_SUB_NODE_INSTANTIATION:
+                Instantiation(subnode->simpleAssignationSubnode->instantiation);
+                break;
+            }
             break;
         }
     }
@@ -757,9 +810,33 @@ void IntegerArray(tIntegerArray* integerArray){
     IntegerExpression(integerArray->integerExpression);
     if(integerArray->commaIntegerArray != NULL ){
         fprintf(fd,",");
-        IntegerArray(integerArray->commaIntegerArray->integerExpression);
+        IntegerArray(integerArray->commaIntegerArray->next);
     }
+}
 
 
-
+void GenericValue(tGenericValue* genericValue){
+    switch(genericValue->type){
+        case GENERIC_VALUE_CHARACTER:
+            fprintf(fd,"%c",genericValue->character->associated_value.charValue); 
+        break;
+        case GENERIC_VALUE_INTEGER:
+            fprintf(fd,"%d",genericValue->integer->associated_value.integerValue);
+        break;
+        case GENERIC_VALUE_OBJECT_ATTRIBUTE:
+            ObjectAttribute(genericValue->objectAttribute);
+        break;
+        case GENERIC_VALUE_METHOD_CALL:
+            MethodCall(genericValue->methodCall); 
+        break;
+        case GENERIC_VALUE_FUNCTION_CALL:
+            FunctionCall(genericValue->functionCall);
+        break;
+        case GENERIC_VALUE_VARNAME:
+            fprintf(fd, "%s", genericValue->varname->associated_value.varname);
+        break;
+        case GENERIC_VALUE_ARRAY_DESREFERENCING:
+            ArrayDesreferencing(genericValue->arrayDesreferencing);
+        break;
+    }    
 }

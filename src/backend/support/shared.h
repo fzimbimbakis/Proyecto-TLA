@@ -366,12 +366,23 @@ typedef struct tGenericValueArray{
     struct tCommaGenericValueArray* commaGenericValueArray; //// Nullable
 }tGenericValueArray;
 
+enum tGenericValueType{
+    GENERIC_VALUE_CHARACTER,
+    GENERIC_VALUE_INTEGER,
+    GENERIC_VALUE_OBJECT_ATTRIBUTE,
+    GENERIC_VALUE_METHOD_CALL,
+    GENERIC_VALUE_FUNCTION_CALL,
+    GENERIC_VALUE_VARNAME,
+    GENERIC_VALUE_ARRAY_DESREFERENCING
+};
+
 typedef struct tGenericValue{
+    int type;
     union{
         struct tTokenNode* character;
         struct tTokenNode* integer;
         struct tObjectAttribute* objectAttribute;
-        struct tFunctionCall* fUnctionCall;
+        struct tFunctionCall* functionCall;
         struct tMethodCall* methodCall;
         struct tTokenNode* varname;
         struct tArrayDesreferencing* arrayDesreferencing;
