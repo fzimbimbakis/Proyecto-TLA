@@ -430,8 +430,8 @@ array_desreferencing: VARNAME OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUAR
 ;
 
 
-return: RETURN value SEMICOLON {$$ = returnRuleValue($1, $2, $3);}
-| RETURN condition_unit SEMICOLON {$$ = returnRuleValue($1, $2, $3);}
+return: RETURN value SEMICOLON {$$ = returnRuleValue($1, $2, 0, $3);}
+| RETURN condition_unit SEMICOLON {$$ = returnRuleValue($1, $2, 1, $3);}
 | RETURN SEMICOLON {$$ = returnRuleNoValue($1, $2);}
 ;
 

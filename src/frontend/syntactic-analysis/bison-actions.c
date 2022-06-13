@@ -428,6 +428,7 @@ tCharArrayDeclaration * charArrayDeclarationRule2GrammarAction(int charReserved 
 tAssignation  * assignationGrammarAction(char * varname, int assignation , tValue * value , int semicolon){
     tAssignation  * newNode = malloc(sizeof(tAssignation));
     tSuperSubnode  * subnode = malloc(sizeof(tSuperSubnode));
+    subnode->typeVariable = SUPER_SUB_NODE_VARNAME;
     subnode->varname = varnameNode(varname);
 
     tSimpleAssignationSubnode * simpleAssignationSubnode = malloc(sizeof(tSimpleAssignationSubnode));
@@ -436,9 +437,14 @@ tAssignation  * assignationGrammarAction(char * varname, int assignation , tValu
     tArrayValueSemicolon  * arrayValueSemicolon = malloc(sizeof(tArrayValueSemicolon));
     arrayValueSemicolon->value = value;
     arrayValueSemicolon ->semicolon = tokenNode(semicolon) ;
-    simpleAssignationSubnode->arrayValueSemicolon = arrayValueSemicolon ;
 
+    simpleAssignationSubnode->arrayValueSemicolon = arrayValueSemicolon ;
+    simpleAssignationSubnode->type = SIMPLE_ASSIG_SUB_NODE_ARRAY_VALUE_SEMICOLON;
+
+    subnode->typeAssignation = SUPER_SUB_NODE_SIMPLE_ASSIG_SUB_NODE;
     subnode->simpleAssignationSubnode= simpleAssignationSubnode;
+
+    newNode->type = ASSIGNATION_SUBNODE;
     newNode->assignationSubnode = subnode;
 
     return newNode;
@@ -449,14 +455,16 @@ tAssignation  * assignationRule2GrammarAction(char * varname, int assignation , 
     tAssignation  * newNode = malloc(sizeof(tAssignation));
     tSuperSubnode  * subnode = malloc(sizeof(tSuperSubnode));
     subnode->varname = varnameNode(varname);
+    subnode->typeVariable = SUPER_SUB_NODE_VARNAME;
 
     tSimpleAssignationSubnode * simpleAssignationSubnode = malloc(sizeof(tSimpleAssignationSubnode));
     simpleAssignationSubnode->assignation = tokenNode(assignation);
-    simpleAssignationSubnode->instantation = instantiation;
-
+    simpleAssignationSubnode->instantiation = instantiation;
+    simpleAssignationSubnode->type = SIMPLE_ASSIG_SUB_NODE_INSTANTIATION;
+    subnode->typeAssignation = SUPER_SUB_NODE_SIMPLE_ASSIG_SUB_NODE;
     subnode->simpleAssignationSubnode= simpleAssignationSubnode;
     newNode->assignationSubnode = subnode;
-
+    newNode->type = ASSIGNATION_SUBNODE;
     return newNode;
 }
 
@@ -484,6 +492,12 @@ tAssignation  * assignationRule3GrammarAction(char * varname,int openSquareBrack
     subnode->varname = varnameNode(varname);
     subnode->arrayAssignationSubnode=arrayAssignationSubNode;
 
+    newNode->assignationSubnode = subnode;
+
+    newNode->type = ASSIGNATION_SUBNODE;
+    subnode->typeVariable = SUPER_SUB_NODE_VARNAME;
+    subnode->typeAssignation = SUPER_SUB_NODE_ARRAY_ASSIG_SUB_NODE;
+    arrayAssignationSubNode->type = ARRAY_ASSIG_SUB_NODE_GENERIC_ARRAY_WITH_BRACKETS;
     return newNode;
 }
 
@@ -492,7 +506,8 @@ tAssignation  * assignationRule4GrammarAction(char * varname , int openSquareBra
 
     tSuperSubnode  * superSubnode = malloc(sizeof(tSuperSubnode));
     superSubnode->varname = varnameNode(varname);
-
+    superSubnode->typeVariable = SUPER_SUB_NODE_VARNAME;
+    newNode->type = ASSIGNATION_SUBNODE;
     tEmptySquareBrackets * emptySquareBrackets = malloc(sizeof(tEmptySquareBrackets));
     emptySquareBrackets->openSquareBracket = tokenNode(openSquareBracket);
     emptySquareBrackets->closeSquareBracket = tokenNode(closeSquareBracket);
@@ -502,8 +517,10 @@ tAssignation  * assignationRule4GrammarAction(char * varname , int openSquareBra
     arrayAssignationSubnode->emptySquareBrackets = emptySquareBrackets ;
     arrayAssignationSubnode->string = varnameNode(string) ;
     arrayAssignationSubnode->semicolon = tokenNode(semicolon);
+    arrayAssignationSubnode->type = ARRAY_ASSIG_SUB_NODE_STRING;
 
     superSubnode->arrayAssignationSubnode = arrayAssignationSubnode;
+    superSubnode->typeAssignation = SUPER_SUB_NODE_ARRAY_ASSIG_SUB_NODE;
 
     newNode->assignationSubnode = superSubnode;
 
@@ -515,7 +532,7 @@ tAssignation  * assignationRule4GrammarAction(char * varname , int openSquareBra
 tAssignation  * assignationRule5GrammarAction(tArrayAssignation* arrayAssignation){
     tAssignation * newNode= malloc(sizeof(tAssignation));
     newNode->arrayAssignation=arrayAssignation;
-
+    newNode->type = ASSIGNATION_ARRAY_ASSIG;
     return newNode;
 }
 
@@ -525,12 +542,14 @@ tAssignation  * assignationRule6GrammarAction(tObjectAttribute* objectAttribute,
     newNode->assignationSubnode= malloc(sizeof(tSuperSubnode));
     newNode->assignationSubnode->objectAttribute=objectAttribute;
     newNode->assignationSubnode->simpleAssignationSubnode= malloc(sizeof(tSimpleAssignationSubnode));
-
+    newNode->type = ASSIGNATION_SUBNODE;
     newNode->assignationSubnode->simpleAssignationSubnode->assignation=tokenNode(assignation);
     newNode->assignationSubnode->simpleAssignationSubnode->arrayValueSemicolon=malloc(sizeof(tArrayValueSemicolon));
     newNode->assignationSubnode->simpleAssignationSubnode->arrayValueSemicolon->value=value;
     newNode->assignationSubnode->simpleAssignationSubnode->arrayValueSemicolon->semicolon=tokenNode(semicolon);
-
+    newNode->assignationSubnode->typeVariable = SUPER_SUB_NODE_OBJECT_ATT;
+    newNode->assignationSubnode->typeAssignation = SUPER_SUB_NODE_SIMPLE_ASSIG_SUB_NODE;
+    newNode->assignationSubnode->simpleAssignationSubnode->type = SIMPLE_ASSIG_SUB_NODE_ARRAY_VALUE_SEMICOLON;
     return newNode;
 
 }
@@ -541,10 +560,13 @@ tAssignation  * assignationRule7GrammarAction(tObjectAttribute* objectAttribute,
     tAssignation * newNode= malloc(sizeof(tAssignation));
     newNode->assignationSubnode= malloc(sizeof(tSuperSubnode));
     newNode->assignationSubnode->objectAttribute=objectAttribute;
+    newNode->assignationSubnode->typeVariable = SUPER_SUB_NODE_OBJECT_ATT;
     newNode->assignationSubnode->simpleAssignationSubnode= malloc(sizeof(tSimpleAssignationSubnode));
-
+    newNode->type = ASSIGNATION_SUBNODE;
+    newNode->assignationSubnode->typeAssignation = SUPER_SUB_NODE_SIMPLE_ASSIG_SUB_NODE;
+    newNode->assignationSubnode->simpleAssignationSubnode->type = SIMPLE_ASSIG_SUB_NODE_INSTANTIATION;
     newNode->assignationSubnode->simpleAssignationSubnode->assignation=tokenNode(assignation);
-    newNode->assignationSubnode->simpleAssignationSubnode->instantation=instantiation;
+    newNode->assignationSubnode->simpleAssignationSubnode->instantiation=instantiation;
     return newNode;
 }
 
@@ -559,11 +581,13 @@ tAssignation* assignationRule8GrammarAction(tObjectAttribute* objectAttribute, i
     newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets->openSquareBracket=tokenNode(openSquareBracket);
     newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets->closeSquareBracket=tokenNode(closeSquareBracket);
 
-
+    newNode->type = ASSIGNATION_SUBNODE;
+    newNode->assignationSubnode->typeVariable = SUPER_SUB_NODE_OBJECT_ATT;
+    newNode->assignationSubnode->typeAssignation = SUPER_SUB_NODE_ARRAY_ASSIG_SUB_NODE;
     newNode->assignationSubnode->arrayAssignationSubnode->assignation=tokenNode(assignation);
 
     newNode->assignationSubnode->arrayAssignationSubnode->genericArrayWithBrackets= malloc(sizeof(tGenericArrayWithBracket));
-
+    newNode->assignationSubnode->arrayAssignationSubnode->type = ARRAY_ASSIG_SUB_NODE_GENERIC_ARRAY_WITH_BRACKETS;
     newNode->assignationSubnode->arrayAssignationSubnode->genericArrayWithBrackets->openBracket=tokenNode(openBrace);
     newNode->assignationSubnode->arrayAssignationSubnode->genericArrayWithBrackets->genericValueArray=genericValueArray;
     newNode->assignationSubnode->arrayAssignationSubnode->genericArrayWithBrackets->closeBracket=tokenNode(closeBrace);
@@ -579,6 +603,9 @@ tAssignation  * assignationRule9GrammarAction(tObjectAttribute* objectAttribute,
     tAssignation * newNode= malloc(sizeof(tAssignation));
     newNode->assignationSubnode = malloc(sizeof(*(newNode->arrayAssignation)));
     newNode->assignationSubnode->objectAttribute = objectAttribute;
+    newNode->assignationSubnode->typeVariable = SUPER_SUB_NODE_OBJECT_ATT;
+    newNode->assignationSubnode->typeAssignation = SUPER_SUB_NODE_ARRAY_ASSIG_SUB_NODE;
+    newNode->type = ASSIGNATION_ARRAY_ASSIG;
     newNode->assignationSubnode->arrayAssignationSubnode = malloc(sizeof(*(newNode->assignationSubnode->arrayAssignationSubnode)));
     newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets = malloc(sizeof(*(newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets)));
     newNode->assignationSubnode->arrayAssignationSubnode->emptySquareBrackets->openSquareBracket = tokenNode(openSquareBracket);
@@ -586,6 +613,7 @@ tAssignation  * assignationRule9GrammarAction(tObjectAttribute* objectAttribute,
     newNode->assignationSubnode->arrayAssignationSubnode->assignation = tokenNode(assignation);
     newNode->assignationSubnode->arrayAssignationSubnode->string = varnameNode(string);
     newNode->assignationSubnode->arrayAssignationSubnode->semicolon = tokenNode(semicolon);
+    newNode->assignationSubnode->arrayAssignationSubnode->type = ARRAY_ASSIG_SUB_NODE_STRING;
     return newNode;
 }
 /**
@@ -974,7 +1002,7 @@ tComparation * comparation(tValue* lValue, tComparisonOperator* comparisonOperat
 ////condition_unit
 tConditionUnit * simpleConditionUnit(tCondition* condition){
     tConditionUnit * newNode= malloc(sizeof(tConditionUnit));
-    newNode->type = CONDITION;
+    newNode->type = CUT_CONDITION;
     newNode->condition=condition;
     return newNode;
 }
@@ -986,7 +1014,7 @@ tConditionUnit * conditionUnitValOpVal(tValue* lValue, struct tLogicalOperator* 
     newNode->valueComparatorValue->lValue=lValue;
     newNode->valueComparatorValue->logicalOperator=logicalOperator;
     newNode->valueComparatorValue->rValue=rValue;
-    newNode->type = VALUE_COMPARATOR_VALUE;
+    newNode->type = CUT_VALUE_COMPARATOR_VALUE;
     return newNode;
 }
 
@@ -997,14 +1025,14 @@ tConditionUnit * conditionUnitCompOpCond(tComparation* comparation,tLogicalOpera
     newNode->logicalComparationUnit->comparation=comparation;
     newNode->logicalComparationUnit->logicalOperator=logicalOperator;
     newNode->logicalComparationUnit->conditionUnit=conditionUnit;
-    newNode->type = LOGICAL_COMPARATION_UNIT;
+    newNode->type = CUT_LOGICAL_COMPARATION_UNIT;
     return newNode;
 }
 
 tConditionUnit * conditionUnitComparation(tComparation* comparation){
     tConditionUnit * newNode= malloc(sizeof(tConditionUnit));
     newNode->comparation= comparation;
-    newNode->type = CONDITION;
+    newNode->type = CUT_CONDITION;
     return newNode;
 }
 ////condition
@@ -1092,7 +1120,7 @@ tProgramUnitStatements * programUnitStatementsIntegerExpression(tIntegerExpressi
     programUnitStatements1->integerExpressionSemicolon = malloc(sizeof(*(programUnitStatements1->integerExpressionSemicolon)));
     programUnitStatements1->integerExpressionSemicolon->integerExpression = integerExpression;
     programUnitStatements1->integerExpressionSemicolon->semicolon = tokenNode(semicolon);
-    programUnitStatements1->type = INTEGER_EXPRESSION_SEMICOLON;
+    programUnitStatements1->type = PUS_INTEGER_EXPRESSION_SEMICOLON;
     return programUnitStatements1;
 }
 
@@ -1127,8 +1155,9 @@ tArrayDesreferencing * arrayDesreferencing(char * varname, int openSquareBracket
  * return
  */
  //
-tReturn * returnRuleValue(int ret, void * value, int semicolon){
+tReturn * returnRuleValue(int ret, void * value, int type, int semicolon){
     tReturn * aReturn = malloc(sizeof(tReturn));
+    aReturn->type=type;
     aReturn->semicolon = tokenNode(semicolon);
     aReturn->returnToken = tokenNode(ret);
     aReturn->valueUnion.value = value;
@@ -1139,6 +1168,7 @@ tReturn * returnRuleNoValue(int ret, int semicolon){
     tReturn * aReturn = malloc(sizeof(tReturn));
     aReturn->semicolon = tokenNode(ret);
     aReturn->returnToken = tokenNode(semicolon);
+    aReturn->type=RETURN_VOID;
     return aReturn;
 }
 

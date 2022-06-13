@@ -238,8 +238,10 @@ typedef struct tFunctionCall{
  *
  * @note Uses @subnode tClassesAndMain
  */
-#define PROGRAM_MAIN 0
-#define PROGRAM_CLASS 1
+enum tProgramType{
+    PROGRAM_MAIN,
+    PROGRAM_CLASS
+};
 typedef struct tProgram{
     int type;
     union {
@@ -392,7 +394,14 @@ typedef struct tObjectAttribute{
         struct tTokenNode * varnameRight;
 }tObjectAttribute;
 
+
+enum tReturnType{
+    RETURN_VALUE,
+    RETURN_CONDITION,
+    RETURN_VOID
+};
 typedef struct tReturn{
+    enum tReturnType type;
     struct tTokenNode * returnToken ;
     union valueUnion{
         struct tValue * value;
@@ -716,6 +725,7 @@ enum tAssignationType{
     ASSIGNATION_SUBNODE
 };
 typedef struct tAssignation{
+    int type;
     union {
         struct tArrayAssignation* arrayAssignation;
         struct  tSuperSubnode* assignationSubnode;
@@ -739,11 +749,19 @@ typedef struct tAssignation{
  *  
  *  @note Node uses @subnode tAssignation.
  */
+ enum tSuperSubnodeType{
+     SUPER_SUB_NODE_VARNAME,
+     SUPER_SUB_NODE_OBJECT_ATT,
+     SUPER_SUB_NODE_ARRAY_ASSIG_SUB_NODE,
+     SUPER_SUB_NODE_SIMPLE_ASSIG_SUB_NODE
+ };
 typedef struct tSuperSubnode{
+    int typeVariable;
     union{
         struct tTokenNode* varname;
         struct tObjectAttribute* objectAttribute;
     };
+    int typeAssignation;
     union{
         struct tArrayAssignationSubnode* arrayAssignationSubnode;
         struct tSimpleAssignationSubnode* simpleAssignationSubnode;
@@ -761,10 +779,16 @@ typedef struct tSuperSubnode{
  *
  * Used in tSuperSubnode
  */
-
+enum tArrayAssignationSubnodeType{
+    ARRAY_ASSIG_SUB_NODE_GENERIC_ARRAY_WITH_BRACKETS,
+    ARRAY_ASSIG_SUB_NODE_INTEGER_ARRAY,
+    ARRAY_ASSIG_SUB_NODE_CHARACTER_ARRAY,
+    ARRAY_ASSIG_SUB_NODE_STRING
+};
 typedef struct tArrayAssignationSubnode{
     struct tEmptySquareBrackets* emptySquareBrackets;
     struct tTokenNode* assignation;
+    int type;
     union{
         struct tGenericArrayWithBracket * genericArrayWithBrackets;
         struct tIntegerArrayWithBrackets* integerArray;
@@ -784,11 +808,15 @@ typedef struct tArrayAssignationSubnode{
  *
  * Used in tSuperSubnode
  */
-
+enum tSimpleAssignationSubnodeType{
+    SIMPLE_ASSIG_SUB_NODE_INSTANTIATION,
+    SIMPLE_ASSIG_SUB_NODE_ARRAY_VALUE_SEMICOLON
+};
 typedef struct tSimpleAssignationSubnode{
     struct tTokenNode* assignation;
+    int type;
     union{
-        struct tInstantiation* instantation;
+        struct tInstantiation* instantiation;
         struct tArrayValueSemicolon* arrayValueSemicolon;
     };
 }tSimpleAssignationSubnode;

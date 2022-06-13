@@ -312,7 +312,7 @@ tArrayDesreferencing * arrayDesreferencing(char * varname, int openSquareBracket
  * return
  */
 //
-tReturn * returnRuleValue(int ret, void * value, int semicolon);
+tReturn * returnRuleValue(int ret, void * value,int type, int semicolon);
 //
 tReturn * returnRuleNoValue(int ret, int semicolon);
 
