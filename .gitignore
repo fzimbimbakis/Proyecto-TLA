@@ -15,6 +15,6 @@ bison-parser.output
 bison-parser.c
 bison-parser.h
 flex-scanner.c
-
+.idea/
 cmake-build-debug
 

@@ -599,14 +599,14 @@ tValue * valueSingle(void * value){
     result->integerExpression = value;
     return result;
 }
-tValue * valueSingleCharacter(char * value){
+tValue * valueSingleCharacter(char  value){
     tValue * result = malloc(sizeof(tValue));
-    result->integerExpression = varnameNode(value);
+    result->character = charNode(value);
     return result;
 }
-tValue * valueSingleString(char value){
+tValue * valueSingleString(char * value){
     tValue * result = malloc(sizeof(tValue));
-    result->integerExpression = charNode(value);
+    result->string = varnameNode(value);
     return result;
 }
 tValue * valueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket){
@@ -823,7 +823,7 @@ tParameters * multiArrayParameters(tDataType* dataType, char * paramName,
     return newNode;
 }
 
-tParameters * objectArrayParameters(int objectType, char * paramName,
+tParameters * objectArrayParameters(char * objectType, char * paramName,
                               int openSquareBracket, int closeSquareBracket){
     tParameters * newNode= objectParameters(objectType,paramName);
     newNode->squareBrackets= malloc(sizeof(tEmptySquareBrackets));
@@ -832,7 +832,7 @@ tParameters * objectArrayParameters(int objectType, char * paramName,
     return newNode;
 }
 
-tParameters * multiObjectArrayParameters(int objectType, char * paramName,
+tParameters * multiObjectArrayParameters(char *  objectType, char * paramName,
                                     int openSquareBracket, int closeSquareBracket,
                                     int comma, tParameters* parameters) {
     tParameters * newNode= objectArrayParameters(objectType,paramName, openSquareBracket, closeSquareBracket);
@@ -865,9 +865,9 @@ tMainFunction * mainFunctionRule(int integerType, int main, int openP, tParamete
  * @section
  * function
  */
-tFunction * functionRuleWithType(void * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
+
+tFunction * functionRule3GrammarAction(char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
     tFunction * function = malloc(sizeof(tFunction));
-    function->datatype = type;
     function->varname = varnameNode(varname);
     function->openP = tokenNode(openP);
     function->parameters = parameters;
@@ -876,9 +876,20 @@ tFunction * functionRuleWithType(void * type, char * varname, int openP, tParame
     function->programStatements = programStatements;
     function->closeBrace = tokenNode(closeBrace);
     return function;
+
 }
-tFunction * functionRuleNoType(char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
-    return functionRuleWithType(NULL, varname, openP, parameters, closeP, openBrace, programStatements, closeBrace);
+
+tFunction * functionRuleWithType(void * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
+    tFunction * newNode =functionRule3GrammarAction(varname,openP,parameters,closeP,openBrace,programStatements,closeBrace);
+    newNode->datatype = type;
+    return newNode;
+}
+
+
+tFunction * functionRuleNoType(int voidToken , char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
+    tFunction * newNode = functionRule3GrammarAction( varname, openP, parameters, closeP, openBrace, programStatements, closeBrace);
+    newNode->voidReserved = tokenNode(voidToken);
+    return newNode;
 }
 ////constructor
 tConstructor * constructor(int constructor, tFunction* function){

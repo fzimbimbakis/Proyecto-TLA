@@ -1,6 +1,7 @@
 %{
 
 #include "flex-actions.h"
+#include <stdlib.h>
 
 %}
 
@@ -53,7 +54,7 @@ NotQuote         [^\"]+
 "["                                          { return OPEN_SQUARE_BRACKET; }
 "]"                                          { return CLOSE_SQUARE_BRACKET; }
 
-{digit}+									 { yylval.integer=yytext;return IntegerPatternAction(yytext); }
+{digit}+									 { yylval.integer=atoi(yytext);return IntegerPatternAction(yytext); }
 
 
 "if"                                         {return IF;}
@@ -79,7 +80,7 @@ NotQuote         [^\"]+
 ";"                                          {return SEMICOLON;}
 ","                                          {return COMMA; }
 
-{simpleQuote}.{simpleQuote}                  { yylval.character = yytext;return CHARACTER; }
+{simpleQuote}.{simpleQuote}                  { yylval.character = yytext[1];return CHARACTER; }
 {Quote}{NotQuote}{Quote}                     {yylval.string=yytext; return STRING;}
 
 
