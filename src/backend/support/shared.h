@@ -105,13 +105,25 @@ typedef struct tDataType{
  *
  * @note Uses @subnode tSubInteger
  */
-#define FACTOR_OBJECT_ATT 0
-#define FACTOR_FUNCTION_CALL 1
-#define FACTOR_VARNAME 2
-#define FACTOR_METHOD_CALL 3
-#define FACTOR_ARRAY_DESR 4
-#define FACTOR_SUB_INT 5
-#define FACTOR_INT 6
+enum nodeType{
+    FACTOR_OBJECT_ATT ,
+    FACTOR_FUNCTION_CALL ,
+    FACTOR_VARNAME ,
+    FACTOR_METHOD_CALL ,
+    FACTOR_ARRAY_DESR ,
+    FACTOR_SUB_INT ,
+    FACTOR_INT ,
+
+    BASIC_PARAMETERS,
+    MULTIBASIC_PARAMETERS,
+    OBJECT_PARAMETERS,
+    MULTIOBJECT_PARAMETERS,
+    ARRAY_PARAMETERS,
+    MULTIARRAY_PARAMETERS,
+    OBJECTARRAY_PARAMETERS,
+    MULTIOBJECTARRAY_PARAMETERS,
+ };
+
 typedef struct tFactor{
     int type;
     union{
@@ -137,7 +149,14 @@ typedef struct tFactor{
  *
  * @note Uses @subnode tObjectAttributeDesreferencing
  */
+ enum tValueType{
+     VALUE_CHARACTER,
+     VALUE_STRING,
+     VALUE_INTEGER_EXPRESSION,
+     VALUE_OBJECT_ATTRIBUTE_DESREFERENCING
+ };
 typedef struct tValue{
+    int type;
     union {
         struct tTokenNode * character;
         struct tTokenNode * string;
@@ -357,8 +376,13 @@ typedef struct tGenericValue{
     };
 }tGenericValue;
 
-
+enum tObjectAttributeType{
+    OBJECT_ATTRIBUTE_VARNAME,
+    OBJECT_ATTRIBUTE_OBJECT_ATTRIBUTE,
+    OBJECT_ATTRIBUTE_ARRAY_DESREF
+};
 typedef struct tObjectAttribute{
+        int type;
         union {
             struct tTokenNode *varnameLeft;
             struct tObjectAttribute *objectAttribute;
@@ -429,8 +453,19 @@ typedef struct IntegerExpressionSemicolon{
     struct tTokenNode * semicolon;
 } IntegerExpressionSemicolon;
 
+enum tProgramUnitStatementsType{
+    PUS_DECLARATION,
+    PUS_WHILE_LOOP,
+    PUS_IF_CONDITION,
+    PUS_ASSIGNATION,
+    PUS_RETURN_RESERVED,
+    PUS_INSTANTIATION,
+    PUS_INTEGER_EXPRESSION_SEMICOLON
+};
 typedef struct tProgramUnitStatements{
+    int type;
     union {
+        struct tDeclaration * declaration;
         struct tWhileLoop * whileLoop;
         struct tIf * ifCondition;
         struct tAssignation * assignation;
@@ -441,7 +476,17 @@ typedef struct tProgramUnitStatements{
 }tProgramUnitStatements;
 
 
+enum tCharValueStates{
+    CHARACTER_CHARVALUE,
+    OBJECTATTRIBUTE_CHARVALUE,
+    FUNCTIONCALL_CHARVALUE,
+    METHODCALL_CHARVALUE,
+    VARNAME_CHARVALUE,
+    ARRAYDESREFERENCING_CHARVALUE
+};
+
 typedef struct tCharValue{
+    int type ;
     union {
         struct tTokenNode * character;
         struct tObjectAttribute* objectAttribute;
@@ -485,7 +530,14 @@ typedef struct tWhileLoop{
  * @note Uses sub-node tArrayValueSemicolon for value;
  *
  */
+ enum tArrayAssignationType{
+     ARRAY_ASSIG_VARNAME,
+     ARRAY_ASSIG_OBJECT_ATT,
+     ARRAY_ASSIG_VALUE_SEMICOLON,
+     ARRAY_ASSIG_INSTANTIATION
+ };
 typedef struct tArrayAssignation{
+    int typeVariable;
     union{
         struct tTokenNode * varname;
         struct tObjectAttribute * objectAttribute;
@@ -494,6 +546,7 @@ typedef struct tArrayAssignation{
     struct tIntegerExpression * index;
     struct tTokenNode * closeSquareBracket;
     struct tTokenNode * assignation;
+    int typeAssignatedValue;
     union {
         struct tArrayValueSemicolon * valueSemicolon;
         struct tInstantiation * instantiation;
@@ -548,7 +601,15 @@ typedef struct tConstructor{
     struct tFunction* function;
 }tConstructor;
 
+
+enum tConditionUnitType{
+    CUT_COMPARATION,
+    CUT_VALUE_COMPARATOR_VALUE,
+    CUT_LOGICAL_COMPARATION_UNIT,
+    CUT_CONDITION
+};
 typedef struct tConditionUnit{
+    int type;
     union {
         struct tComparation* comparation;
         struct tValueComparatorValue* valueComparatorValue;
@@ -650,7 +711,10 @@ typedef struct tIntegerArrayAssignationDeclaration{
  *
  * @note Node uses @subnode tSuperSubnode.
  */
-
+enum tAssignationType{
+    ASSIGNATION_ARRAY_ASSIG,
+    ASSIGNATION_SUBNODE
+};
 typedef struct tAssignation{
     union {
         struct tArrayAssignation* arrayAssignation;
@@ -738,7 +802,13 @@ typedef struct tSimpleAssignationSubnode{
  *  void functionName( parameters ){ programStatements }
  *  functionName( parameters ){ programStatements }
  */
+enum tFunction_types{
+    DATATYPE_FUNCTION,
+    VOID_FUNCTION,
+};
+
 typedef struct tFunction{
+    int type;
     union {     //// Nullable
         struct tDataType * datatype;
         struct tTokenNode * voidReserved;
@@ -768,6 +838,7 @@ typedef struct tFunction{
  * @note Node uses sub-node tCommaNextparameters for ", parameters".
  */
 typedef struct tParameters{
+    int type;
     union {
         struct tDataType * datatype;
         struct tTokenNode * objectTypeName;

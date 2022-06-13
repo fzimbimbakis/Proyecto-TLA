@@ -15,7 +15,7 @@ void Function(tFunction * function);
 int Declaration(tDeclaration * declaration);
 int DeclarationsRecursive(tDeclarations * declarations);
 int IntegerArrayRecursive(tCommaIntegerArray * array);
-int CharValue(tCharValue * value);
+void CharValue(tCharValue * value);
 int Operator(int operator);
 int Factor(tFactor * factor);
 void ObjectAttribute(tObjectAttribute* objectAttribute);
@@ -24,7 +24,28 @@ void MethodCall(tMethodCall * objectAttribute);
 void ArrayDesreferencing(tArrayDesreferencing * objectAttribute);
 void Parameters(tParameters * parameters);
 void ProgramStatements(tProgramStatements * programStatements);
+void BasicParameters(tParameters * parameters);
+void MultiBasicParameters(tParameters * parameters);
 int IntegerExpression(tIntegerExpression * integerExpression);
+void ObjectParameters(tParameters * parameters);
+void MultiObjectParameters(tParameters * parameters);
+void ProgramUnitStatements(tProgramUnitStatements * programUnitStatements);
+void WhileLoop(tWhileLoop * whileLoop);
+void ConditionUnit(tConditionUnit * conditionUnit);
+void DataType(tDataType * dataType);
+void Comparation(tComparation * comparation);
+void ComparisonOperator(tComparisonOperator * comparisonOperator);
+void LogicalOperator(tLogicalOperator * logicalOperator);
+void ArrayParameters(tParameters * parameters);
+void MultiArrayParameters(tParameters * parameters);
+void ObjectArrayParameters(tParameters * parameters);
+void MultiObjectArrayParameters(tParameters * parameters );
+void Value(tValue * value);
+void ArgumentValues(tArgumentValues * argumentValues);
+void If(tIf * if_node);
+void Assignation(tAssignation * assignation);
+void Instantiation(tInstantiation * instantiation);
+void Return(tReturn * return_node);
 FILE * fd;
 
 int Generator(tProgram * program, FILE * filedescriptor) {
@@ -67,7 +88,8 @@ int Class(tClass * class){
 
     if(class->classIn->methods != NULL) {
         Function(class->classIn->methods->function);
-        MethodsRecursive(class->classIn->methods->methods);
+        if(class->classIn->methods->methods != NULL)
+            MethodsRecursive(class->classIn->methods->methods);
     }
     return 0;
 }
@@ -228,6 +250,8 @@ int Constructor(tConstructor * constructor){
 }
 
 int MethodsRecursive(tMethods * methods){
+    if(methods == NULL)
+        return 0;
     Function(methods->function);
     if(methods->methods != NULL)
         MethodsRecursive(methods->methods);
@@ -240,31 +264,351 @@ int Main(tMainFunction * mainFunction){
 }
 
 void Function(tFunction * function){
-    // TODO
+    switch(function->type){
+       case DATATYPE_FUNCTION:
+           DataType(function->datatype);
+           break;
+       case VOID_FUNCTION:
+           fprintf(fd,"void ");
+           break;
+    };
+    fprintf(fd,"%s",function->varname->associated_value.varname);
+    fprintf(fd,"(");
+    Parameters(function->parameters);
+    fprintf(fd,")");
+    fprintf(fd,"{");
+    ProgramStatements(function->programStatements);
+    fprintf(fd,"}");
 }
 
-int CharValue(tCharValue * value){
-    // TODO
-    return 0;
+void CharValue(tCharValue * value){
+
+    switch (value->type) {
+         case CHARACTER_CHARVALUE:
+             fprintf(fd,"'%c'",value->character->associated_value.charValue);
+             break;
+         case OBJECTATTRIBUTE_CHARVALUE:
+             ObjectAttribute(value->objectAttribute);
+             break;
+         case FUNCTIONCALL_CHARVALUE:
+             FunctionCall(value->functionCall);
+             break;
+         case METHODCALL_CHARVALUE:
+             MethodCall(value->methodCall);
+             break;
+         case VARNAME_CHARVALUE:
+             fprintf(fd,"%s",value->varname->associated_value.varname);
+             break;
+         case ARRAYDESREFERENCING_CHARVALUE:
+             ArrayDesreferencing(value->arrayDesreferencing);
+             break;
+    }
 }
 
 void ObjectAttribute(tObjectAttribute* objectAttribute){
-    // TODO
+    switch (objectAttribute->type) {
+        case OBJECT_ATTRIBUTE_VARNAME:{
+            fprintf(fd, "%s->%s", objectAttribute->varnameLeft->associated_value.varname, objectAttribute->varnameRight->associated_value.varname);
+            break;
+        }
+        case OBJECT_ATTRIBUTE_OBJECT_ATTRIBUTE:{
+            ObjectAttribute(objectAttribute->objectAttribute);
+            fprintf(fd, "->%s", objectAttribute->varnameRight->associated_value.varname);
+        }
+        case OBJECT_ATTRIBUTE_ARRAY_DESREF:{
+            ArrayDesreferencing(objectAttribute->arrayDesreferencing);
+            fprintf(fd, "->%s", objectAttribute->varnameRight->associated_value.varname);
+        }
+    }
 }
 void FunctionCall(tFunctionCall * objectAttribute){
-    // TODO
+    fprintf(fd,"%s",objectAttribute->functionName->associated_value.varname);
+    fprintf(fd,"(");
+    ArgumentValues(objectAttribute->firstArgument);
+    fprintf(fd,")");
 }
+
+
+void ArgumentValues(tArgumentValues * argumentValues){
+    Value(argumentValues->value);
+    if(argumentValues->commaNextArgumentValue!=NULL){
+        fprintf(fd,",");
+        ArgumentValues(argumentValues->commaNextArgumentValue->nextArgument);
+    }
+}
+
+
 void MethodCall(tMethodCall * objectAttribute){
-    // TODO
+    fprintf(fd,"%s",objectAttribute->varname->associated_value.varname);
+    fprintf(fd,".");
+    FunctionCall(objectAttribute->functionCall);
 }
 void ArrayDesreferencing(tArrayDesreferencing * objectAttribute){
-    // TODO
+    fprintf(fd,"%s",objectAttribute->varname->associated_value.varname);
+    fprintf(fd,"[");
+    IntegerExpression(objectAttribute->integerExpression);
+    fprintf(fd,"]");
 }
 
 void Parameters(tParameters * parameters){
-    // TODO
+    switch (parameters->type) {
+        case BASIC_PARAMETERS:
+            BasicParameters(parameters);
+            break;
+        case MULTIBASIC_PARAMETERS:
+            MultiBasicParameters(parameters);
+            break;
+        case OBJECT_PARAMETERS:
+            ObjectParameters(parameters);
+            break;
+        case MULTIOBJECT_PARAMETERS:
+            MultiObjectParameters(parameters);
+            break;
+        case ARRAY_PARAMETERS:
+            ArrayParameters(parameters);
+            break;
+        case MULTIARRAY_PARAMETERS:
+            MultiArrayParameters(parameters);
+            break;
+        case OBJECTARRAY_PARAMETERS:
+            ObjectArrayParameters(parameters);
+            break;
+        case MULTIOBJECTARRAY_PARAMETERS:
+            MultiObjectArrayParameters(parameters);
+            break;
+    }
+    
 }
 
+void BasicParameters(tParameters * parameters){
+    DataType(parameters->datatype);
+    fprintf(fd, "%s",parameters->paramName->associated_value.varname);
+}
+
+void MultiBasicParameters(tParameters * parameters){
+    BasicParameters(parameters);
+    if(parameters->nextParameters != NULL ){
+        fprintf(fd,",");
+        Parameters(parameters->nextParameters->nextParameters);
+    }
+}
+
+void ObjectParameters(tParameters * parameters){
+    fprintf(fd, "%s %s",parameters->objectTypeName->associated_value.varname,parameters->paramName->associated_value.varname);
+}
+
+void MultiObjectParameters(tParameters * parameters){
+    ObjectParameters(parameters) ;
+    if(parameters->nextParameters != NULL ){
+        fprintf(fd,",");
+        Parameters(parameters->nextParameters->nextParameters);
+    }
+}
+
+void ArrayParameters(tParameters * parameters){
+    DataType(parameters->datatype);
+    fprintf(fd,"%s",parameters->paramName->associated_value.varname);
+    fprintf(fd,"[]");
+}
+
+
+void MultiArrayParameters(tParameters * parameters){
+    ArrayParameters(parameters);
+    if(parameters->nextParameters!=NULL)
+        Parameters(parameters->nextParameters->nextParameters);
+}
+
+
+void ObjectArrayParameters(tParameters * parameters){
+    ObjectParameters(parameters);
+    fprintf(fd,"[]");
+}
+
+void MultiObjectArrayParameters(tParameters * parameters ){
+    ObjectParameters(parameters);
+    if(parameters->nextParameters != NULL )
+        Parameters(parameters);
+}
+
+
+
+
+void ComparisonOperator(tComparisonOperator * comparisonOperator){
+    switch (comparisonOperator->greaterOp->tokenId) {
+        case EQUAL_OP:{
+            fprintf(fd, " == ");
+            break;
+        }
+        case NOT_EQUAL_OP:{
+            fprintf(fd, " != ");
+            break;
+        }
+        case LOWER_OP:{
+            fprintf(fd, " < ");
+            break;
+        }
+        case LOWEREQ_OP:{
+            fprintf(fd, " <= ");
+            break;
+        }
+        case GREATER_OP:{
+            fprintf(fd, " > ");
+            break;
+        }
+        case GREATEREQ_OP:{
+            fprintf(fd, " >= ");
+            break;
+        }
+    }
+}
+
+void LogicalOperator(tLogicalOperator * logicalOperator){
+    switch (logicalOperator->orToken->tokenId) {
+        case AND:{
+            fprintf(fd, " && ");
+            break;
+        }
+        case OR:{
+            fprintf(fd, " || ");
+            break;
+        }
+    }
+}
+
+
+void Comparation(tComparation * comparation){
+    Value(comparation->lValue);
+    ComparisonOperator(comparation->comparisonOperator);
+    Value(comparation->rValue);
+}
+
+void ConditionUnit(tConditionUnit * conditionUnit){
+    switch (conditionUnit->type) {
+        case CUT_COMPARATION:{
+            Comparation(conditionUnit->comparation);
+            break;
+        }
+        case CUT_VALUE_COMPARATOR_VALUE:{
+            Value(conditionUnit->valueComparatorValue->lValue);
+            LogicalOperator(conditionUnit->valueComparatorValue->logicalOperator);
+            Value(conditionUnit->valueComparatorValue->rValue);
+            break;
+        }
+        case CUT_LOGICAL_COMPARATION_UNIT:{
+            Comparation(conditionUnit->logicalComparationUnit->comparation);
+            fprintf(fd, " ");
+            LogicalOperator(conditionUnit->logicalComparationUnit->logicalOperator);
+            fprintf(fd, " ");
+            ConditionUnit(conditionUnit->logicalComparationUnit->conditionUnit);
+            break;
+        }
+        case CUT_CONDITION:{
+            fprintf(fd, "(");
+            ConditionUnit(conditionUnit->condition->conditionUnit);
+            fprintf(fd, ")");
+            break;
+        }
+    }
+}
+
+void Value(tValue * value){
+    switch (value->type) {
+        case VALUE_CHARACTER:{
+            fprintf(fd, "'%c'", value->character->associated_value.charValue);
+            break;
+        }
+        case VALUE_STRING:{
+            fprintf(fd, "\"%s\"", value->string->associated_value.varname);
+            break;
+        }
+        case VALUE_INTEGER_EXPRESSION:{
+            IntegerExpression(value->integerExpression);
+            break;
+        }
+        case VALUE_OBJECT_ATTRIBUTE_DESREFERENCING:{
+            ObjectAttribute(value->objectAttributeDesreferencing->objectAttribute);
+            fprintf(fd, "[");
+            IntegerExpression(value->objectAttributeDesreferencing->index);
+            fprintf(fd, "]->%s", value->objectAttributeDesreferencing->pointInnerAtributte->innerAttributeName->associated_value.varname);
+            break;
+        }
+    }
+}
+
+void WhileLoop(tWhileLoop * whileLoop){
+    fprintf(fd, "while(");
+    ConditionUnit(whileLoop->conditionClause->conditionUnit);
+    fprintf(fd, "){\n");
+    ProgramStatements(whileLoop->clause->programStatements);
+    fprintf(fd, "}\n");
+}
+
+void If(tIf * if_node){
+    fprintf(fd, "if( ");
+    ConditionUnit(if_node->condition->conditionUnit);
+    fprintf(fd, " ){\n");
+    ProgramStatements(if_node->clause->programStatements);
+    fprintf(fd, " }\n");
+}
+
+void Assignation(tAssignation * assignation){
+
+}
+
+void Return(tReturn * return_node){
+
+}
+
+void Instantiation(tInstantiation * instantiation){
+
+}
+
+void ProgramUnitStatements(tProgramUnitStatements * programUnitStatements){
+    switch (programUnitStatements->type) {
+        case PUS_DECLARATION:{
+            Declaration(programUnitStatements->declaration);
+            break;
+        }
+        case PUS_WHILE_LOOP:{
+            WhileLoop(programUnitStatements->whileLoop);
+            break;
+        }
+        case PUS_IF_CONDITION:{
+            If(programUnitStatements->ifCondition);
+            break;
+        }
+        case PUS_ASSIGNATION:{
+            Assignation(programUnitStatements->assignation);
+            break;
+        }
+        case PUS_RETURN_RESERVED:{
+            Return(programUnitStatements->returnReserved);
+            break;
+        }
+        case PUS_INSTANTIATION:{
+            Instantiation(programUnitStatements->instantiation);
+            break;
+        }
+        case PUS_INTEGER_EXPRESSION_SEMICOLON:{
+            IntegerExpression(programUnitStatements->integerExpressionSemicolon->integerExpression);
+            fprintf(fd, ";\n");
+            break;
+        }
+    }
+}
 void ProgramStatements(tProgramStatements * programStatements){
-    // TODO
+    if(programStatements == NULL)
+        return;
+    ProgramUnitStatements(programStatements->programUnitStatements);
+    if(programStatements->ProgramStatements != NULL)
+        ProgramStatements(programStatements->ProgramStatements);
+}
+
+
+
+void DataType(tDataType * dataType){
+    if(dataType->type->tokenId == CHAR)
+        fprintf(fd,"char");
+    else if(dataType->type->tokenId == INTEGER)
+        fprintf(fd,"int");
 }

@@ -298,11 +298,11 @@ CHARACTER { $$ =  genericValueCharacter($1);}
 
 
 char_value: CHARACTER { $$ =  charValueCharacter($1);}
-| object_attribute  { $$ =  charValue($1);}
-| function_call { $$ =  charValue($1);}
-| method_call { $$ =  charValue($1);}
+| object_attribute  { $$ =  charValue($1,1);}
+| function_call { $$ =  charValue($1,2);}
+| method_call { $$ =  charValue($1,3);}
 | VARNAME { $$ =  charValueVarname($1);}
-| array_desreferencing { $$ =  charValue($1);}
+| array_desreferencing { $$ =  charValue($1,5);}
 ;
 
 
@@ -344,13 +344,13 @@ main_function: INT MAIN OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE
 
 function: datatype VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE { $$ = functionRuleWithType($1, $2, $3, $4, $5, $6, $7, $8);}
 | VOID VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE { $$ = functionRuleNoType($1, $2, $3, $4, $5, $6, $7, $8);}
-| VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE { $$ = functionRule3GrammarAction($1, $2, $3, $4, $5, $6, $7);}
+//| VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE { $$ = functionRule3GrammarAction($1, $2, $3, $4, $5, $6, $7);}
 ;
 
 //
 constructor: CONSTRUCTOR constructor_function { $$ = constructor($1, $2); };
 
-constructor_function: VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE { $$ = functionRuleNoType($1, $2, $3, $4, $5, $6, $7); };
+constructor_function: VARNAME OPEN_PARENTHESIS parameters CLOSE_PARENTHESIS OPEN_BRACE program_statements CLOSE_BRACE { $$ = functionRule3GrammarAction($1, $2, $3, $4, $5, $6, $7); };
 
 declarations: declaration declarations { $$ = declarations($1, $2);}
 | /* empty */ { $$ = NULL;}
@@ -411,12 +411,12 @@ argument_values: value {$$ = argumentValuesSingle($1);}
 ;
 
 
-program_unit_statements: declaration {$$ = programUnitStatements($1);}
-| while_loop {$$ = programUnitStatements($1);}
-| if {$$ = programUnitStatements($1);}
-| assignation {$$ = programUnitStatements($1);}
-| return {$$ = programUnitStatements($1);}
-| instantiation {$$ = programUnitStatements($1);}
+program_unit_statements: declaration {$$ = programUnitStatements($1, 0);}
+| while_loop {$$ = programUnitStatements($1, 1);}
+| if {$$ = programUnitStatements($1, 2);}
+| assignation {$$ = programUnitStatements($1, 3);}
+| return {$$ = programUnitStatements($1, 4);}
+| instantiation {$$ = programUnitStatements($1, 5);}
 | integer_expression SEMICOLON {$$ = programUnitStatementsIntegerExpression($1, $2);}
 ;
 

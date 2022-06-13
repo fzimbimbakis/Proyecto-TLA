@@ -164,7 +164,7 @@ tGenericValue * genericValueVarname(char * value);
  * @section
  * char_value
  */
-tCharValue * charValue(void * value);
+tCharValue * charValue(void * value,int type);
 tCharValue * charValueCharacter(char value);
 tCharValue * charValueVarname(char * value);
 /**
@@ -230,7 +230,7 @@ tMainFunction * mainFunctionRule(int integerType, int main, int openP, tParamete
  */
 tFunction * functionRule3GrammarAction(char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
 tFunction * functionRuleWithType(void * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
-tFunction * functionRuleNoType(int voidToken , char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
+tFunction * functionRuleNoType(int voidToken ,char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
 ////constructor
 tConstructor * constructor(int constructor, tFunction* function);
 ////declarations
@@ -289,7 +289,7 @@ tArgumentValues * argumentValuesPlural(tValue * value, int comma, tArgumentValue
  * program_unit_statements
  */
 //
-tProgramUnitStatements * programUnitStatements(void * unit);
+tProgramUnitStatements * programUnitStatements(void * unit, int type);
 //
 tProgramUnitStatements * programUnitStatementsIntegerExpression(tIntegerExpression * integerExpression, int semicolon);
 

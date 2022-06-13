@@ -1,8 +1,6 @@
-#include "../../backend/domain-specific/calculator.h"
 #include "../../backend/support/logger.h"
 #include "bison-actions.h"
 #include "bison-parser.h"
-#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -677,18 +675,21 @@ tGenericValue * genericValueVarname(char * value){
  * @section
  * char_value
  */
-tCharValue * charValue(void * value){
+tCharValue * charValue(void * value , int type){
     tCharValue * result = malloc(sizeof(tCharValue));
+    result->type = type;
     result->varname = value;
     return result;
 }
 tCharValue * charValueCharacter(char value){
     tCharValue * result = malloc(sizeof(tCharValue));
+    result->type = CHARACTER_CHARVALUE;
     result->varname = charNode(value);
     return result;
 }
 tCharValue * charValueVarname(char * value){
     tCharValue * result = malloc(sizeof(tCharValue));
+    result->type = VARNAME_CHARVALUE;
     result->varname = varnameNode(value);
     return result;
 }
@@ -774,6 +775,7 @@ tDataType * dataType(int token){
 
 tParameters * basicParameters(tDataType* dataType, char * varname){
     tParameters * newNode= malloc(sizeof(tParameters));
+    newNode->type = BASIC_PARAMETERS ;
     newNode->datatype=dataType;
     newNode->paramName=varnameNode(varname);
     return newNode;
@@ -782,6 +784,7 @@ tParameters * basicParameters(tDataType* dataType, char * varname){
 tParameters * multiBasicParameters(tDataType* dataType, char* paramName,
                                    int comma, tParameters* parameters){
     tParameters * newNode= basicParameters(dataType, paramName);
+    newNode->type = MULTIBASIC_PARAMETERS;
     newNode->nextParameters= malloc(sizeof(tCommaNextParameters));
     newNode->nextParameters->comma=tokenNode(comma);
     newNode->nextParameters->nextParameters=parameters;
@@ -790,6 +793,7 @@ tParameters * multiBasicParameters(tDataType* dataType, char* paramName,
 
 tParameters * objectParameters( char * objectType, char * paramName){
     tParameters * newNode= malloc(sizeof(tParameters));
+    newNode->type = OBJECT_PARAMETERS;
     newNode->objectTypeName=varnameNode(objectType);
     newNode->paramName=varnameNode(paramName);
     return newNode;
@@ -798,6 +802,7 @@ tParameters * objectParameters( char * objectType, char * paramName){
 tParameters * multiObjectParameters( char* objectType, char* paramName,
                                      int comma, tParameters* parameters){
     tParameters * newNode= objectParameters(objectType, paramName);
+    newNode->type = MULTIOBJECT_PARAMETERS;
     newNode->nextParameters= malloc(sizeof(tCommaNextParameters));
     newNode->nextParameters->comma=tokenNode(comma);
     newNode->nextParameters->nextParameters=parameters;
@@ -807,6 +812,7 @@ tParameters * multiObjectParameters( char* objectType, char* paramName,
 tParameters * arrayParameters(tDataType* dataType, char * paramName,
                               int openSquareBracket, int closeSquareBracket){
     tParameters * newNode= basicParameters(dataType, paramName);
+    newNode->type = ARRAY_PARAMETERS;
     newNode->squareBrackets= malloc(sizeof(tEmptySquareBrackets));
     newNode->squareBrackets->closeSquareBracket=tokenNode(closeSquareBracket);
     newNode->squareBrackets->openSquareBracket=tokenNode(openSquareBracket);
@@ -818,6 +824,7 @@ tParameters * multiArrayParameters(tDataType* dataType, char * paramName,
                               int comma, tParameters* parameters){
     tParameters * newNode= arrayParameters(dataType, paramName, openSquareBracket, closeSquareBracket);
     newNode->nextParameters= malloc(sizeof(tCommaNextParameters));
+    newNode->type = MULTIARRAY_PARAMETERS ;
     newNode->nextParameters->comma=tokenNode(comma);
     newNode->nextParameters->nextParameters=parameters;
     return newNode;
@@ -827,6 +834,7 @@ tParameters * objectArrayParameters(char * objectType, char * paramName,
                               int openSquareBracket, int closeSquareBracket){
     tParameters * newNode= objectParameters(objectType,paramName);
     newNode->squareBrackets= malloc(sizeof(tEmptySquareBrackets));
+    newNode->type = OBJECTARRAY_PARAMETERS;
     newNode->squareBrackets->closeSquareBracket=tokenNode(closeSquareBracket);
     newNode->squareBrackets->openSquareBracket=tokenNode(openSquareBracket);
     return newNode;
@@ -836,6 +844,7 @@ tParameters * multiObjectArrayParameters(char *  objectType, char * paramName,
                                     int openSquareBracket, int closeSquareBracket,
                                     int comma, tParameters* parameters) {
     tParameters * newNode= objectArrayParameters(objectType,paramName, openSquareBracket, closeSquareBracket);
+    newNode->type = MULTIOBJECTARRAY_PARAMETERS ;
     newNode->nextParameters= malloc(sizeof(tCommaNextParameters));
     newNode->nextParameters->comma=tokenNode(comma);
     newNode->nextParameters->nextParameters=parameters;
@@ -881,13 +890,15 @@ tFunction * functionRule3GrammarAction(char * varname, int openP, tParameters * 
 
 tFunction * functionRuleWithType(void * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
     tFunction * newNode =functionRule3GrammarAction(varname,openP,parameters,closeP,openBrace,programStatements,closeBrace);
+    newNode->type = DATATYPE_FUNCTION;
     newNode->datatype = type;
     return newNode;
 }
 
 
-tFunction * functionRuleNoType(int voidToken , char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
+tFunction * functionRuleNoType(int voidToken ,char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
     tFunction * newNode = functionRule3GrammarAction( varname, openP, parameters, closeP, openBrace, programStatements, closeBrace);
+    newNode->type = VOID_FUNCTION;
     newNode->voidReserved = tokenNode(voidToken);
     return newNode;
 }
@@ -963,6 +974,7 @@ tComparation * comparation(tValue* lValue, tComparisonOperator* comparisonOperat
 ////condition_unit
 tConditionUnit * simpleConditionUnit(tCondition* condition){
     tConditionUnit * newNode= malloc(sizeof(tConditionUnit));
+    newNode->type = CONDITION;
     newNode->condition=condition;
     return newNode;
 }
@@ -974,6 +986,7 @@ tConditionUnit * conditionUnitValOpVal(tValue* lValue, struct tLogicalOperator* 
     newNode->valueComparatorValue->lValue=lValue;
     newNode->valueComparatorValue->logicalOperator=logicalOperator;
     newNode->valueComparatorValue->rValue=rValue;
+    newNode->type = VALUE_COMPARATOR_VALUE;
     return newNode;
 }
 
@@ -984,12 +997,14 @@ tConditionUnit * conditionUnitCompOpCond(tComparation* comparation,tLogicalOpera
     newNode->logicalComparationUnit->comparation=comparation;
     newNode->logicalComparationUnit->logicalOperator=logicalOperator;
     newNode->logicalComparationUnit->conditionUnit=conditionUnit;
+    newNode->type = LOGICAL_COMPARATION_UNIT;
     return newNode;
 }
 
 tConditionUnit * conditionUnitComparation(tComparation* comparation){
     tConditionUnit * newNode= malloc(sizeof(tConditionUnit));
     newNode->comparation= comparation;
+    newNode->type = CONDITION;
     return newNode;
 }
 ////condition
@@ -1065,8 +1080,9 @@ tArgumentValues * argumentValuesPlural(tValue * value, int comma, tArgumentValue
  * program_unit_statements
  */
  //
-tProgramUnitStatements * programUnitStatements(void * unit){
+tProgramUnitStatements * programUnitStatements(void * unit, int type){
     tProgramUnitStatements * programUnitStatements1 = malloc(sizeof(tProgramUnitStatements));
+    programUnitStatements1->type = type;
     programUnitStatements1->assignation = unit;
     return programUnitStatements1;
 }
@@ -1076,6 +1092,7 @@ tProgramUnitStatements * programUnitStatementsIntegerExpression(tIntegerExpressi
     programUnitStatements1->integerExpressionSemicolon = malloc(sizeof(*(programUnitStatements1->integerExpressionSemicolon)));
     programUnitStatements1->integerExpressionSemicolon->integerExpression = integerExpression;
     programUnitStatements1->integerExpressionSemicolon->semicolon = tokenNode(semicolon);
+    programUnitStatements1->type = INTEGER_EXPRESSION_SEMICOLON;
     return programUnitStatements1;
 }
 
@@ -1231,6 +1248,7 @@ tFactor * factorInteger(int integer){
 //
 tObjectAttribute * objectAttributeFromVarname(char * object, int point, char * attributeName){
     tObjectAttribute * objectAttribute = malloc(sizeof(tObjectAttribute));
+    objectAttribute->type = OBJECT_ATTRIBUTE_VARNAME;
     objectAttribute->varnameLeft = varnameNode(object);
     //// Falta tipo de varnameLeft acá?
     objectAttribute->point = tokenNode(point);
@@ -1241,6 +1259,7 @@ tObjectAttribute * objectAttributeFromVarname(char * object, int point, char * a
 tObjectAttribute * objectAttributeFromObjectAttribute(tObjectAttribute * object, int point, char * attributeName){
     tObjectAttribute * objectAttribute = malloc(sizeof(tObjectAttribute));
     objectAttribute->objectAttribute = object;
+    objectAttribute->type = OBJECT_ATTRIBUTE_OBJECT_ATTRIBUTE;
     objectAttribute->point = tokenNode(point);
     objectAttribute->varnameRight = varnameNode(attributeName);
     return objectAttribute;
@@ -1249,6 +1268,7 @@ tObjectAttribute * objectAttributeFromObjectAttribute(tObjectAttribute * object,
 tObjectAttribute * objectAttributeFromArrayDesreferencing(tArrayDesreferencing* object, int point, char * attributeName){
     tObjectAttribute * objectAttribute = malloc(sizeof(tObjectAttribute));
     objectAttribute->arrayDesreferencing = object;
+    objectAttribute->type = OBJECT_ATTRIBUTE_ARRAY_DESREF;
     objectAttribute->point = tokenNode(point);
     objectAttribute->varnameRight = varnameNode(attributeName);
     return objectAttribute;
