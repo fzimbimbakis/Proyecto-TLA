@@ -287,14 +287,15 @@ generic_value { $$ =  genericValueArraySingle($1);}
 generic_value:
 CHARACTER { $$ =  genericValueCharacter($1);}
 |INTEGER { $$ =  genericValueInteger($1);}
-| object_attribute { $$ =  genericValue($1);}
-| function_call { $$ =  genericValue($1);}
-| method_call { $$ =  genericValue($1);}
+|STRING { $$ =  genericValueString($1);}
+| object_attribute { $$ =  genericValue($1, 2);}
+| function_call { $$ =  genericValue($1, 3);}
+| method_call { $$ =  genericValue($1, 4);}
 | VARNAME { $$ =  genericValueVarname($1);}
-| array_desreferencing { $$ =  genericValue($1);}
+| array_desreferencing { $$ =  genericValue($1, 6);}
 | integer_expression { $$ =  genericValueIntegerExpression($1);}
-//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4);};
-//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6);}
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  genericValueObjectAttributeDesreferencing($1,$2,$3,$4);};
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  genericValueObjectAttributeDesreferencingInnerAtt($1,$2,$3,$4,$5,$6);}
 ;
 
 

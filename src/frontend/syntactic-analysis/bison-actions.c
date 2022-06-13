@@ -680,29 +680,64 @@ tGenericValueArray * genericValueArrayPlural(tGenericValue * value, int comma, t
  * @section
  * generic_value
  */
-tGenericValue * genericValue(void * value){
+
+tGenericValue * genericValue(void * value, int type){
     tGenericValue * result = malloc(sizeof(tGenericValue));
+    result->type = type;
     result->varname = value;
     return result;
 }
 tGenericValue * genericValueCharacter(char value){
     tGenericValue * result = malloc(sizeof(tGenericValue));
+    result->type = GENERIC_VALUE_CHARACTER;
     result->varname = charNode(value);
     return result;
 }
 tGenericValue * genericValueInteger(int value){
     tGenericValue * result = malloc(sizeof(tGenericValue));
+    result->type = GENERIC_VALUE_INTEGER;
     result->varname = integerNode(value);
     return result;
 }
 tGenericValue * genericValueVarname(char * value){
     tGenericValue * result = malloc(sizeof(tGenericValue));
+    result->type = GENERIC_VALUE_VARNAME;
     result->varname = varnameNode(value);
+    return result;
+}
+tGenericValue * genericValueString(char * value){
+    tGenericValue * result = malloc(sizeof(tGenericValue));
+    result->type = GENERIC_VALUE_STRING;
+    result->string = varnameNode(value);
     return result;
 }
 tGenericValue * genericValueIntegerExpression(tIntegerExpression * integerExpression){
     tGenericValue * result = malloc(sizeof(tGenericValue));
+    result->type = GENERIC_VALUE_INTEGER_EXPRESSION;
     result->integerExpression = integerExpression;
+    return result;
+}
+tGenericValue * genericValueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket){
+    tGenericValue * result = malloc(sizeof(tGenericValue));
+    result->type = GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING;
+    result->objectAttributeDesreferencing = malloc(sizeof(tObjectAttributeDesreferencing));
+    result->objectAttributeDesreferencing->index = integerExpression;
+    result->objectAttributeDesreferencing->objectAttribute = objectAttribute;
+    result->objectAttributeDesreferencing->openSquareBracket = tokenNode(openSquareBracket);
+    result->objectAttributeDesreferencing->closeSquareBracket = tokenNode(closeSquareBracket);
+    return result;
+}
+tGenericValue * genericValueObjectAttributeDesreferencingInnerAtt(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * innerAtt){
+    tGenericValue * result = malloc(sizeof(tGenericValue));
+    result->type = GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING;
+    result->objectAttributeDesreferencing = malloc(sizeof(tObjectAttributeDesreferencing));
+    result->objectAttributeDesreferencing->index = integerExpression;
+    result->objectAttributeDesreferencing->objectAttribute = objectAttribute;
+    result->objectAttributeDesreferencing->openSquareBracket = tokenNode(openSquareBracket);
+    result->objectAttributeDesreferencing->closeSquareBracket = tokenNode(closeSquareBracket);
+    tInnerAttribute * innerAttribute = result->objectAttributeDesreferencing->innerAttribute = malloc(sizeof(tInnerAttribute));
+    innerAttribute->innerAttributeName = varnameNode(innerAtt);
+    innerAttribute->point = tokenNode(point);
     return result;
 }
 /**

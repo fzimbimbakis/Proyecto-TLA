@@ -875,5 +875,20 @@ void GenericValue(tGenericValue* genericValue){
         case GENERIC_VALUE_ARRAY_DESREFERENCING:
             ArrayDesreferencing(genericValue->arrayDesreferencing);
         break;
+        case GENERIC_VALUE_INTEGER_EXPRESSION:
+            IntegerExpression(genericValue->integerExpression);
+            break;
+        case GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING:
+            ObjectAttribute(genericValue->objectAttributeDesreferencing->objectAttribute);
+            fprintf(fd, "[");
+            IntegerExpression(genericValue->objectAttributeDesreferencing->index);
+            fprintf(fd, "]");
+            if(genericValue->objectAttributeDesreferencing->innerAttribute != NULL){
+                fprintf(fd, "->%s", genericValue->objectAttributeDesreferencing->innerAttribute->innerAttributeName->associated_value.varname);
+            }
+            break;
+        case GENERIC_VALUE_STRING:
+            fprintf(fd, "\"%s\"", genericValue->string->associated_value.varname);
+            break;
     }    
 }
