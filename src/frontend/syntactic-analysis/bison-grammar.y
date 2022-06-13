@@ -274,11 +274,12 @@ assignation: VARNAME ASSIGNATION value SEMICOLON {$$ = assignationGrammarAction(
 ;
 
 
-value: integer_expression { $$ =  valueSingle($1);}
-| CHARACTER { $$ =  valueSingleCharacter($1);}
-| STRING { $$ =  valueSingleString($1);}
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4);};
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6);}
+value: generic_value
+//integer_expression { $$ =  valueSingle($1);}
+//| CHARACTER { $$ =  valueSingleCharacter($1);}
+//| STRING { $$ =  valueSingleString($1);}
+//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4);};
+//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6);}
 ;
 
 generic_value_array:
@@ -293,7 +294,11 @@ CHARACTER { $$ =  genericValueCharacter($1);}
 | method_call { $$ =  genericValue($1);}
 | VARNAME { $$ =  genericValueVarname($1);}
 | array_desreferencing { $$ =  genericValue($1);}
+| integer_expression { $$ =  valueSingle($1);}
+//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4);};
+//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6);}
 ;
+
 
 
 

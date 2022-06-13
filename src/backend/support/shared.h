@@ -1022,7 +1022,7 @@ typedef struct tCommaNextParameters{
  * Subnode used in tArrayAssignation, tSimpleAssignationSubnode.
  */
 typedef struct tArrayValueSemicolon{
-    struct tValue * value;
+    struct tGenericValue * value;
     struct tTokenNode * semicolon;
 }tArrayValueSemicolon;
 
@@ -1041,7 +1041,15 @@ typedef struct tArrayValueSemicolon{
 *
 * @note Uses @subnode tEmptySquareBrackets, tSquareBracketsWithSize and tAssignationWithMethodFunctionInstantiation
 */
+enum enum_tDeclarationWithObjectDataType{
+    ONLY_DECLARATION,
+    ARRAY_ONLY_DECLARATION,
+    ARRAY_WITH_INDEX_DECLARATION,
+    INSTANTIATION,
+};
+
 typedef struct tDeclarationWithObjectDataType{
+    int type;
     struct tTokenNode * objectDataType;
     struct tTokenNode * name;
     union {

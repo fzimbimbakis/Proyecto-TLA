@@ -49,6 +49,7 @@ void Instantiation(tInstantiation * instantiation);
 void Return(tReturn * return_node);
 void ArrayAssignation(tArrayAssignation * assignation);
 void GenericValue(tGenericValue* genericValue);
+void DeclarationWithObjectType(tDeclarationWithObjectDataType * declarationWithObjectDataType);
 
 
 void Methods(tMethods * methods);
@@ -193,10 +194,19 @@ if(CHAR_ARRAY_ASSIGNATION_DECLARATION == declaration->type){
     fprintf(fd, ";\n");
 }
 if(DECLARATION_WITH_OBJECT_TYPE == declaration->type){
-
+    DeclarationWithObjectType(declaration->declarationAux);
 }
     return result;
 }
+
+void DeclarationWithObjectType(tDeclarationWithObjectDataType * declarationWithObjectDataType){
+    fprintf(fd,"%s ",declarationWithObjectDataType->objectDataType->associated_value.varname);
+    fprintf(fd,"%s ", declarationWithObjectDataType->name->associated_value.varname);
+
+}
+
+
+
 
 int IntegerExpression(tIntegerExpression * integerExpression){
 
@@ -281,10 +291,15 @@ int DeclarationsRecursive(tDeclarations * declarations){
 
 
 int Constructor(tConstructor * constructor){
-    fprintf(fd, "struct %s * constructor_%s(", constructor->function->varname->associated_value.varname, constructor->function->varname->associated_value.varname);
+    char * className=constructor->function->varname->associated_value.varname;
+    fprintf(fd, "struct %s * constructor_%s(", className, className);
     Parameters(constructor->function->parameters);
     fprintf(fd, "){\n");
+
+    fprintf(fd, "struct %s this = malloc(sizeof(struct %s));\n",className,className);
     ProgramStatements(constructor->function->programStatements);
+
+    fprintf(fd, "return this;\n");
     fprintf(fd, "}\n");
     return 0;
 }
@@ -301,9 +316,9 @@ int MethodsRecursive(tMethods * methods){
 void Main(tMainFunction * mainFunction){
     fprintf(fd,"int main("); 
     Parameters(mainFunction->parameters); 
-    fprintf(fd,"){");
+    fprintf(fd,"){\n");
     ProgramStatements(mainFunction->programStatements); 
-    fprintf(fd,"}");
+    fprintf(fd,"\n}");
 }
 
 void Function(tFunction * function){
@@ -319,9 +334,9 @@ void Function(tFunction * function){
     fprintf(fd,"(");
     Parameters(function->parameters);
     fprintf(fd,")");
-    fprintf(fd,"{");
+    fprintf(fd,"{\n");
     ProgramStatements(function->programStatements);
-    fprintf(fd,"}");
+    fprintf(fd,"}\n");
 }
 
 void CharValue(tCharValue * value){

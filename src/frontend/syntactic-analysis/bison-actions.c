@@ -61,11 +61,6 @@ tTokenNode * charNode(char character){
 tTokenNode * tokenNode(int token){
     tTokenNode * node = malloc(sizeof(tTokenNode));
     node->tokenId=token;
-//    switch (token) {
-//        case expression:
-//
-//    }
-//    printf("%d\n", token);
     return node;
 }
 
@@ -211,6 +206,7 @@ tDeclaration * declarationWithObjectDataTypeGrammarActionBasic(char* name, char*
     newNode->declarationAux->name = varnameNode(name);
     newNode->declarationAux->objectDataType = varnameNode(datatype);
     newNode->declarationAux->semicolon = tokenNode(semicolon);
+    newNode->declarationAux->type= ONLY_DECLARATION;
     newNode->type = DECLARATION_WITH_OBJECT_TYPE;
     return newNode;
 }
@@ -232,6 +228,7 @@ tDeclaration * declarationWithObjectDataTypeGrammarActionMethodFunction(char * n
 tDeclaration * declarationWithObjectDataTypeGrammarActionInstantiation(char* name, char* datatype, int assignation, tInstantiation* instantiation){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
     newNode->declarationAux = malloc(sizeof(*(newNode->declarationAux)));
+    newNode->declarationAux->type = INSTANTIATION;
     newNode->declarationAux->name = varnameNode(name);
     newNode->declarationAux->objectDataType = varnameNode(datatype);
     newNode->declarationAux->assignationWithMethodFunctionInstantiation = malloc(sizeof(*(newNode->declarationAux->assignationWithMethodFunctionInstantiation)));
