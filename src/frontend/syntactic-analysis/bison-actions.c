@@ -96,6 +96,8 @@ tClass  * ClassGrammarAction(int class, char * varname, int openBrace ,tClassIn 
 
     newNode->varname = varnameNode(varname);
 
+    newNode->extendsName = NULL;
+
     newNode->openBrace = tokenNode(openBrace);
 
     newNode->classIn = classIn ;
@@ -1132,7 +1134,7 @@ tProgramUnitStatements * programUnitStatementsIntegerExpression(tIntegerExpressi
 tProgramStatements * programStatementsRule(tProgramUnitStatements * programUnitStatements, tProgramStatements * programStatements){
     tProgramStatements * newProgramStatements = malloc(sizeof(tProgramStatements));
     newProgramStatements->programUnitStatements = programUnitStatements;
-    newProgramStatements->programUnitStatements = programUnitStatements;
+    newProgramStatements->ProgramStatements = programStatements;
     return newProgramStatements;
 }
 

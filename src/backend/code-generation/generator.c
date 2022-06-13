@@ -373,6 +373,8 @@ void FunctionCall(tFunctionCall * objectAttribute){
 
 
 void ArgumentValues(tArgumentValues * argumentValues){
+    if(argumentValues == NULL)
+        return;
     Value(argumentValues->value);
     if(argumentValues->commaNextArgumentValue!=NULL){
         fprintf(fd,",");
@@ -394,6 +396,8 @@ void ArrayDesreferencing(tArrayDesreferencing * objectAttribute){
 }
 
 void Parameters(tParameters * parameters){
+    if(parameters == NULL)
+        return;
     switch (parameters->type) {
         case BASIC_PARAMETERS:
             BasicParameters(parameters);
@@ -792,9 +796,9 @@ void ProgramStatements(tProgramStatements * programStatements){
 
 void DataType(tDataType * dataType){
     if(dataType->type->tokenId == CHAR)
-        fprintf(fd,"char");
-    else if(dataType->type->tokenId == INTEGER)
-        fprintf(fd,"int");
+        fprintf(fd,"char ");
+    else if(dataType->type->tokenId == INT)
+        fprintf(fd,"int ");
 }
 
 void CharacterArray(tCharacterArray * characterArray){

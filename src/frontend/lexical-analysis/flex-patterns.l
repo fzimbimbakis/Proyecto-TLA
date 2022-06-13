@@ -69,12 +69,12 @@ NotQuote         [^\"]+
 "main"                                       {return MAIN;}
 
 "void"                                       {return VOID;}
-"int"                                        {return INT;}
-"char"                                       {return CHAR;}
+"int"                                        {yylval.token = INT; return INT;}
+"char"                                       {yylval.token = CHAR; return CHAR;}
 "\."                                         {return POINT;}
 
 
-{letra}+                                     {yylval.string=yytext;return VARNAME;}
+{letra}+                                     {yylval.string=yytext; return VARNAME;}
 
 
 ";"                                          {return SEMICOLON;}
