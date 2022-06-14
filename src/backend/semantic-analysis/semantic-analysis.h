@@ -46,15 +46,22 @@ enum type{
     struct class * next;
 };
 
+ struct assignation{
+     char * leftVarname;
+     int leftType;
+     char * rightVarname;
+     int rightType;
+ };
 
 
  struct global {
     struct class * classes;
-    struct  function main;
+    struct  function * main;
 };
 
-void addMain(tMainFunction * mainFunction);
-void  addClass(tClass * aClass);
+struct global * generateSymbolTable(tProgram * program);
+struct function * addMain(tMainFunction * mainFunction);
+struct class  *   addClass(tClass * aClass);
 struct function *  addFunction(tFunction * function);
 struct variable * addVariableDeclaration(tDeclaration declaration);
 struct function * addConstructor(tConstructor * constructor);
@@ -62,5 +69,6 @@ struct variable * addAttribute(tAttributes * attributes);
 struct function * addMethods(tMethods * methods);
 //struct variable * addParameters(tParameters * parameters);
 struct variable * addDefinedVariables(tProgramStatements * programStatements);
+boolean isAttributeValid(char * className , char * variable);
 
 #endif //COMPILER_SEMANTIC_ANALYSIS_H

@@ -2,6 +2,7 @@
 #include "../support/logger.h"
 #include "generator.h"
 #include "../../frontend/syntactic-analysis/bison-parser.h"
+#include "../semantic-analysis/semantic-analysis.h"
 /**
  * Implementación de "generator.h".
  */
@@ -70,6 +71,9 @@ void CharArrayDeclaration(tCharArrayDeclaration * charArrayDeclaration);
 FILE * fd;
 char * fatherName = NULL;
 boolean  isExtended = false;
+boolean isCorrect = true;
+char * currentClass;
+char * msg;
 
 
 int Generator(tProgram * program, FILE * filedescriptor) {
@@ -79,7 +83,12 @@ int Generator(tProgram * program, FILE * filedescriptor) {
     fprintf(fd,"#include <stdio.h>\n");
     fprintf(fd,"#include <stdlib.h>\n");
     recursiveProgram(program);
-    return final_result;
+    if(isCorrect)
+        return final_result;
+    else{
+        printf("%s",msg);
+        return -1 ;
+    }
 }
 
 void IntegerAssignationDeclaration(tIntegerAssignationDeclaration* integerAssignationDeclaration) {
@@ -117,6 +126,7 @@ int recursiveProgram(tProgram * program){
 }
 boolean haveClassStruct;
 int Class(tClass * class){
+    currentClass = class->varname->associated_value.varname;
     //// Creo la struct si tengo o atributos o extiendo alguna clase
     if((class->classIn->attributes != NULL && class->classIn->attributes->declarations != NULL) || class->extendsName != NULL){
         fprintf(fd, "struct %s{\n", class->varname->associated_value.varname);
@@ -423,8 +433,13 @@ void ObjectAttribute(tObjectAttribute* objectAttribute){
         case OBJECT_ATTRIBUTE_VARNAME:{
             if(isExtended)
                 fprintf(fd, "%s->extended_%s->%s", objectAttribute->varnameLeft->associated_value.varname,fatherName, objectAttribute->varnameRight->associated_value.varname);
-            else
-               fprintf(fd, "%s->%s", objectAttribute->varnameLeft->associated_value.varname, objectAttribute->varnameRight->associated_value.varname);
+            else{
+                if( !isAttributeValid(currentClass, objectAttribute->varnameRight->associated_value.varname) ){
+                    isCorrect = false;
+                    msg = "error: Accessing an incorrect attribute.  \n";;
+                }
+                fprintf(fd, "%s->%s", objectAttribute->varnameLeft->associated_value.varname, objectAttribute->varnameRight->associated_value.varname);
+            }
             break;
         }
         case OBJECT_ATTRIBUTE_OBJECT_ATTRIBUTE:{

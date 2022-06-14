@@ -32,9 +32,10 @@ const int main(const int argumentCount, const char ** arguments) {
 	switch (result) {
 		case 0:
 			if (state.succeed) {
-                LogInfo("La compilacion fue exitosa.");
-                addClass(state.root->classesAndMain->class);
+                generateSymbolTable(state.root);
                 final_result = Generator(state.root, file);
+                if(final_result > 0 )
+                    LogInfo("La compilacion fue exitosa.");
             }
 			else {
 				LogError("Se produjo un error en la aplicacion.");
