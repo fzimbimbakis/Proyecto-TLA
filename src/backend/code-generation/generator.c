@@ -68,6 +68,9 @@ void CharArrayDeclaration(tCharArrayDeclaration * charArrayDeclaration);
 
 
 FILE * fd;
+char * fatherName = NULL;
+boolean  isExtended = false;
+
 
 int Generator(tProgram * program, FILE * filedescriptor) {
 //	LogInfo("El resultado de la expresion computada es: '%d'.", program);
@@ -121,9 +124,12 @@ int Class(tClass * class){
         if (class->extendsName != NULL) {
             fprintf(fd, "struct %s * extended_%s;\n", class->extendsName->extendedClassName->associated_value.varname,
                     class->extendsName->extendedClassName->associated_value.varname);
+            isExtended = true;
+            fatherName = class->extendsName->extendedClassName->associated_value.varname;
         }
 
         if (class->classIn->attributes != NULL && class->classIn->attributes->declarations != NULL) {
+
             Attributes(class->classIn->attributes);
         }
         fprintf(fd, "};\n");
@@ -337,6 +343,9 @@ int Constructor(tConstructor * constructor){
     fprintf(fd, "){\n");
 
     fprintf(fd, "struct %s *  this = malloc(sizeof(struct %s));\n",className,className);
+    if(isExtended)
+        fprintf(fd,"this->extended_%s = malloc(sizeof(struct %s));\n",fatherName,fatherName);
+
     ProgramStatements(constructor->function->programStatements);
 
     fprintf(fd, "return this;\n");
@@ -412,7 +421,10 @@ void CharValue(tCharValue * value){
 void ObjectAttribute(tObjectAttribute* objectAttribute){
     switch (objectAttribute->type) {
         case OBJECT_ATTRIBUTE_VARNAME:{
-            fprintf(fd, "%s->%s", objectAttribute->varnameLeft->associated_value.varname, objectAttribute->varnameRight->associated_value.varname);
+            if(isExtended)
+                fprintf(fd, "%s->extended_%s->%s", objectAttribute->varnameLeft->associated_value.varname,fatherName, objectAttribute->varnameRight->associated_value.varname);
+            else
+               fprintf(fd, "%s->%s", objectAttribute->varnameLeft->associated_value.varname, objectAttribute->varnameRight->associated_value.varname);
             break;
         }
         case OBJECT_ATTRIBUTE_OBJECT_ATTRIBUTE:{
@@ -512,7 +524,7 @@ void MultiBasicParameters(tParameters * parameters){
 }
 
 void ObjectParameters(tParameters * parameters){
-    fprintf(fd, "struct * %s %s",parameters->objectTypeName->associated_value.varname,parameters->paramName->associated_value.varname);
+    fprintf(fd, "struct %s * %s",parameters->objectTypeName->associated_value.varname,parameters->paramName->associated_value.varname);
 }
 
 void MultiObjectParameters(tParameters * parameters){
