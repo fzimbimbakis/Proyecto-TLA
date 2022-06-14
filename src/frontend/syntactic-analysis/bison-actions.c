@@ -1012,7 +1012,7 @@ tFunction * functionRule3GrammarAction(char * varname, int openP, tParameters * 
 
 }
 
-tFunction * functionRuleWithType(void * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
+tFunction * functionRuleWithType(tDataType * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace){
     tFunction * newNode =functionRule3GrammarAction(varname,openP,parameters,closeP,openBrace,programStatements,closeBrace);
     newNode->type = DATATYPE_FUNCTION;
     newNode->datatype = type;

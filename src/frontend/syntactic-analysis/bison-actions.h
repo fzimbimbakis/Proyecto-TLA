@@ -239,7 +239,7 @@ tMainFunction * mainFunctionRule(int integerType, int main, int openP, tParamete
  * function
  */
 tFunction * functionRule3GrammarAction(char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
-tFunction * functionRuleWithType(void * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
+tFunction * functionRuleWithType(tDataType * type, char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
 tFunction * functionRuleNoType(int voidToken ,char * varname, int openP, tParameters * parameters, int closeP, int openBrace, tProgramStatements* programStatements, int closeBrace);
 ////constructor
 tConstructor * constructor(int constructor, tFunction* function);

@@ -1,7 +1,8 @@
 #include "semantic-analysis.h"
 static struct variable * fromDeclarationToVariable(struct tDeclaration * declaration);
-static int fromDataTypeToType(char * dataType);
 static struct variable * fromParameterToVariable(tParameters * parameters );
+static int fromDataTypeToTypeTokenId(int  dataType);
+static int fromDeclarationTypeToVariableType(tParameters  * parameters);
 
 static struct global globalScope={.main=NULL,.classes=NULL};
 
@@ -11,6 +12,8 @@ static struct global globalScope={.main=NULL,.classes=NULL};
 void addMain(tMainFunction * mainFunction);
 
 void addClass(tClass * aClass){
+    if(aClass == NULL )
+        return;
     struct class * newNode = malloc(sizeof(struct class)); 
     newNode->className = aClass->varname->associated_value.varname;
     if(aClass->extendsName != NULL && aClass->extendsName->extendedClassName->associated_value.varname!=NULL) newNode->fatherName = aClass->extendsName->extendedClassName->associated_value.varname;
@@ -38,10 +41,9 @@ struct variable * addAttribute(tAttributes * attributes){
         currentVariable =  fromDeclarationToVariable(current->declaration);
         if(first == NULL) {
             first = currentVariable ;
-            prev = first;
         }
         current = current->declarations;
-        prev->next = currentVariable;
+        if(prev!=NULL && prev != currentVariable ) prev->next = currentVariable;
         prev = currentVariable;
         currentVariable = currentVariable->next;
     }
@@ -50,14 +52,22 @@ struct variable * addAttribute(tAttributes * attributes){
 
 
 struct function * addMethods(tMethods * methods){
+    if(methods == NULL )
+        return NULL ;
+
     struct tMethods  * currentMethod = methods;
     struct function * first = NULL;
-    struct function * current = currentMethod->function;
+    struct function * prev  = NULL;
+    struct function * current ;
     while(currentMethod != NULL ){
         current = addFunction(currentMethod->function);
-        if(first == NULL ) first = current ;
+        if(first == NULL )
+            first = current ;
+
+        if(prev != NULL && prev != current) prev->next = current;
+        prev = current;
+
         currentMethod = currentMethod -> methods;
-        current = current ->next;
     }
     return first;
 }
@@ -65,10 +75,11 @@ struct function * addMethods(tMethods * methods){
 
 struct function *  addFunction(tFunction * function){
     struct function * newNode = malloc(sizeof(struct function )) ;
+    newNode->functionName = function->varname->associated_value.varname;
     newNode->parameters = fromParameterToVariable(function->parameters);
-    newNode->parameters = addDefinedVariables(function->programStatements);
+    newNode->definedVariables = addDefinedVariables(function->programStatements);
     if(function->type == DATATYPE_FUNCTION )
-        newNode->returnType = fromDataTypeToType(function->datatype->type->associated_value.varname);
+        newNode->returnType = fromDataTypeToTypeTokenId(function->datatype->type->tokenId);
     else if (function->type == VOID_FUNCTION)
         newNode->returnType = VOID_TYPE;
     return newNode;
@@ -81,11 +92,17 @@ struct variable * addDefinedVariables(tProgramStatements * programStatements){
 
     struct variable * newNode = NULL;
     struct variable * first = NULL ;
+    struct variable * prev = NULL ;
     tProgramStatements *  ps = programStatements;
     while (ps != NULL && ps->programUnitStatements != NULL ){
         if(ps->programUnitStatements->type == PUS_DECLARATION){
             newNode = fromDeclarationToVariable(ps->programUnitStatements->declaration);
-            if(first == NULL ) first = newNode;
+            if(first == NULL ) {
+                first = newNode;
+            }
+            if(prev != NULL && prev != newNode )prev -> next = newNode;
+            prev = newNode;
+
             newNode = newNode->next;
         }
         ps = ps->ProgramStatements;
@@ -150,10 +167,10 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
 
     switch (parameters->type) {
         case BASIC_PARAMETERS:
-                newNode ->type = fromDataTypeToType(parameters->datatype->type->associated_value.varname);
+                newNode ->type = fromDeclarationTypeToVariableType(parameters);
             break;
         case MULTIBASIC_PARAMETERS:
-            newNode ->type = fromDataTypeToType(parameters->datatype->type->associated_value.varname);
+            newNode ->type = fromDeclarationTypeToVariableType(parameters);
             newNode->next = fromParameterToVariable(parameters->nextParameters->nextParameters);
             break;
         case OBJECT_PARAMETERS:
@@ -166,7 +183,7 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
             newNode->next = fromParameterToVariable(parameters->nextParameters->nextParameters);
             break;
         case ARRAY_PARAMETERS:
-            newNode->type = fromDataTypeToType(parameters->datatype->type->associated_value.varname);
+            newNode->type = fromDeclarationTypeToVariableType(parameters);
             break;
         case MULTIARRAY_PARAMETERS:
             newNode->next = fromParameterToVariable(parameters->nextParameters->nextParameters);
@@ -185,9 +202,21 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
 
 }
 
-static int fromDataTypeToType(char * dataType){
-    if(strcmp(dataType,"int")== 0 )
+static int fromDataTypeToTypeTokenId(int  dataType){
+    if(dataType == INT )
         return INT_TYPE;
     else return CHAR_TYPE;
+}
+
+
+static int fromDeclarationTypeToVariableType(tParameters  * parameters){
+    if(parameters->datatype->type->tokenId == INT) {
+        if (parameters->squareBrackets == NULL) return INT_TYPE;
+        else return INTARRAY_TYPE;
+    }else if(parameters->squareBrackets == NULL ) return CHAR_TYPE;
+    else return CHARARRAY_TYPE;
+
+
+
 
 }

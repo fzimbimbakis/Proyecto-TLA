@@ -8,6 +8,7 @@
 #include "../support/shared.h"
 #include <stdlib.h>
 #include <string.h>
+#include "../../frontend/syntactic-analysis/bison-parser.h"
 
 enum type{
     VOID_TYPE,
@@ -29,7 +30,7 @@ enum type{
 };
 
  struct  function{
-    char * className; // no hace falta
+    char * functionName;
     struct variable * parameters;
     struct variable * definedVariables;
     int returnType;
