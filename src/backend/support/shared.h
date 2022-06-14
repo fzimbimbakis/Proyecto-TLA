@@ -134,6 +134,7 @@ typedef struct tFactor{
         struct tArrayDesreferencing * array_desreferencing;
         struct tSubInteger * subInteger;
         struct tTokenNode * integer;
+        struct tObjectAttributeDesreferencing * objectAttributeDesreferencing;
     };
 } tFactor;
 
@@ -174,13 +175,13 @@ typedef struct tFactor{
  * @note Used in @node tValue
  * @note Uses @subnode tInnerAttribute
  */
-typedef struct tObjectAttributeDesreferencing{
-    struct tObjectAttribute * objectAttribute;
-    struct tTokenNode * openSquareBracket;
-    struct tIntegerExpression * index;
-    struct tTokenNode * closeSquareBracket;
-    struct tInnerAttribute * pointInnerAtributte;
-}tObjectAttributeDesreferencing;
+//typedef struct tObjectAttributeDesreferencing{
+//    struct tObjectAttribute * objectAttribute;
+//    struct tTokenNode * openSquareBracket;
+//    struct tIntegerExpression * index;
+//    struct tTokenNode * closeSquareBracket;
+//    struct tInnerAttribute * pointInnerAtributte;
+//}tObjectAttributeDesreferencing;
 
 /**
  * @subnode Getting inner atribute
@@ -189,10 +190,10 @@ typedef struct tObjectAttributeDesreferencing{
  *
  * @note Used in @subnode tObjectAttributeDesreferencing
  */
-typedef struct tInnerAttribute{
-    tTokenNode * point;
-    tTokenNode * innerAttributeName;
-}tInnerAttribute;
+//typedef struct tInnerAttribute{
+//    tTokenNode * point;
+//    tTokenNode * innerAttributeName;
+//}tInnerAttribute;
 
 /**
  * @node Argument Values
@@ -370,19 +371,18 @@ enum tGenericValueType{
     GENERIC_VALUE_CHARACTER,
     GENERIC_VALUE_INTEGER,
     GENERIC_VALUE_OBJECT_ATTRIBUTE,
-    GENERIC_VALUE_METHOD_CALL,
     GENERIC_VALUE_FUNCTION_CALL,
+    GENERIC_VALUE_METHOD_CALL,
     GENERIC_VALUE_VARNAME,
     GENERIC_VALUE_ARRAY_DESREFERENCING,
     GENERIC_VALUE_INTEGER_EXPRESSION,
-    GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING
+    GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING,
+    GENERIC_VALUE_STRING
 };
-
 
 typedef struct tGenericValue{
     int type;
     union{
-        struct ObjectArrayDesreferencing * objectArrayDesreferencing;
         struct tTokenNode* character;
         struct tTokenNode* integer;
         struct tObjectAttribute* objectAttribute;
@@ -409,6 +409,19 @@ typedef struct tArrayDesreferencingPointVarname{
     struct tTokenNode* point2;
     struct tTokenNode* attribute;
 }tArrayDesreferencingPointVarname;
+
+typedef struct tObjectAttributeDesreferencing{
+    struct tObjectAttribute * objectAttribute;
+    struct tTokenNode * openSquareBracket;
+    struct tIntegerExpression * index;
+    struct tTokenNode * closeSquareBracket;
+    struct tInnerAttribute * innerAttribute;
+}tObjectAttributeDesreferencing;
+
+typedef struct tInnerAttribute{
+    tTokenNode * point;
+    tTokenNode * innerAttributeName;
+}tInnerAttribute;
 
 enum tObjectAttributeType{
     OBJECT_ATTRIBUTE_VARNAME,
@@ -965,7 +978,7 @@ typedef struct tDeclaration{
    * @note Uses @subnode tEmptySquareBrackets
    */
 #define CHAR_ARRAY_WITH_BRACKETS 0
-#define CHAR_ARRAY_STRING 0
+#define CHAR_ARRAY_STRING 1
    typedef struct tCharArrayAssignationDeclaration{
        struct tTokenNode * charType;
        struct tTokenNode * name;

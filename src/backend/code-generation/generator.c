@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "../support/logger.h"
 #include "generator.h"
 #include "../../frontend/syntactic-analysis/bison-parser.h"
@@ -111,7 +112,7 @@ int recursiveProgram(tProgram * program){
     }
     return 0;
 }
-
+boolean haveClassStruct;
 int Class(tClass * class){
     //// Creo la struct si tengo o atributos o extiendo alguna clase
     if((class->classIn->attributes != NULL && class->classIn->attributes->declarations != NULL) || class->extendsName != NULL){
@@ -127,12 +128,17 @@ int Class(tClass * class){
         }
         fprintf(fd, "};\n");
         Constructor(class->classIn->constructor);
+    } else {
+        //// Minimal reference
+        fprintf(fd, "struct %s{char minReference;};\n", class->varname->associated_value.varname);
+        Constructor(class->classIn->constructor);
     }
 
     if(class->classIn->methods != NULL) {
-        Function(class->classIn->methods->function,class->varname->associated_value.varname);
-        if(class->classIn->methods->methods != NULL)
-            MethodsRecursive(class->classIn->methods->methods,class->varname->associated_value.varname);
+        Function(class->classIn->methods->function, class->varname->associated_value.varname);
+        if(class->classIn->methods->methods != NULL) {
+            MethodsRecursive(class->classIn->methods->methods, class->varname->associated_value.varname);
+        }
     }
     return 0;
 }
@@ -154,15 +160,18 @@ if(INTEGER_DECLARATION == declaration->type){
     fprintf(fd, "int %s;\n", declaration->integerDeclaration->varname->associated_value.varname);
 }
 if(INTEGER_ARRAY_DECLARATION == declaration->type){
-    fprintf(fd, "int %s[", declaration->integerArrayDeclaration->varname->associated_value.varname);
-    IntegerExpression(declaration->integerArrayDeclaration->integerExpression);
-    fprintf(fd, "];\n");
+    if(declaration->integerArrayDeclaration->integerExpression != NULL) {
+        fprintf(fd, "int %s[", declaration->integerArrayDeclaration->varname->associated_value.varname);
+        IntegerExpression(declaration->integerArrayDeclaration->integerExpression);
+        fprintf(fd, "];\n");
+    } else fprintf(fd, "int * %s;\n", declaration->integerArrayDeclaration->varname->associated_value.varname);
 }
 if(CHAR_ARRAY_DECLARATION == declaration->type){
-    fprintf(fd, "char %s[", declaration->integerArrayDeclaration->varname->associated_value.varname);
-    if(declaration->integerArrayDeclaration->integerExpression != NULL)
-        IntegerExpression(declaration->integerArrayDeclaration->integerExpression);
-    fprintf(fd, "];\n");
+    if(declaration->charArrayDeclaration->integerExpression != NULL) {
+        fprintf(fd, "char %s[", declaration->charArrayDeclaration->varname->associated_value.varname);
+        IntegerExpression(declaration->charArrayDeclaration->integerExpression);
+        fprintf(fd, "];\n");
+    } else fprintf(fd, "char * %s;\n", declaration->charArrayDeclaration->varname->associated_value.varname);
 }
 if(INTEGER_ASSIGNATION_DECLARATION == declaration->type){
     fprintf(fd, "int %s = ", declaration->integerAssignationDeclaration->varname->associated_value.varname);
@@ -170,7 +179,7 @@ if(INTEGER_ASSIGNATION_DECLARATION == declaration->type){
     fprintf(fd, ";\n");
 }
 if(CHAR_ASSIGNATION_DECLARATION_DECLARATION == declaration->type){
-    fprintf(fd, "char %s = %c;\n", declaration->charAssignationDeclaration->varname->associated_value.varname, declaration->charAssignationDeclaration->character->associated_value.charValue);
+    fprintf(fd, "char %s = '%c';\n", declaration->charAssignationDeclaration->varname->associated_value.varname, declaration->charAssignationDeclaration->charValue->character->associated_value.charValue);
 }
 if(INTEGER_ARRAY_ASSIGNATION_DECLARATION == declaration->type){
     fprintf(fd, "int %s[] = {", declaration->integerArrayAssignationDeclaration->varname->associated_value.varname);
@@ -191,7 +200,8 @@ if(CHAR_ARRAY_ASSIGNATION_DECLARATION == declaration->type){
                 array = array->commaCharacterArray->next;
         }
 
-    } else
+    }
+    if(declaration->charArrayAssignationDeclaration->type == CHAR_ARRAY_STRING)
         fprintf(fd, "\"%s\"", declaration->charArrayAssignationDeclaration->string->associated_value.varname);
 
     fprintf(fd, ";\n");
@@ -203,8 +213,8 @@ if(DECLARATION_WITH_OBJECT_TYPE == declaration->type){
 }
 
 void DeclarationWithObjectType(tDeclarationWithObjectDataType * declarationWithObjectDataType){
-    fprintf(fd,"%s ",declarationWithObjectDataType->objectDataType->associated_value.varname);
-    fprintf(fd,"%s ", declarationWithObjectDataType->name->associated_value.varname);
+    fprintf(fd,"struct %s * ",declarationWithObjectDataType->name->associated_value.varname);
+    fprintf(fd,"%s ", declarationWithObjectDataType->objectDataType->associated_value.varname);
     switch (declarationWithObjectDataType->type) {
         case  ONLY_DECLARATION:
             fprintf(fd,";\n");
@@ -275,6 +285,15 @@ if(FACTOR_SUB_INT == factor->type){
 if(FACTOR_INT == factor->type){
     fprintf(fd, "%d", factor->integer->associated_value.integerValue);
 }
+    if(factor->type == GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING){
+        ObjectAttribute(factor->objectAttributeDesreferencing->objectAttribute);
+    fprintf(fd, "[");
+    IntegerExpression(factor->objectAttributeDesreferencing->index);
+    fprintf(fd, "]");
+    if(factor->objectAttributeDesreferencing->innerAttribute != NULL){
+        fprintf(fd, "->%s", factor->objectAttributeDesreferencing->innerAttribute->innerAttributeName->associated_value.varname);
+    }
+    }
     return 0;
 }
 
@@ -328,7 +347,7 @@ int Constructor(tConstructor * constructor){
 int MethodsRecursive(tMethods * methods, char * className){
     if(methods == NULL)
         return 0;
-    Function(methods->function,className);
+    Function(methods->function, className);
     if(methods->methods != NULL)
         MethodsRecursive(methods->methods,className);
     return 0;
@@ -354,8 +373,11 @@ void Function(tFunction * function,char * className){
     fprintf(fd,"%s",function->varname->associated_value.varname);
     fprintf(fd,"(");
     if(className != NULL) {
-        fprintf(fd, "struct  %s  * this",className);
+        if(function->parameters != NULL)
+            fprintf(fd, "struct  %s  * this, ",className);
+        else fprintf(fd, "struct  %s  * this",className);
     }
+
     Parameters(function->parameters);
     fprintf(fd,")");
     fprintf(fd,"{\n");
@@ -423,8 +445,18 @@ void ArgumentValues(tArgumentValues * argumentValues){
 
 
 void MethodCall(tMethodCall * objectAttribute){
-    fprintf(fd,"%s",objectAttribute->varname->associated_value.varname);
-    fprintf(fd,".");
+    //// Agrego un Argument más que sea la estructura de la clase.
+    tArgumentValues * argumentValues = malloc(sizeof(tArgumentValues));
+    argumentValues->value = malloc(sizeof(tGenericValue));
+    argumentValues->value->type = GENERIC_VALUE_VARNAME;
+    argumentValues->value->varname = objectAttribute->varname;
+    if(objectAttribute->functionCall->firstArgument != NULL) {
+        argumentValues->commaNextArgumentValue = malloc(sizeof(tCommaNextArgumentValue));
+        argumentValues->commaNextArgumentValue->nextArgument = objectAttribute->functionCall->firstArgument;
+        argumentValues->commaNextArgumentValue->comma = malloc(sizeof(tTokenNode));
+        argumentValues->commaNextArgumentValue->comma->tokenId = COMMA;
+    }
+    objectAttribute->functionCall->firstArgument = argumentValues;
     FunctionCall(objectAttribute->functionCall);
 }
 void ArrayDesreferencing(tArrayDesreferencing * objectAttribute){
@@ -480,7 +512,7 @@ void MultiBasicParameters(tParameters * parameters){
 }
 
 void ObjectParameters(tParameters * parameters){
-    fprintf(fd, "%s %s",parameters->objectTypeName->associated_value.varname,parameters->paramName->associated_value.varname);
+    fprintf(fd, "struct * %s %s",parameters->objectTypeName->associated_value.varname,parameters->paramName->associated_value.varname);
 }
 
 void MultiObjectParameters(tParameters * parameters){
@@ -500,8 +532,10 @@ void ArrayParameters(tParameters * parameters){
 
 void MultiArrayParameters(tParameters * parameters){
     ArrayParameters(parameters);
-    if(parameters->nextParameters!=NULL)
+    if(parameters->nextParameters!=NULL) {
+        fprintf(fd,",");
         Parameters(parameters->nextParameters->nextParameters);
+    }
 }
 
 
@@ -512,8 +546,10 @@ void ObjectArrayParameters(tParameters * parameters){
 
 void MultiObjectArrayParameters(tParameters * parameters ){
     ObjectParameters(parameters);
-    if(parameters->nextParameters != NULL )
+    if(parameters->nextParameters != NULL ) {
+        fprintf(fd,",");
         Parameters(parameters);
+    }
 }
 
 
@@ -661,10 +697,12 @@ void ArrayAssignation(tArrayAssignation * assignation){
     switch(assignation->typeAssignatedValue){
         case ARRAY_ASSIG_VALUE_SEMICOLON:
             GenericValue(assignation->valueSemicolon->value);
+            fprintf(fd, ";\n");
             break;
         case ARRAY_ASSIG_INSTANTIATION:
             Instantiation(assignation->instantiation);
     }
+
 }
 
 void GenericValueArray(tGenericValueArray * genericValueArray){
@@ -782,12 +820,10 @@ void Return(tReturn * return_node){
 }
 
 void Instantiation(tInstantiation * instantiation){
-    fprintf(fd, "new ");
 
-    FunctionCall(instantiation->functionCall);
-
-    fprintf(fd,";\n");
-
+    fprintf(fd, "constructor_%s(", instantiation->functionCall->functionName->associated_value.varname);
+    ArgumentValues(instantiation->functionCall->firstArgument);
+    fprintf(fd, ");\n");
 }
 
 void ProgramUnitStatements(tProgramUnitStatements * programUnitStatements){
@@ -881,24 +917,15 @@ void GenericValue(tGenericValue* genericValue){
         case GENERIC_VALUE_ARRAY_DESREFERENCING:
             ArrayDesreferencing(genericValue->arrayDesreferencing);
         break;
-        case GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING:
-            fprintf("%s->",genericValue->objectArrayDesreferencing->objectName->associated_value.varname);
-            ArrayDesreferencing(genericValue->arrayDesreferencing);
-            break;
+//        case GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING:
+//            fprintf(fd, "%s->",genericValue->objectArrayDesreferencing->objectName->associated_value.varname);
+//            ArrayDesreferencing(genericValue->arrayDesreferencing);
+//            break;
         case GENERIC_VALUE_INTEGER_EXPRESSION:
             IntegerExpression(genericValue->integerExpression);
             break;
-//        case GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING:
-//            ObjectAttribute(genericValue->objectAttributeDesreferencing->objectAttribute);
-//            fprintf(fd, "[");
-//            IntegerExpression(genericValue->objectAttributeDesreferencing->index);
-//            fprintf(fd, "]");
-//            if(genericValue->objectAttributeDesreferencing->innerAttribute != NULL){
-//                fprintf(fd, "->%s", genericValue->objectAttributeDesreferencing->innerAttribute->innerAttributeName->associated_value.varname);
-//            }
-//            break;
-//        case GENERIC_VALUE_STRING:
-//            fprintf(fd, "\"%s\"", genericValue->string->associated_value.varname);
-//            break;
+        case GENERIC_VALUE_STRING:
+            fprintf(fd, "\"%s\"", genericValue->string->associated_value.varname);
+            break;
     }
 }

@@ -164,10 +164,12 @@ tGenericValueArray * genericValueArrayPlural(tGenericValue * value, int comma, t
  * @section
  * generic_value
  */
-tGenericValue * genericValue(void * value);
+tGenericValue * genericValue(void * value, int type);
 tGenericValue * genericValueCharacter(char value);
 tGenericValue * genericValueInteger(int value);
 tGenericValue * genericValueVarname(char * value);
+tFactor * genericValueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket);
+tFactor * genericValueObjectAttributeDesreferencingInnerAtt(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * innerAtt);
 /**
  * @section
  * char_value

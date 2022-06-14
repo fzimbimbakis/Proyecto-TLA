@@ -6,7 +6,8 @@ cache/
 log/
 obj/
 node_modules/
-
+results
+result.c
 # Files:
 *.csproj.user
 *~

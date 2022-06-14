@@ -286,18 +286,17 @@ generic_value { $$ =  genericValueArraySingle($1);}
 
 generic_value:
 CHARACTER { $$ =  genericValueCharacter($1);}
-|INTEGER { $$ =  genericValueInteger($1);}
-| object_attribute { $$ =  genericValue($1);}
-| function_call { $$ =  genericValue($1);}
-| method_call { $$ =  genericValue($1);}
-| VARNAME { $$ =  genericValueVarname($1);}
-| array_desreferencing { $$ =  genericValue($1);}
+//|INTEGER { $$ =  genericValueInteger($1);}
+//| object_attribute { $$ =  genericValue($1);}
+//| function_call { $$ =  genericValue($1);}
+//| method_call { $$ =  genericValue($1);}
+//| VARNAME { $$ =  genericValueVarname($1);}
+//| array_desreferencing { $$ =  genericValue($1);}
 | integer_expression { $$ =  genericValueIntegerExpression($1);}
 | STRING  {$$ = genericValueString($1);}
-| VARNAME POINT array_desreferencing {genericValuePointArrayDesreferencing($1,$2,$3);}
-| VARNAME POINT array_desreferencing POINT VARNAME { }
-//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4);};
-//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6);}
+//| VARNAME POINT array_desreferencing {genericValuePointArrayDesreferencing($1,$2,$3);}
+//| VARNAME POINT array_desreferencing POINT VARNAME { }
+
 ;
 
 factor: object_attribute {$$ = factorObjectAttribute($1);}
@@ -307,6 +306,8 @@ factor: object_attribute {$$ = factorObjectAttribute($1);}
 | array_desreferencing {$$ = factorArrayDesreferencing($1);}
 | SUB INTEGER {$$ = factorSubInteger($1, $2);}
 | INTEGER  {$$ = factorInteger($1);}
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  genericValueObjectAttributeDesreferencing($1,$2,$3,$4);};
+| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  genericValueObjectAttributeDesreferencingInnerAtt($1,$2,$3,$4,$5,$6);}
 ;
 
 

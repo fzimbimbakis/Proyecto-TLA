@@ -12,9 +12,9 @@ Class Fibonacci{
 
 
     int next () {
-     int aux = this.a;
+     int aux = this.b;
      this.b = this.a;
-     this.a = this.a + this.b;
+     this.a = this.a + aux;
      return aux;
     }
 
@@ -22,10 +22,11 @@ Class Fibonacci{
 
 int main(){
        Fibonacci f= new Fibonacci();
-       printf("%d\n",f.a);
-       f.next();
-        printf("%d\n",f.a);
-        f.next();
-        printf("%d\n",f.a);
-
+       int i = 0;
+       while(i != 25){
+            printf("%d\n",f.a);
+            f.next();
+            i++;
+       }
+        return 0;
 }
