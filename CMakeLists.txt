@@ -16,7 +16,7 @@ add_custom_command(
 	# Opciones para GCC:
 	add_compile_options(-static-libgcc)
 	add_compile_options(-std=gnu99)
-	add_compile_options(-O3)
+#	add_compile_options(-O3)
 
 	# Compilar el scanner con Flex:
 	add_custom_command(
@@ -48,6 +48,7 @@ add_executable(Compiler
 	src/backend/code-generation/generator.c
 	src/backend/domain-specific/calculator.c
 	src/backend/support/logger.c
+	src/backend/semantic-analysis/semantic-analysis.c
 	src/frontend/lexical-analysis/flex-actions.c
 	src/frontend/lexical-analysis/flex-scanner.c
 	src/frontend/syntactic-analysis/bison-actions.c

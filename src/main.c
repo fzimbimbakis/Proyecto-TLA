@@ -2,6 +2,7 @@
 #include "backend/support/logger.h"
 #include "backend/support/shared.h"
 #include "frontend/syntactic-analysis/bison-parser.h"
+#include "backend/semantic-analysis/semantic-analysis.h"
 #include <stdio.h>
 
 //Estado de la aplicación.
@@ -32,6 +33,7 @@ const int main(const int argumentCount, const char ** arguments) {
 		case 0:
 			if (state.succeed) {
                 LogInfo("La compilacion fue exitosa.");
+                addClass(state.root->classesAndMain->class);
                 final_result = Generator(state.root, file);
             }
 			else {
