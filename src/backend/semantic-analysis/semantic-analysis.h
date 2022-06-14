@@ -59,7 +59,8 @@ enum type{
     struct  function * main;
 };
 
-struct global * generateSymbolTable(tProgram * program);
+boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue);
+    struct global * generateSymbolTable(tProgram * program);
 struct function * addMain(tMainFunction * mainFunction);
 struct class  *   addClass(tClass * aClass);
 struct function *  addFunction(tFunction * function);

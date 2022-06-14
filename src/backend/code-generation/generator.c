@@ -73,7 +73,9 @@ char * fatherName = NULL;
 boolean  isExtended = false;
 boolean isCorrect = true;
 char * currentClass;
+char * currentFunction ;
 char * msg;
+char * letfName;
 
 
 int Generator(tProgram * program, FILE * filedescriptor) {
@@ -86,7 +88,7 @@ int Generator(tProgram * program, FILE * filedescriptor) {
     if(isCorrect)
         return final_result;
     else{
-        printf("%s",msg);
+//        printf("%s",msg);
         return -1 ;
     }
 }
@@ -287,6 +289,10 @@ if(FACTOR_FUNCTION_CALL == factor->type){
     FunctionCall(factor->function_call);
 }
 if(FACTOR_VARNAME == factor->type){
+    if(letfName != NULL && !isAssignationValid(currentClass,currentFunction,letfName, factor->varname->associated_value.varname)){
+        isCorrect = false;
+        printf("error: Incorrect assignation on function %s\n",currentFunction);
+    }
     fprintf(fd, "%s", factor->varname->associated_value.varname);
 }
 if(FACTOR_METHOD_CALL == factor->type){
@@ -373,6 +379,7 @@ int MethodsRecursive(tMethods * methods, char * className){
 }
 
 void Main(tMainFunction * mainFunction){
+    currentFunction = "main";
     fprintf(fd,"int main("); 
     Parameters(mainFunction->parameters); 
     fprintf(fd,"){\n");
@@ -381,6 +388,7 @@ void Main(tMainFunction * mainFunction){
 }
 
 void Function(tFunction * function,char * className){
+    currentFunction = function->varname->associated_value.varname;
     switch(function->type){
        case DATATYPE_FUNCTION:
            DataType(function->datatype);
@@ -436,7 +444,7 @@ void ObjectAttribute(tObjectAttribute* objectAttribute){
             else{
                 if( !isAttributeValid(currentClass, objectAttribute->varnameRight->associated_value.varname) ){
                     isCorrect = false;
-                    msg = "error: Accessing an incorrect attribute.  \n";;
+                    printf("error:  %s is not part of %s's attributes.  \n",objectAttribute->varnameRight->associated_value.varname,currentClass);
                 }
                 fprintf(fd, "%s->%s", objectAttribute->varnameLeft->associated_value.varname, objectAttribute->varnameRight->associated_value.varname);
             }
@@ -760,6 +768,7 @@ void SuperSubnode(tSuperSubnode * subnode){
     switch (subnode->typeVariable) {
         case SUPER_SUB_NODE_VARNAME:{
             fprintf(fd, "%s", subnode->varname->associated_value.varname);
+            letfName = subnode->varname->associated_value.varname;
             break;
         }
         case SUPER_SUB_NODE_OBJECT_ATT:{
@@ -939,6 +948,10 @@ void GenericValue(tGenericValue* genericValue){
             FunctionCall(genericValue->functionCall);
         break;
         case GENERIC_VALUE_VARNAME:
+            if( letfName != NULL && !isAssignationValid(currentClass , currentFunction , letfName,genericValue->varname->associated_value.varname)){
+                isCorrect = false ;
+                printf("error: Incompatible assigning on %s function",currentFunction);
+            }
             fprintf(fd, "%s", genericValue->varname->associated_value.varname);
         break;
         case GENERIC_VALUE_ARRAY_DESREFERENCING:

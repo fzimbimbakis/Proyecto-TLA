@@ -7,22 +7,23 @@ struct  class * getClassByName(char * name );
 struct function * getMethodByName(char * class , char * name );
 struct variable * getVarByName(char * class , char * methodName , char * name );
 struct variable * getVarFromMain();
+struct variable * getVarByName(char * class , char * methodName , char * name );
 struct function * getMain();
 struct global  symbolTable;
 
 
 //todo: check parameters
-boolean isMethodCallValid(char * variable,char * methodName ){
-    struct variable * currentVariable = getVarFromMain();
-    if(currentVariable == NULL )
-        return false;
-    if(currentVariable -> type != OBJECT_TYPE)
-        return false ;
-    struct class * variableClass = getClassByName(currentVariable->objectType);
-    if(variableClass == NULL )
-        return false;
-    return getMethodByName(currentVariable->objectType , methodName)!=NULL;
-}
+//boolean isMethodCallValid(char * variable,char * methodName ){
+//    struct variable * currentVariable = getVarFromMain();
+//    if(currentVariable == NULL )
+//        return false;
+//    if(currentVariable -> type != OBJECT_TYPE)
+//        return false ;
+//    struct class * variableClass = getClassByName(currentVariable->objectType);
+//    if(variableClass == NULL )
+//        return false;
+//    return getMethodByName(currentVariable->objectType , methodName)!=NULL;
+//}
 
 
 boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue){
@@ -30,6 +31,9 @@ boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char 
     struct variable * rightVariable = getVarByName(class,method,rightValue);
     if(leftVariable == NULL || rightValue == NULL)
         return false;
+    if(leftVariable -> type == 5 && rightVariable->type == 5 ){
+        return strcmp(leftVariable->objectType,rightVariable->objectType)==0;
+    }
     return (leftVariable->type == rightVariable->type);
 }
 
@@ -51,25 +55,25 @@ boolean isAttributeValid(char * className , char * variable){
     }
 }
 
-struct variable * getVarFromMain(char * name ){
-    struct function * method = getMain();
-    struct variable * currentVariable = method->parameters;
-    while(currentVariable != NULL ){
-        if(strcmp(name, currentVariable->varname ) == 0 )
-            return currentVariable;
-        currentVariable = currentVariable->next;
-    }
-
-    currentVariable = method->definedVariables;
-    while(currentVariable != NULL ){
-        if(strcmp(name, currentVariable->varname ) == 0 )
-            return currentVariable;
-        currentVariable = currentVariable->next;
-    }
-
-    return NULL ;
-
-}
+//struct variable * getVarFromMain(char * name ){
+//    struct function * method = getMain();
+//    struct variable * currentVariable = method->parameters;
+//    while(currentVariable != NULL ){
+//        if(strcmp(name, currentVariable->varname ) == 0 )
+//            return currentVariable;
+//        currentVariable = currentVariable->next;
+//    }
+//
+//    currentVariable = method->definedVariables;
+//    while(currentVariable != NULL ){
+//        if(strcmp(name, currentVariable->varname ) == 0 )
+//            return currentVariable;
+//        currentVariable = currentVariable->next;
+//    }
+//
+//    return NULL ;
+//
+//}
 
 
 
@@ -79,17 +83,22 @@ struct function * getMain(){
 
 
 struct variable * getVarByName(char * class , char * methodName , char * name ){
-    struct function * method = getMethodByName(class,methodName);
+    struct function * method;
+    if(strcmp(methodName , "main") == 0 ){
+            method = symbolTable.main;
+    }else method = getMethodByName(class,methodName);
     struct variable * currentVariable = method->parameters;
     while(currentVariable != NULL ){
         if(strcmp(name, currentVariable->varname ) == 0 )
             return currentVariable;
+        currentVariable = currentVariable->next;
     }
 
     currentVariable = method->definedVariables;
     while(currentVariable != NULL ){
         if(strcmp(name, currentVariable->varname ) == 0 )
             return currentVariable;
+        currentVariable = currentVariable->next;
     }
 
     return NULL ;
@@ -104,6 +113,7 @@ struct function * getMethodByName(char * class , char * name ){
     while (currentMethod != NULL ){
         if(strcmp(currentMethod->functionName,name) == 0 )
             return currentMethod;
+        currentMethod = currentMethod -> next ;
     }
     return NULL;
 }
