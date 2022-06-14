@@ -24,7 +24,7 @@ Class Cubo extends Cuadrado{
             }
 
         int area() {
-            return lado * 2 * 6;
+            return this.lado * 2 * 6;
         }
 
         int sumaAristas(){

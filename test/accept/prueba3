@@ -12,7 +12,7 @@ Class Prueba{
 
 
     int suma () {
-       return a + b;
+       return this.a + this.b;
     }
 }
 int main(){

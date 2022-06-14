@@ -278,7 +278,7 @@ assignation: VARNAME ASSIGNATION generic_value SEMICOLON {$$ = assignationGramma
 //| STRING { $$ =  valueSingleString($1);}
 //| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4);};
 //| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6);}
-;
+//;
 
 generic_value_array:
 generic_value { $$ =  genericValueArraySingle($1);}
@@ -287,18 +287,27 @@ generic_value { $$ =  genericValueArraySingle($1);}
 generic_value:
 CHARACTER { $$ =  genericValueCharacter($1);}
 |INTEGER { $$ =  genericValueInteger($1);}
-|STRING { $$ =  genericValueString($1);}
-| object_attribute { $$ =  genericValue($1, 2);}
-| function_call { $$ =  genericValue($1, 3);}
-| method_call { $$ =  genericValue($1, 4);}
+| object_attribute { $$ =  genericValue($1);}
+| function_call { $$ =  genericValue($1);}
+| method_call { $$ =  genericValue($1);}
 | VARNAME { $$ =  genericValueVarname($1);}
-| array_desreferencing { $$ =  genericValue($1, 6);}
+| array_desreferencing { $$ =  genericValue($1);}
 | integer_expression { $$ =  genericValueIntegerExpression($1);}
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  genericValueObjectAttributeDesreferencing($1,$2,$3,$4);};
-| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  genericValueObjectAttributeDesreferencingInnerAtt($1,$2,$3,$4,$5,$6);}
+| STRING  {$$ = genericValueString($1);}
+| VARNAME POINT array_desreferencing {genericValuePointArrayDesreferencing($1,$2,$3);}
+| VARNAME POINT array_desreferencing POINT VARNAME { }
+//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET { $$ =  valueObjectAttributeDesreferencing($1,$2,$3,$4);};
+//| object_attribute OPEN_SQUARE_BRACKET integer_expression CLOSE_SQUARE_BRACKET POINT VARNAME { $$ =  valueObjectAttributeDesreferencingAttribute($1,$2,$3,$4,$5,$6);}
 ;
 
-
+factor: object_attribute {$$ = factorObjectAttribute($1);}
+| function_call {$$ = factorFunctionCall($1);}
+| method_call {$$ = factorMethodCall($1);}
+| VARNAME {$$ = factorVarname($1);}
+| array_desreferencing {$$ = factorArrayDesreferencing($1);}
+| SUB INTEGER {$$ = factorSubInteger($1, $2);}
+| INTEGER  {$$ = factorInteger($1);}
+;
 
 
 char_value: CHARACTER { $$ =  charValueCharacter($1);}
@@ -452,14 +461,6 @@ integer_expression: integer_expression ADD integer_expression {$$ = integerExpre
 ;
 
 
-factor: object_attribute {$$ = factorObjectAttribute($1);}
-| function_call {$$ = factorFunctionCall($1);}
-| method_call {$$ = factorMethodCall($1);}
-| VARNAME {$$ = factorVarname($1);}
-| array_desreferencing {$$ = factorArrayDesreferencing($1);}
-| SUB INTEGER {$$ = factorSubInteger($1, $2);}
-| INTEGER  {$$ = factorInteger($1);}
-;
 
 
 object_attribute: VARNAME POINT VARNAME	{$$ = objectAttributeFromVarname($1, $2, $3);}

@@ -251,6 +251,9 @@ tDeclaration * declarationWithObjectDataTypeGrammarActionArrayNoSize(char * name
     return newNode;
 }
 
+
+
+
 //
 tDeclaration * declarationWithObjectDataTypeGrammarActionArrayWithSize(char* name, char* datatype, int openSQ, tIntegerExpression* integerExpression, int closeSQ, int semicolon){
     tDeclaration  * newNode = malloc(sizeof(tDeclaration));
@@ -680,16 +683,13 @@ tGenericValueArray * genericValueArrayPlural(tGenericValue * value, int comma, t
  * @section
  * generic_value
  */
-
-tGenericValue * genericValue(void * value, int type){
+tGenericValue * genericValue(void * value){
     tGenericValue * result = malloc(sizeof(tGenericValue));
-    result->type = type;
     result->varname = value;
     return result;
 }
 tGenericValue * genericValueCharacter(char value){
     tGenericValue * result = malloc(sizeof(tGenericValue));
-    result->type = GENERIC_VALUE_CHARACTER;
     result->varname = charNode(value);
     return result;
 }
@@ -717,28 +717,37 @@ tGenericValue * genericValueIntegerExpression(tIntegerExpression * integerExpres
     result->integerExpression = integerExpression;
     return result;
 }
-tGenericValue * genericValueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket){
+
+
+tGenericValue * genericValueString(char * string){
     tGenericValue * result = malloc(sizeof(tGenericValue));
-    result->type = GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING;
-    result->objectAttributeDesreferencing = malloc(sizeof(tObjectAttributeDesreferencing));
-    result->objectAttributeDesreferencing->index = integerExpression;
-    result->objectAttributeDesreferencing->objectAttribute = objectAttribute;
-    result->objectAttributeDesreferencing->openSquareBracket = tokenNode(openSquareBracket);
-    result->objectAttributeDesreferencing->closeSquareBracket = tokenNode(closeSquareBracket);
+    tTokenNode *  node = malloc(sizeof (tTokenNode));
+    int stringLen = 1  ;
+    while( string[stringLen++] != 34);
+    node->associated_value.varname = malloc(sizeof(char)*stringLen+1);
+    strncpy(node->associated_value.varname, string, stringLen);
+    node->associated_value.varname[stringLen] = 0;
+    result->string = node ;
     return result;
 }
-tGenericValue * genericValueObjectAttributeDesreferencingInnerAtt(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * innerAtt){
-    tGenericValue * result = malloc(sizeof(tGenericValue));
-    result->type = GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING;
-    result->objectAttributeDesreferencing = malloc(sizeof(tObjectAttributeDesreferencing));
-    result->objectAttributeDesreferencing->index = integerExpression;
-    result->objectAttributeDesreferencing->objectAttribute = objectAttribute;
-    result->objectAttributeDesreferencing->openSquareBracket = tokenNode(openSquareBracket);
-    result->objectAttributeDesreferencing->closeSquareBracket = tokenNode(closeSquareBracket);
-    tInnerAttribute * innerAttribute = result->objectAttributeDesreferencing->innerAttribute = malloc(sizeof(tInnerAttribute));
-    innerAttribute->innerAttributeName = varnameNode(innerAtt);
-    innerAttribute->point = tokenNode(point);
-    return result;
+
+tGenericValue  * genericValuePointArrayDesreferencing(char * varname, int point , tArrayDesreferencing * arrayDesreferencing){
+    tGenericValue  * newNode = malloc(sizeof(tGenericValue));
+    newNode->type = GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING;
+    newNode->objectArrayDesreferencing = malloc(sizeof(struct ObjectArrayDesreferencing));
+    newNode->objectArrayDesreferencing->objectName = varnameNode(varname);
+    newNode->objectArrayDesreferencing->point= tokenNode(point);
+    newNode->objectArrayDesreferencing->arrayDesreferencing = arrayDesreferencing;
+    return newNode;
+
+}
+
+
+tGenericValue* genericValuePointArrayDesreferencingPointVarname(char * varname, tTokenNode* point, tArrayDesreferencing* arrayDesreferencing,
+                                                                tTokenNode* point, tTokenNode* varname){
+    tGenericValue* newNode= malloc(sizeof(tGenericValue));
+    newNode->
+
 }
 /**
  * @section

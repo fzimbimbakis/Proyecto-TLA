@@ -11,8 +11,8 @@ void Methods(tMethods * methods);
 void Main(tMainFunction * mainFunction);
 int Attributes(tAttributes * attributes);
 int Constructor(tConstructor * attributes);
-int MethodsRecursive(tMethods * attributes);
-void Function(tFunction * function);
+int MethodsRecursive(tMethods * attributes,char * className);
+void Function(tFunction * function,char * className);
 int Declaration(tDeclaration * declaration);
 int DeclarationsRecursive(tDeclarations * declarations);
 int IntegerArrayRecursive(tCommaIntegerArray * array);
@@ -72,6 +72,8 @@ int Generator(tProgram * program, FILE * filedescriptor) {
 //	LogInfo("El resultado de la expresion computada es: '%d'.", program);
     fd = filedescriptor;
     int final_result = 0;
+    fprintf(fd,"#include <stdio.h>\n");
+    fprintf(fd,"#include <stdlib.h>\n");
     recursiveProgram(program);
     return final_result;
 }
@@ -90,13 +92,14 @@ void CharAssignationDeclaration(tCharAssignationDeclaration* charAssignationDecl
 
 
 
-void Methods(tMethods * methods){
-    Function(methods->function);
-    if(methods->methods != NULL )
-        Methods(methods->methods);
-}
+//void Methods(tMethods * methods){
+//    Function(methods->function);
+//    if(methods->methods != NULL )
+//        Methods(methods->methods);
+//}
 
 int recursiveProgram(tProgram * program){
+
     if(program->type == PROGRAM_MAIN){
         Main(program->mainFunction);
 
@@ -122,14 +125,14 @@ int Class(tClass * class){
         if (class->classIn->attributes != NULL && class->classIn->attributes->declarations != NULL) {
             Attributes(class->classIn->attributes);
         }
-        fprintf(fd, "}\n");
+        fprintf(fd, "};\n");
         Constructor(class->classIn->constructor);
     }
 
     if(class->classIn->methods != NULL) {
-        Function(class->classIn->methods->function);
+        Function(class->classIn->methods->function,class->varname->associated_value.varname);
         if(class->classIn->methods->methods != NULL)
-            MethodsRecursive(class->classIn->methods->methods);
+            MethodsRecursive(class->classIn->methods->methods,class->varname->associated_value.varname);
     }
     return 0;
 }
@@ -314,7 +317,7 @@ int Constructor(tConstructor * constructor){
     Parameters(constructor->function->parameters);
     fprintf(fd, "){\n");
 
-    fprintf(fd, "struct %s this = malloc(sizeof(struct %s));\n",className,className);
+    fprintf(fd, "struct %s *  this = malloc(sizeof(struct %s));\n",className,className);
     ProgramStatements(constructor->function->programStatements);
 
     fprintf(fd, "return this;\n");
@@ -322,12 +325,12 @@ int Constructor(tConstructor * constructor){
     return 0;
 }
 
-int MethodsRecursive(tMethods * methods){
+int MethodsRecursive(tMethods * methods, char * className){
     if(methods == NULL)
         return 0;
-    Function(methods->function);
+    Function(methods->function,className);
     if(methods->methods != NULL)
-        MethodsRecursive(methods->methods);
+        MethodsRecursive(methods->methods,className);
     return 0;
 }
 
@@ -339,7 +342,7 @@ void Main(tMainFunction * mainFunction){
     fprintf(fd,"\n}");
 }
 
-void Function(tFunction * function){
+void Function(tFunction * function,char * className){
     switch(function->type){
        case DATATYPE_FUNCTION:
            DataType(function->datatype);
@@ -350,6 +353,9 @@ void Function(tFunction * function){
     };
     fprintf(fd,"%s",function->varname->associated_value.varname);
     fprintf(fd,"(");
+    if(className != NULL) {
+        fprintf(fd, "struct  %s  * this",className);
+    }
     Parameters(function->parameters);
     fprintf(fd,")");
     fprintf(fd,"{\n");
@@ -875,20 +881,24 @@ void GenericValue(tGenericValue* genericValue){
         case GENERIC_VALUE_ARRAY_DESREFERENCING:
             ArrayDesreferencing(genericValue->arrayDesreferencing);
         break;
+        case GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING:
+            fprintf("%s->",genericValue->objectArrayDesreferencing->objectName->associated_value.varname);
+            ArrayDesreferencing(genericValue->arrayDesreferencing);
+            break;
         case GENERIC_VALUE_INTEGER_EXPRESSION:
             IntegerExpression(genericValue->integerExpression);
             break;
-        case GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING:
-            ObjectAttribute(genericValue->objectAttributeDesreferencing->objectAttribute);
-            fprintf(fd, "[");
-            IntegerExpression(genericValue->objectAttributeDesreferencing->index);
-            fprintf(fd, "]");
-            if(genericValue->objectAttributeDesreferencing->innerAttribute != NULL){
-                fprintf(fd, "->%s", genericValue->objectAttributeDesreferencing->innerAttribute->innerAttributeName->associated_value.varname);
-            }
-            break;
-        case GENERIC_VALUE_STRING:
-            fprintf(fd, "\"%s\"", genericValue->string->associated_value.varname);
-            break;
-    }    
+//        case GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING:
+//            ObjectAttribute(genericValue->objectAttributeDesreferencing->objectAttribute);
+//            fprintf(fd, "[");
+//            IntegerExpression(genericValue->objectAttributeDesreferencing->index);
+//            fprintf(fd, "]");
+//            if(genericValue->objectAttributeDesreferencing->innerAttribute != NULL){
+//                fprintf(fd, "->%s", genericValue->objectAttributeDesreferencing->innerAttribute->innerAttributeName->associated_value.varname);
+//            }
+//            break;
+//        case GENERIC_VALUE_STRING:
+//            fprintf(fd, "\"%s\"", genericValue->string->associated_value.varname);
+//            break;
+    }
 }

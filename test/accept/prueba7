@@ -9,27 +9,27 @@ Class NumberList{
     }
 
     int read(){
-        int total = atoi(scanf());
+        int total = atoi(getchar());
         int n;
-        while( count!=255 && total != 0){
-            list[count] = atoi(scanf());
-            count = count+1;
+        while( this.count!=255 && total != 0){
+            this.list[this.count] = atoi(getchar());
+            this.count = this.count+1;
             total = total-1;
         }
     }
 
     int modify(int n){
         int i = 0;
-        while ( i < count) {
-            list[i] = list[i] * n;
+        while ( i < this.count) {
+            this.list[i] =  this.list[i] * n ;
             i = i + 1;
         }
     }
 
     int write(){
         int i = 0;
-        while ( i < count) {
-            printf("%d", list[i]);
+        while ( i < this.count) {
+            printf("%d", this.list[i]);
             i = i + 1;
         }
     }

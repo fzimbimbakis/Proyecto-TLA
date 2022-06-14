@@ -145,6 +145,14 @@ tAssignation  * assignationRule9GrammarAction(tObjectAttribute* objectAttribute,
 //tGenericValue * valueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket);
 //tGenericValue * valueObjectAttributeDesreferencingAttribute(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * varname);
 
+tGenericValue * valueSingle(void * value);
+tGenericValue * valueSingleCharacter(char value);
+tGenericValue * valueSingleString(char * value);
+tGenericValue * valueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket);
+tGenericValue * valueObjectAttributeDesreferencingAttribute(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * varname);
+tGenericValue * genericValueIntegerExpression(tIntegerExpression * integerExpression);
+tGenericValue * genericValueString(char * string);
+tGenericValue  * genericValuePointArrayDesreferencing(char * varname, int  point , tArrayDesreferencing * arrayDesreferencing);
 /**
  * @section
  * generic_value_array
@@ -156,14 +164,10 @@ tGenericValueArray * genericValueArrayPlural(tGenericValue * value, int comma, t
  * @section
  * generic_value
  */
-tGenericValue * genericValue(void * value, int type);
+tGenericValue * genericValue(void * value);
 tGenericValue * genericValueCharacter(char value);
-tGenericValue * genericValueString(char * value);
 tGenericValue * genericValueInteger(int value);
 tGenericValue * genericValueVarname(char * value);
-tGenericValue * genericValueIntegerExpression(tIntegerExpression * integerExpression);
-tGenericValue * genericValueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket);
-tGenericValue * genericValueObjectAttributeDesreferencingInnerAtt(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * innerAtt);
 /**
  * @section
  * char_value

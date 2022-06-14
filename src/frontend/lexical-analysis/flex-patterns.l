@@ -80,7 +80,7 @@ NotQuote         [^\"]+
 ";"                                          {yylval.token =SEMICOLON; return SEMICOLON;}
 ","                                          {yylval.token = COMMA; return COMMA; }
 
-{simpleQuote}.{simpleQuote}                  { yylval.character = yytext[1];return CHARACTER; }
+{simpleQuote}.{simpleQuote}                  { yylval.character = yytext[1]; printf("%c",yylval.character);return CHARACTER; }
 {Quote}{NotQuote}{Quote}                      {yylval.string=yytext; return STRING;}
 
 
