@@ -62,6 +62,8 @@ int  isMethodCallValid(char * methodName,char * variable , tArgumentValues * par
         return -2 ;
     struct function * methodCall = getMethodByName(currentVariable->objectType , methodName);
     struct class * currentClass = getClassByName(currentVariable->objectType);
+    if(currentClass == NULL )
+        return -3;
     if(methodCall == NULL && currentClass->fatherName == NULL  )
         return  -3;
     else if(methodCall == NULL  && currentClass->fatherName != NULL ){

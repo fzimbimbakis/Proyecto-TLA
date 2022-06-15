@@ -21,6 +21,7 @@ void yyerror(const char * string) {
 
 int strl(char * name){
     int x =0;
+//    while(isalpha(name[x]) || isnumber(name[x])){
     while(isalpha(name[x])){
         x++;
     }

@@ -357,6 +357,10 @@ int DeclarationsRecursive(tDeclarations * declarations){
 
 int Constructor(tConstructor * constructor){
     char * className=constructor->function->varname->associated_value.varname;
+    if(strcmp(className, currentClass) != 0){
+        isCorrect = false;
+        printf("error:  Constructor name, %s, and class name, %s, must be the same.  \n", className, currentClass);
+    }
     fprintf(fd, "struct %s * constructor_%s(", className, className);
     Parameters(constructor->function->parameters);
     fprintf(fd, "){\n");

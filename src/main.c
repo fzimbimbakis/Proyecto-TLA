@@ -52,9 +52,15 @@ const int main(const int argumentCount, const char ** arguments) {
 			LogError("Error desconocido mientras se ejecutaba el analizador Bison (codigo %d).", result);
 	}
 	LogInfo("Fin.");
+    fclose(file);
     if(final_result != 0){
+        if(argumentCount > 1) {
+            remove(arguments[1]);
+        }
+        else {
+            remove("result.c");
+        }
         LogError("Se produjo un error en la aplicacion.");
     }
-    fclose(file);
 	return result;
 }

@@ -67,14 +67,49 @@ if [ "$1" = "--make" ]; then
     cd .. || exit;
     shift 1
 fi
+if [ "$1" = "--compile" ]; then
+    shift 1
+    echo "$1"
+              if test -f ./test/accept/"$1"; then
+              ./bin/Compiler ./results/"$1".c < ./test/accept/"$1"
+              gcc -o ./results/"$1" ./results/"$1".c
+              rm ./results/"$1".c
+              elif test -f ./test/reject/"$1"; then
+                  ./bin/Compiler ./results/"$1".c < ./test/reject/"$1"
+                  gcc -o ./results/"$1" ./results/"$1".c
+                  rm ./results/"$1".c
+              else
+                echo "No existe el test $1"
+              fi
+              echo -e '\n'
+fi
+if [ "$1" = "--compileall" ]; then
+    for i in {1..15}
+    do
+    	echo prueba"$i"
+          if test -f ./test/accept/prueba"$i"; then
+              ./bin/Compiler ./results/prueba"$i".c < ./test/accept/prueba"$i"
+              gcc -o ./results/prueba"$i" ./results/prueba"$i".c
+              rm ./results/prueba"$i".c
+          elif test -f ./test/reject/prueba"$i"; then
+              ./bin/Compiler ./results/prueba"$i".c < ./test/reject/prueba"$i"
+              gcc -o ./results/prueba"$i" ./results/prueba"$i".c
+              rm ./results/prueba"$i".c
+          else
+            echo "No existe el test $i"
+          fi
+          echo -e '\n'
+    done
+    shift 1
+fi
 if [ "$1" = "--all" ]; then
     for i in {1..15}
     do
     	echo prueba"$i"
           if test -f ./test/accept/prueba"$i"; then
-          ./bin/Compiler < ./test/accept/prueba"$i"
+          ./bin/Compiler ./results/prueba"$i".c < ./test/accept/prueba"$i"
           elif test -f ./test/reject/prueba"$i"; then
-              ./bin/Compiler < ./test/reject/prueba"$i"
+              ./bin/Compiler ./results/prueba"$i".c < ./test/reject/prueba"$i"
           else
             echo "No existe el test $i"
           fi
@@ -87,9 +122,9 @@ for var in "$@"
 do
     echo "$var"
     if test -f ./test/accept/"$var"; then
-    ./bin/Compiler < ./test/accept/"$var"
+        ./bin/Compiler ./results/"$var".c < ./test/accept/"$var"
     elif test -f ./test/reject/"$var"; then
-        ./bin/Compiler < ./test/reject/"$var"
+        ./bin/Compiler ./results/"$var".c < ./test/reject/"$var"
     else
       echo "No existe el test $var"
     fi

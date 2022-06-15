@@ -58,7 +58,7 @@ Construcción y ejecución de todos los tests
 * prueba9: Crear una superclase cuya subclase redefine uno de sus métodos.
 * prueba10: Un programa que utilice todos los operadores aritméticos y lógicos.
 
-### Tests rechazados ( !!! Los tests del 12 al 15 se rechazan en el back-end. Por lo tanto, hasta el momento son aceptados )
+### Tests rechazados
 * prueba11: Un programa que intente crear una clase heredando de múltiples clases.
 * prueba12: Un programa que cree 2 objetos de diferente clase e intente asignar uno en el otro.
 * prueba13: Un programa que intente llamar a un método que no posee.
