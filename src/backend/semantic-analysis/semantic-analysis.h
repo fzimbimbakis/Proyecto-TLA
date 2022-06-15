@@ -59,11 +59,11 @@ enum type{
     struct  function * main;
 };
 
-
+boolean  isMethodOnFatherAndSon(char * methodName, char * class );
 boolean isMethodFromFather(char * varname ,char * methodName);
-    boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue);
+boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue);
 int isMethodCallValid(char * methodName,char * variable , tArgumentValues * parameters);
-    struct global * generateSymbolTable(tProgram * program);
+struct global * generateSymbolTable(tProgram * program);
 struct function * addMain(tMainFunction * mainFunction);
 struct class  *   addClass(tClass * aClass);
 struct function *  addFunction(tFunction * function);

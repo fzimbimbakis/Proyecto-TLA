@@ -17,8 +17,13 @@ Class Prueba{
 }
 int main(){
        Prueba prueba =new Prueba(1, 2);
+       int sumando = prueba.suma();
+       printf("%d\n",sumando);
        int integer = 1;
+       printf("%d\n",integer);
        char character = 'a';
+        printf("%c\n",character);
        char string[] = "String";
+       printf("%s\n",string);
        int integerArray[] = {1, 2, 3, 4, 5};
     }

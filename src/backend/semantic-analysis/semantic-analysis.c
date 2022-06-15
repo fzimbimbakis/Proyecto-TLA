@@ -13,6 +13,21 @@ int getParametersNeed(struct function * function );
 
 struct global  symbolTable;
 
+boolean  isMethodOnFatherAndSon(char * methodName, char * class ){
+    struct class * currentClass = getClassByName(class);
+    if(currentClass ->fatherName == NULL)
+        return false;
+    struct function * methodCall  = getMethodByName(class ,methodName);
+    if(methodCall == NULL )
+        return  false;
+    methodCall = getMethodByName(currentClass->fatherName ,methodName);
+    if(methodCall == NULL)
+        return false;
+    return true;
+}
+
+
+
 // >= 0 si es valido, si es del padre setea fromFather en true.
 //< 0 si no es valido
 boolean isMethodFromFather(char * varname ,char * methodName){
@@ -21,6 +36,8 @@ boolean isMethodFromFather(char * varname ,char * methodName){
     if(variableStruct == NULL)
         return false;
     struct class * currentClass = getClassByName(variableStruct->objectType);
+    if(currentClass == NULL )
+        return false;
     struct function * methodCall  = getMethodByName(variableStruct->objectType,methodName);
     if(methodCall == NULL && currentClass->fatherName == NULL  )
         return  false;

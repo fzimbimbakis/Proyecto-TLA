@@ -48,7 +48,7 @@ Class ListaPersonas{
             i++;
             int comp;
             if(this.n != 0){
-                comp = this.compare(this.personas[0].nombre, nombre);
+                comp = this.compare(this.personas[i].nombre, nombre);
             }
             while(i >= 0 && (comp<0 || (comp==0 && this.personas[i].dni > dni) )){
                 this.personas[i + 1] = this.personas[i];
@@ -70,8 +70,13 @@ int main(){
     ListaPersonas lista = new ListaPersonas(10);
     lista.registrar(1, "A");
     lista.registrar(2, "A");
+    printf("%d\n",lista.personas[1].dni);
     lista.registrar(3, "B");
-    lista.registrar(4, "C");
-    lista.registrar(5, "C");
+    printf("%d\n", lista.personas[2].dni);
+     lista.registrar(4, "C");
+     printf("%d\n", lista.personas[3].dni);
+     lista.registrar(5, "C");
+     printf("%d\n", lista.personas[4].dni);
+
 
 }

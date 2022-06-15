@@ -19,4 +19,5 @@ int main(){
        Prueba r= new Prueba(3,2);
         r.suma();
         int integer = r.a;
+        printf("%d\n",integer);
     }

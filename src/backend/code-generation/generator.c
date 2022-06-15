@@ -401,6 +401,8 @@ void Function(tFunction * function,char * className){
            fprintf(fd,"void ");
            break;
     };
+    if(currentFunction != NULL && currentClass != NULL && isMethodOnFatherAndSon(currentFunction,currentClass))
+        fprintf(fd,"override_");
     fprintf(fd,"%s",function->varname->associated_value.varname);
     fprintf(fd,"(");
     if(className != NULL) {

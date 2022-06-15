@@ -9,18 +9,22 @@ Class NumberList{
     }
 
     int read(){
-        int total = getchar();
+        int total = (getchar()-48);
+        printf("Esperando por  %d numeros (entre 1 - 9 )  \n",total);
         int n;
-        while( this.count!=255 && total != 0){
-            this.list[this.count] = getchar();
-            this.count = this.count+1;
-            total = total-1;
+        while(  total > 0){
+            int c = getchar();
+            if( c != 10 ) {
+                this.list[this.count] = (c-48);
+                this.count = this.count+1;
+                total = total-1;
+            }
         }
         return 0;
     }
 
     int modify(int n){
-        int i = 0;
+        int i= 0;
         while ( i < this.count) {
             this.list[i] =  this.list[i] * n ;
             i = i + 1;
@@ -31,7 +35,7 @@ Class NumberList{
     int write(){
         int i = 0;
         while ( i < this.count) {
-            printf("%d", this.list[i]);
+            printf("%d\n", this.list[i]);
             i = i + 1;
         }
         return 0;
@@ -40,7 +44,9 @@ Class NumberList{
 
 int main() {
     NumberList list = new NumberList();
+    printf("Ingrese la cantidad de numeros (Entre 1 y 9 ).\n");
     list.read();
+    printf("Multiplicando por 2......\n") ;
     list.modify(2);
     list.write();
     return 0;

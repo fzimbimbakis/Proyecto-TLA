@@ -12,9 +12,9 @@ Class Fibonacci{
 
 
         int next () {
-         int aux = a;
-         b = a;
-         a = a + b;
+         int aux = this.a;
+         this.b = this.a;
+         this.a = this.a + this.b;
          return aux;
         }
 
