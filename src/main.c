@@ -34,7 +34,7 @@ const int main(const int argumentCount, const char ** arguments) {
 			if (state.succeed) {
                 generateSymbolTable(state.root);
                 final_result = Generator(state.root, file);
-                if(final_result > 0 )
+                if(final_result >= 0 )
                     LogInfo("La compilacion fue exitosa.");
             }
 			else {

@@ -13,6 +13,29 @@ int getParametersNeed(struct function * function );
 
 struct global  symbolTable;
 
+// >= 0 si es valido, si es del padre setea fromFather en true.
+//< 0 si no es valido
+boolean isMethodFromFather(char * varname ,char * methodName){
+
+    struct variable * variableStruct = getVarFromMain(varname);
+    if(variableStruct == NULL)
+        return false;
+    struct class * currentClass = getClassByName(variableStruct->objectType);
+    struct function * methodCall  = getMethodByName(variableStruct->objectType,methodName);
+    if(methodCall == NULL && currentClass->fatherName == NULL  )
+        return  false;
+    else if(methodCall == NULL  && currentClass->fatherName != NULL ){
+        methodCall = getMethodByName(currentClass->fatherName,methodName);
+        if(methodCall == NULL)
+            return false;
+        else
+            return true;
+
+    }
+    return false ;
+
+}
+
 
 int  isMethodCallValid(char * methodName,char * variable , tArgumentValues * parameters){
     struct variable * currentVariable = getVarFromMain(variable);

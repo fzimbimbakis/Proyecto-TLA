@@ -59,7 +59,9 @@ enum type{
     struct  function * main;
 };
 
-boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue);
+
+boolean isMethodFromFather(char * varname ,char * methodName);
+    boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue);
 int isMethodCallValid(char * methodName,char * variable , tArgumentValues * parameters);
     struct global * generateSymbolTable(tProgram * program);
 struct function * addMain(tMainFunction * mainFunction);

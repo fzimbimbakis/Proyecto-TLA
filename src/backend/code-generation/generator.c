@@ -75,8 +75,9 @@ boolean isCorrect = true;
 char * currentClass;
 char * currentFunction ;
 char * msg;
-char * letfName;
+char * leftName;
 char * callingVariable;
+char * calllingMethod;
 
 
 int Generator(tProgram * program, FILE * filedescriptor) {
@@ -290,11 +291,12 @@ if(FACTOR_FUNCTION_CALL == factor->type){
     FunctionCall(factor->function_call);
 }
 if(FACTOR_VARNAME == factor->type){
-    if( letfName != NULL && !isAssignationValid(currentClass,currentFunction,letfName, factor->varname->associated_value.varname)){
-        isCorrect = false;
-        printf("error: Incorrect assignation on function %s\n",currentFunction);
-    }
-    fprintf(fd, "%s", factor->varname->associated_value.varname);
+
+    if(currentFunction != NULL && strcmp(currentFunction,"main")==0 && leftName != NULL && !isAssignationValid(currentClass, currentFunction, leftName, factor->varname->associated_value.varname)){
+            isCorrect = false;
+            printf("error: Incorrect assignation on function %s\n",currentFunction);
+        }
+        fprintf(fd, "%s", factor->varname->associated_value.varname);
 }
 if(FACTOR_METHOD_CALL == factor->type){
     MethodCall(factor->method_call);
@@ -386,6 +388,7 @@ void Main(tMainFunction * mainFunction){
     fprintf(fd,"){\n");
     ProgramStatements(mainFunction->programStatements); 
     fprintf(fd,"\n}");
+    currentFunction = NULL ;
 }
 
 void Function(tFunction * function,char * className){
@@ -493,6 +496,7 @@ void ArgumentValues(tArgumentValues * argumentValues){
 
 void MethodCall(tMethodCall * objectAttribute){
     //// Agrego un Argument más que sea la estructura de la clase.
+    calllingMethod = objectAttribute->functionCall->functionName->associated_value.varname;
     tArgumentValues * argumentValues = malloc(sizeof(tArgumentValues));
     argumentValues->value = malloc(sizeof(tGenericValue));
     argumentValues->value->type = GENERIC_VALUE_VARNAME;
@@ -781,7 +785,7 @@ void SuperSubnode(tSuperSubnode * subnode){
     switch (subnode->typeVariable) {
         case SUPER_SUB_NODE_VARNAME:{
             fprintf(fd, "%s", subnode->varname->associated_value.varname);
-            letfName = subnode->varname->associated_value.varname;
+            leftName = subnode->varname->associated_value.varname;
             break;
         }
         case SUPER_SUB_NODE_OBJECT_ATT:{
@@ -836,6 +840,7 @@ void SuperSubnode(tSuperSubnode * subnode){
             break;
         }
     }
+    leftName = NULL ;
 }
 
 void Assignation(tAssignation * assignation){
@@ -961,12 +966,16 @@ void GenericValue(tGenericValue* genericValue){
             FunctionCall(genericValue->functionCall);
         break;
         case GENERIC_VALUE_VARNAME:
-            if(strcmp(currentFunction,"main")==0 && letfName != NULL && !isAssignationValid(currentClass , currentFunction , letfName,genericValue->varname->associated_value.varname)){
+            if(strcmp(currentFunction,"main")==0 && leftName != NULL && !isAssignationValid(currentClass , currentFunction , leftName, genericValue->varname->associated_value.varname)){
                 isCorrect = false ;
                 printf("error: Incompatible assigning on %s function\n",currentFunction);
             }
-            letfName = NULL ;
-            fprintf(fd, "%s", genericValue->varname->associated_value.varname);
+
+
+            if( calllingMethod != NULL &&   isMethodFromFather(genericValue->varname->associated_value.varname,calllingMethod) ){
+                fprintf(fd, "%s->extended_%s", genericValue->varname->associated_value.varname,fatherName);
+            }
+            else fprintf(fd, "%s", genericValue->varname->associated_value.varname);
         break;
         case GENERIC_VALUE_ARRAY_DESREFERENCING:
             ArrayDesreferencing(genericValue->arrayDesreferencing);
