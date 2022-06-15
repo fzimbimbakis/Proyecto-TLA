@@ -76,6 +76,7 @@ char * currentClass;
 char * currentFunction ;
 char * msg;
 char * letfName;
+char * callingVariable;
 
 
 int Generator(tProgram * program, FILE * filedescriptor) {
@@ -289,7 +290,7 @@ if(FACTOR_FUNCTION_CALL == factor->type){
     FunctionCall(factor->function_call);
 }
 if(FACTOR_VARNAME == factor->type){
-    if(letfName != NULL && !isAssignationValid(currentClass,currentFunction,letfName, factor->varname->associated_value.varname)){
+    if( letfName != NULL && !isAssignationValid(currentClass,currentFunction,letfName, factor->varname->associated_value.varname)){
         isCorrect = false;
         printf("error: Incorrect assignation on function %s\n",currentFunction);
     }
@@ -463,6 +464,17 @@ void ObjectAttribute(tObjectAttribute* objectAttribute){
 void FunctionCall(tFunctionCall * objectAttribute){
     fprintf(fd,"%s",objectAttribute->functionName->associated_value.varname);
     fprintf(fd,"(");
+    if( callingVariable != NULL ) {
+        int returnValue = isMethodCallValid(objectAttribute->functionName->associated_value.varname,callingVariable,objectAttribute->firstArgument);
+        if(returnValue == -3 ){
+            isCorrect = false;
+            printf("%s is not declared on class methods.\n",objectAttribute->functionName->associated_value.varname);
+        }else if (returnValue == -1 ){
+            isCorrect = false;
+            printf("Error calling %s with incorrect parameters number\n",objectAttribute->functionName->associated_value.varname);
+        }
+    }
+    callingVariable = NULL ;
     ArgumentValues(objectAttribute->firstArgument);
     fprintf(fd,")");
 }
@@ -485,6 +497,7 @@ void MethodCall(tMethodCall * objectAttribute){
     argumentValues->value = malloc(sizeof(tGenericValue));
     argumentValues->value->type = GENERIC_VALUE_VARNAME;
     argumentValues->value->varname = objectAttribute->varname;
+    callingVariable = objectAttribute->varname->associated_value.varname;
     if(objectAttribute->functionCall->firstArgument != NULL) {
         argumentValues->commaNextArgumentValue = malloc(sizeof(tCommaNextArgumentValue));
         argumentValues->commaNextArgumentValue->nextArgument = objectAttribute->functionCall->firstArgument;
@@ -948,10 +961,11 @@ void GenericValue(tGenericValue* genericValue){
             FunctionCall(genericValue->functionCall);
         break;
         case GENERIC_VALUE_VARNAME:
-            if( letfName != NULL && !isAssignationValid(currentClass , currentFunction , letfName,genericValue->varname->associated_value.varname)){
+            if(strcmp(currentFunction,"main")==0 && letfName != NULL && !isAssignationValid(currentClass , currentFunction , letfName,genericValue->varname->associated_value.varname)){
                 isCorrect = false ;
-                printf("error: Incompatible assigning on %s function",currentFunction);
+                printf("error: Incompatible assigning on %s function\n",currentFunction);
             }
+            letfName = NULL ;
             fprintf(fd, "%s", genericValue->varname->associated_value.varname);
         break;
         case GENERIC_VALUE_ARRAY_DESREFERENCING:

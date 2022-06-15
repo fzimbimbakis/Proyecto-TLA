@@ -9,27 +9,59 @@ struct variable * getVarByName(char * class , char * methodName , char * name );
 struct variable * getVarFromMain();
 struct variable * getVarByName(char * class , char * methodName , char * name );
 struct function * getMain();
+int getParametersNeed(struct function * function );
+
 struct global  symbolTable;
 
 
-//todo: check parameters
-//boolean isMethodCallValid(char * variable,char * methodName ){
-//    struct variable * currentVariable = getVarFromMain();
-//    if(currentVariable == NULL )
-//        return false;
-//    if(currentVariable -> type != OBJECT_TYPE)
-//        return false ;
-//    struct class * variableClass = getClassByName(currentVariable->objectType);
-//    if(variableClass == NULL )
-//        return false;
-//    return getMethodByName(currentVariable->objectType , methodName)!=NULL;
-//}
+int  isMethodCallValid(char * methodName,char * variable , tArgumentValues * parameters){
+    struct variable * currentVariable = getVarFromMain(variable);
+    if(currentVariable == NULL )
+        return -4;
+    if(currentVariable -> type != OBJECT_TYPE)
+        return -2 ;
+    struct function * methodCall = getMethodByName(currentVariable->objectType , methodName);
+    struct class * currentClass = getClassByName(currentVariable->objectType);
+    if(methodCall == NULL && currentClass->fatherName == NULL  )
+        return  -3;
+    else if(methodCall == NULL  && currentClass->fatherName != NULL ){
+        methodCall = getMethodByName(currentClass->fatherName,methodName);
+        if(methodCall == NULL)
+            return -3;
+    }
+
+    int NeedParameters = getParametersNeed(methodCall);
+    tArgumentValues  * counting = parameters;
+    int parametersC = 0 ;
+    while (counting != NULL){
+        parametersC++;
+        if(counting->commaNextArgumentValue == NULL)
+            break;
+        counting = counting->commaNextArgumentValue->nextArgument;
+    }
+    if( parametersC - 1 == NeedParameters)
+        return 1 ;
+    else return -1;
+}
+
+int getParametersNeed(struct function * function ){
+    if(function == NULL )
+        return 0;
+    struct variable * var = function->parameters;
+    int count = 0 ;
+    while(var!=NULL){
+        count++;
+        var = var->next;
+    }
+    return count;
+}
+
 
 
 boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue){
     struct variable * leftVariable = getVarByName(class,method,leftValue);
     struct variable * rightVariable = getVarByName(class,method,rightValue);
-    if(leftVariable == NULL || rightValue == NULL)
+    if(leftVariable == NULL || rightVariable == NULL)
         return false;
     if(leftVariable -> type == 5 && rightVariable->type == 5 ){
         return strcmp(leftVariable->objectType,rightVariable->objectType)==0;
@@ -55,25 +87,25 @@ boolean isAttributeValid(char * className , char * variable){
     }
 }
 
-//struct variable * getVarFromMain(char * name ){
-//    struct function * method = getMain();
-//    struct variable * currentVariable = method->parameters;
-//    while(currentVariable != NULL ){
-//        if(strcmp(name, currentVariable->varname ) == 0 )
-//            return currentVariable;
-//        currentVariable = currentVariable->next;
-//    }
-//
-//    currentVariable = method->definedVariables;
-//    while(currentVariable != NULL ){
-//        if(strcmp(name, currentVariable->varname ) == 0 )
-//            return currentVariable;
-//        currentVariable = currentVariable->next;
-//    }
-//
-//    return NULL ;
-//
-//}
+struct variable * getVarFromMain(char * name ){
+    struct function * method = getMain();
+    struct variable * currentVariable = method->parameters;
+    while(currentVariable != NULL ){
+        if(strcmp(name, currentVariable->varname ) == 0 )
+            return currentVariable;
+        currentVariable = currentVariable->next;
+    }
+
+    currentVariable = method->definedVariables;
+    while(currentVariable != NULL ){
+        if(strcmp(name, currentVariable->varname ) == 0 )
+            return currentVariable;
+        currentVariable = currentVariable->next;
+    }
+
+    return NULL ;
+
+}
 
 
 
@@ -184,6 +216,8 @@ struct function * addConstructor(tConstructor * constructor){
 }
 
 struct variable * addAttribute(tAttributes * attributes){
+    if(attributes == NULL )
+        return NULL;
     tDeclarations  * current = attributes->declarations;
     struct variable * currentVariable;
     struct variable * first  = NULL ;

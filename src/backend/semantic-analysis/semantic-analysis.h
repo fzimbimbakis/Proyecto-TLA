@@ -60,6 +60,7 @@ enum type{
 };
 
 boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue);
+int isMethodCallValid(char * methodName,char * variable , tArgumentValues * parameters);
     struct global * generateSymbolTable(tProgram * program);
 struct function * addMain(tMainFunction * mainFunction);
 struct class  *   addClass(tClass * aClass);
