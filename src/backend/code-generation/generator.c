@@ -99,12 +99,24 @@ void IntegerAssignationDeclaration(tIntegerAssignationDeclaration* integerAssign
     fprintf(fd, " int %s =", integerAssignationDeclaration->varname->associated_value.varname);
     IntegerExpression(integerAssignationDeclaration->integerExpression);
     fprintf(fd, ";/n");
+    free(integerAssignationDeclaration->varname->associated_value.varname);
+    free(integerAssignationDeclaration->varname);
+    free(integerAssignationDeclaration->integer);
+    free(integerAssignationDeclaration->assignation);
+    free(integerAssignationDeclaration->semicolon);
+    free(integerAssignationDeclaration);
 }
 
 void CharAssignationDeclaration(tCharAssignationDeclaration* charAssignationDeclaration) {
     fprintf(fd, " char %s =", charAssignationDeclaration->varname->associated_value.varname);
     CharValue(charAssignationDeclaration->charValue);
     fprintf(fd, ";/n");
+    free(charAssignationDeclaration->varname->associated_value.varname);
+    free(charAssignationDeclaration->varname);
+    free(charAssignationDeclaration->semicolon);
+    free(charAssignationDeclaration->assignation);
+    free(charAssignationDeclaration->character);
+    free(charAssignationDeclaration);
 }
 
 
@@ -126,9 +138,11 @@ int recursiveProgram(tProgram * program){
         if(program->classesAndMain->program != NULL)
         recursiveProgram(program->classesAndMain->program);
     }
+    free(program);
     return 0;
 }
 boolean haveClassStruct;
+
 int Class(tClass * class){
     currentClass = class->varname->associated_value.varname;
     //// Creo la struct si tengo o atributos o extiendo alguna clase
@@ -160,6 +174,16 @@ int Class(tClass * class){
             MethodsRecursive(class->classIn->methods->methods, class->varname->associated_value.varname);
         }
     }
+
+    free(class->varname->associated_value.varname);
+    free(class->varname);
+    free(class->class);
+    free(class->closeBrace);
+    free(class->openBrace);
+    free(class->classIn);
+    if (class->extendsName != NULL)
+        free(class->extendsName);
+    free(class);
     return 0;
 }
 
@@ -168,6 +192,10 @@ int Attributes(tAttributes * attributes){
     result = Declaration(attributes->declarations->declaration);
     if(attributes->declarations->declarations != NULL)
         result = DeclarationsRecursive(attributes->declarations->declarations);
+    free(attributes->attributes);
+    free(attributes->operBrace);
+    free(attributes->closeBrace);
+    free(attributes);
     return result;
 }
 
@@ -175,9 +203,15 @@ int Declaration(tDeclaration * declaration){
     int result = 0;
 if(CHAR_DECLARATION == declaration->type){
     fprintf(fd, "char %s;\n", declaration->charDeclaration->varname->associated_value.varname);
+    free(declaration->charDeclaration->varname->associated_value.varname);
+    free(declaration->charDeclaration->varname);
+    free(declaration->charDeclaration);
 }
 if(INTEGER_DECLARATION == declaration->type){
     fprintf(fd, "int %s;\n", declaration->integerDeclaration->varname->associated_value.varname);
+    free(declaration->integerDeclaration->varname->associated_value.varname);
+    free(declaration->integerDeclaration->varname);
+    free(declaration->integerDeclaration);
 }
 if(INTEGER_ARRAY_DECLARATION == declaration->type){
     if(declaration->integerArrayDeclaration->integerExpression != NULL) {
@@ -185,6 +219,9 @@ if(INTEGER_ARRAY_DECLARATION == declaration->type){
         IntegerExpression(declaration->integerArrayDeclaration->integerExpression);
         fprintf(fd, "];\n");
     } else fprintf(fd, "int * %s;\n", declaration->integerArrayDeclaration->varname->associated_value.varname);
+    free(declaration->integerArrayDeclaration->varname->associated_value.varname);
+    free(declaration->integerArrayDeclaration->varname);
+    free(declaration->integerArrayDeclaration);
 }
 if(CHAR_ARRAY_DECLARATION == declaration->type){
     if(declaration->charArrayDeclaration->integerExpression != NULL) {
@@ -192,43 +229,74 @@ if(CHAR_ARRAY_DECLARATION == declaration->type){
         IntegerExpression(declaration->charArrayDeclaration->integerExpression);
         fprintf(fd, "];\n");
     } else fprintf(fd, "char * %s;\n", declaration->charArrayDeclaration->varname->associated_value.varname);
+    free(declaration->charArrayDeclaration->varname->associated_value.varname);
+    free(declaration->charArrayDeclaration->varname);
+    free(declaration->charArrayDeclaration->closeSquareBracket);
+    free(declaration->charArrayDeclaration->openSquareBracket);
+    free(declaration->charArrayDeclaration->semicolon);
+    free(declaration->charArrayDeclaration->character);
+    free(declaration->charArrayDeclaration);
 }
 if(INTEGER_ASSIGNATION_DECLARATION == declaration->type){
     fprintf(fd, "int %s = ", declaration->integerAssignationDeclaration->varname->associated_value.varname);
     IntegerExpression(declaration->integerAssignationDeclaration->integerExpression);
     fprintf(fd, ";\n");
+    free(declaration->integerAssignationDeclaration->varname->associated_value.varname);
+    free(declaration->integerAssignationDeclaration->varname);
+    free(declaration->integerAssignationDeclaration);
 }
 if(CHAR_ASSIGNATION_DECLARATION_DECLARATION == declaration->type){
     fprintf(fd, "char %s = '%c';\n", declaration->charAssignationDeclaration->varname->associated_value.varname, declaration->charAssignationDeclaration->charValue->character->associated_value.charValue);
+    free(declaration->charAssignationDeclaration->varname->associated_value.varname);
+    free(declaration->charAssignationDeclaration->varname);
+    free(declaration->charAssignationDeclaration);
 }
 if(INTEGER_ARRAY_ASSIGNATION_DECLARATION == declaration->type){
     fprintf(fd, "int %s[] = {", declaration->integerArrayAssignationDeclaration->varname->associated_value.varname);
     IntegerExpression(declaration->integerArrayAssignationDeclaration->integerArray->integerExpression);
     IntegerArrayRecursive(declaration->integerArrayAssignationDeclaration->integerArray->commaIntegerArray);
     fprintf(fd, "};\n");
+    free(declaration->integerArrayAssignationDeclaration->varname->associated_value.varname);
+    free(declaration->integerArrayAssignationDeclaration->varname);
+    free(declaration->integerArrayAssignationDeclaration);
 }
 if(CHAR_ARRAY_ASSIGNATION_DECLARATION == declaration->type){
     fprintf(fd, "char %s[] = ", declaration->charArrayAssignationDeclaration->name->associated_value.varname);
     if(declaration->charArrayAssignationDeclaration->type == CHAR_ARRAY_WITH_BRACKETS){
 
         tCharacterArray * array = declaration->charArrayAssignationDeclaration->charArrayWithBrackets->characterArray;
+        tCharacterArray * freeAux;
         while(array->charValue != NULL){
             CharValue(array->charValue);
-            if(array->commaCharacterArray == NULL)
+            if(array->commaCharacterArray == NULL) {
+                free(array);
                 array = NULL;
-            else
+            }else {
+                freeAux = array;
                 array = array->commaCharacterArray->next;
+                free(freeAux->commaCharacterArray->comma);
+                free(freeAux->commaCharacterArray);
+                free(freeAux);
+            }
         }
 
     }
-    if(declaration->charArrayAssignationDeclaration->type == CHAR_ARRAY_STRING)
+    if(declaration->charArrayAssignationDeclaration->type == CHAR_ARRAY_STRING) {
         fprintf(fd, "\"%s\"", declaration->charArrayAssignationDeclaration->string->associated_value.varname);
+        free(declaration->charArrayAssignationDeclaration->string->associated_value.varname);
+        free(declaration->charArrayAssignationDeclaration->string);
+        free(declaration->integerArrayAssignationDeclaration);
+    }
 
     fprintf(fd, ";\n");
+    free(declaration->charArrayAssignationDeclaration->name->associated_value.varname);
+    free(declaration->charArrayAssignationDeclaration->name);
+    free(declaration->charArrayAssignationDeclaration);
 }
 if(DECLARATION_WITH_OBJECT_TYPE == declaration->type){
     DeclarationWithObjectType(declaration->declarationAux);
 }
+    free(declaration);
     return result;
 }
 
@@ -238,21 +306,36 @@ void DeclarationWithObjectType(tDeclarationWithObjectDataType * declarationWithO
     switch (declarationWithObjectDataType->type) {
         case  ONLY_DECLARATION:
             fprintf(fd,";\n");
+            free(declarationWithObjectDataType->semicolon);
             break;
         case  ARRAY_ONLY_DECLARATION:
             fprintf(fd,"[];\n");
+            free(declarationWithObjectDataType->emptySquareBrackets->openSquareBracket);
+            free(declarationWithObjectDataType->emptySquareBrackets->closeSquareBracket);
+            free(declarationWithObjectDataType->emptySquareBrackets->semicolon);
+            free(declarationWithObjectDataType->emptySquareBrackets);
             break;
         case  ARRAY_WITH_INDEX_DECLARATION:
             fprintf(fd,"[");
             IntegerExpression(declarationWithObjectDataType->squareBracketsWithSize->size);
             fprintf(fd,"];\n");
+            free(declarationWithObjectDataType->squareBracketsWithSize->closeSquareBracket);
+            free(declarationWithObjectDataType->squareBracketsWithSize->openSquareBracket);
+            free(declarationWithObjectDataType->squareBracketsWithSize->semicolon);
+            free(declarationWithObjectDataType->squareBracketsWithSize);
             break;
         case  INSTANTIATION:
             fprintf(fd," = ");
             Instantiation(declarationWithObjectDataType->assignationWithMethodFunctionInstantiation->instantiation);
+            free(declarationWithObjectDataType->assignationWithMethodFunctionInstantiation->assignation);
             break;
 
     }
+    free(declarationWithObjectDataType->name->associated_value.varname);
+    free(declarationWithObjectDataType->name);
+    free(declarationWithObjectDataType->objectDataType->associated_value.varname);
+    free(declarationWithObjectDataType->objectDataType);
+    free(declarationWithObjectDataType);
 
 }
 
@@ -268,17 +351,21 @@ int IntegerExpression(tIntegerExpression * integerExpression){
         IntegerExpression(integerExpression->commonIntegerExpression->leftIntegerExpression);
         Operator(integerExpression->commonIntegerExpression->operator->tokenId);
         IntegerExpression(integerExpression->commonIntegerExpression->rightIntegerExpression);
+        free(integerExpression->commonIntegerExpression->operator);
     }
     if(integerExpression->type == INTEGER_EXPRESSION_ENCLOSED){
         fprintf(fd, "(");
         IntegerExpression(integerExpression->enclosedCommonIntegerExpression->integerExpression);
         fprintf(fd, ")");
+        free(integerExpression->enclosedCommonIntegerExpression->openParenthesis);
+        free(integerExpression->enclosedCommonIntegerExpression->closeParenthesis);
     }
     if(integerExpression->type == INTEGER_EXPRESSION_INCREMENT_DECREMENT){
         IntegerExpression(integerExpression->decrementIncrementIntegerExpression->leftIntegerExpression);
         Operator(integerExpression->decrementIncrementIntegerExpression->operator->tokenId);
+        free(integerExpression->decrementIncrementIntegerExpression->operator);
     }
-
+    free(integerExpression);
     return 0;
 
 }
@@ -296,7 +383,9 @@ if(FACTOR_VARNAME == factor->type){
             isCorrect = false;
             printf("error: Incorrect assignation on function %s\n",currentFunction);
         }
-        fprintf(fd, "%s", factor->varname->associated_value.varname);
+    fprintf(fd, "%s", factor->varname->associated_value.varname);
+    free(factor->varname->associated_value.varname);
+    free(factor->varname);
 }
 if(FACTOR_METHOD_CALL == factor->type){
     MethodCall(factor->method_call);
@@ -306,19 +395,30 @@ if(FACTOR_ARRAY_DESR == factor->type){
 }
 if(FACTOR_SUB_INT == factor->type){
     fprintf(fd, "-%d", factor->subInteger->integer->associated_value.integerValue);
+    free(factor->subInteger->sub);
+    free(factor->subInteger->integer);
+    free(factor->subInteger);
 }
 if(FACTOR_INT == factor->type){
     fprintf(fd, "%d", factor->integer->associated_value.integerValue);
+    free(factor->integer);
 }
-    if(factor->type == GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING){
-        ObjectAttribute(factor->objectAttributeDesreferencing->objectAttribute);
+if(factor->type == GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING){
+    ObjectAttribute(factor->objectAttributeDesreferencing->objectAttribute);
     fprintf(fd, "[");
     IntegerExpression(factor->objectAttributeDesreferencing->index);
     fprintf(fd, "]");
     if(factor->objectAttributeDesreferencing->innerAttribute != NULL){
         fprintf(fd, "->%s", factor->objectAttributeDesreferencing->innerAttribute->innerAttributeName->associated_value.varname);
+        free(factor->objectAttributeDesreferencing->innerAttribute->point);
+        free(factor->objectAttributeDesreferencing->innerAttribute->innerAttributeName->associated_value.varname);
+        free(factor->objectAttributeDesreferencing->innerAttribute->innerAttributeName);
+        free(factor->objectAttributeDesreferencing->innerAttribute);
     }
+    free(factor->objectAttributeDesreferencing->openSquareBracket);
+    free(factor->objectAttributeDesreferencing->closeSquareBracket);
     }
+    free(factor);
     return 0;
 }
 
@@ -343,7 +443,10 @@ int IntegerArrayRecursive(tCommaIntegerArray * array){
         return 0;
     fprintf(fd, ", ");
     IntegerExpression(array->next->integerExpression);
-    return IntegerArrayRecursive(array->next->commaIntegerArray);
+    IntegerArrayRecursive(array->next->commaIntegerArray);
+    free(array->comma);
+    free(array);
+    return 0;
 }
 
 int DeclarationsRecursive(tDeclarations * declarations){
@@ -393,6 +496,13 @@ void Main(tMainFunction * mainFunction){
     ProgramStatements(mainFunction->programStatements); 
     fprintf(fd,"\n}");
     currentFunction = NULL ;
+    free(mainFunction->integer);
+    free(mainFunction->openBrace);
+    free(mainFunction->closeBrace);
+    free(mainFunction->main);
+    free(mainFunction->closeParenthesis);
+    free(mainFunction->openParenthesis);
+    free(mainFunction);
 }
 
 void Function(tFunction * function,char * className){
