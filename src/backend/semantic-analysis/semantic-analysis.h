@@ -10,6 +10,7 @@
 #include <string.h>
 #include "../../frontend/syntactic-analysis/bison-parser.h"
 
+
 enum type{
     VOID_TYPE,
     INT_TYPE,
@@ -25,7 +26,7 @@ enum type{
  struct variable{
     char * varname ;
     char * objectType;
-    int type;
+    struct pair * type;
     struct variable * next;
 };
 
@@ -33,7 +34,7 @@ enum type{
     char * functionName;
     struct variable * parameters;
     struct variable * definedVariables;
-    int returnType;
+    struct  pair *  returnType;
     struct function * next ;
 };
 
@@ -53,6 +54,10 @@ enum type{
      int rightType;
  };
 
+struct pair{
+    int type;
+    char * name;
+};
 
  struct global {
     struct class * classes;

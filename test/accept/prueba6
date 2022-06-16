@@ -69,6 +69,7 @@ Class ListaPersonas{
 int main(){
     ListaPersonas lista = new ListaPersonas(10);
     lista.registrar(1, "A");
+    printf("%d\n", lista.personas[0].dni);
     lista.registrar(2, "A");
     printf("%d\n",lista.personas[1].dni);
     lista.registrar(3, "B");
