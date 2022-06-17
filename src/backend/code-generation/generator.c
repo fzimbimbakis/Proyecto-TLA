@@ -310,7 +310,7 @@ if(FACTOR_SUB_INT == factor->type){
 if(FACTOR_INT == factor->type){
     fprintf(fd, "%d", factor->integer->associated_value.integerValue);
 }
-    if(factor->type == GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING){
+    if(factor->type == FACTOR_OBJECT_ARRAY_DESREFERENCING){
         ObjectAttribute(factor->objectAttributeDesreferencing->objectAttribute);
     fprintf(fd, "[");
     IntegerExpression(factor->objectAttributeDesreferencing->index);

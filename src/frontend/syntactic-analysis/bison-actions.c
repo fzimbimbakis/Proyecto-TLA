@@ -766,7 +766,7 @@ tGenericValue * genericValueString(char * string){
 //}
 tFactor * genericValueObjectAttributeDesreferencing(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket){
     tFactor * result = calloc(1,sizeof(tFactor));
-    result->type = GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING;
+    result->type = FACTOR_OBJECT_ARRAY_DESREFERENCING;
     result->objectAttributeDesreferencing = calloc(1,sizeof(tObjectAttributeDesreferencing));
     result->objectAttributeDesreferencing->index = integerExpression;
     result->objectAttributeDesreferencing->objectAttribute = objectAttribute;
@@ -776,7 +776,7 @@ tFactor * genericValueObjectAttributeDesreferencing(tObjectAttribute* objectAttr
 }
 tFactor * genericValueObjectAttributeDesreferencingInnerAtt(tObjectAttribute* objectAttribute, int openSquareBracket, tIntegerExpression* integerExpression, int closeSquareBracket, int point, char * innerAtt){
     tFactor * result = calloc(1,sizeof(tFactor));
-    result->type = GENERIC_VALUE_OBJECT_ARRAY_DESREFERENCING;
+    result->type = FACTOR_OBJECT_ARRAY_DESREFERENCING;
     result->objectAttributeDesreferencing = calloc(1,sizeof(tObjectAttributeDesreferencing));
     result->objectAttributeDesreferencing->index = integerExpression;
     result->objectAttributeDesreferencing->objectAttribute = objectAttribute;
