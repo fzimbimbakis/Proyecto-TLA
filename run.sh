@@ -14,8 +14,12 @@ if [ "$1" = "--help" ]; then
          # Tests
          * --all: Correr todos los tests en la carpeta tests.
          * TEST_#: Nombre de archivo que esta en la carpeta tests.
+         * --compileall: Genera los .c de todos los tests y los compila
+         * --compile TEST_#: Genera el .c del TEST_# y lo compila
 
-         ./run.sh [--cmake] [--make] [--all] [TEST_1 TEST_2 ...]
+
+         ./run.sh [--cmake] [--make] [--all] [--compileall] [--compile TEST_X] [TEST_1 TEST_2 ...]
+
 
          El run.sh no toma en cuenta que:
          En un entorno Microsoft Windows, en lugar de ejecutar el comando make, se deberá abrir la solución generada bin/Compiler.sln con el IDE Microsoft Visual Studio 2022. Los ejecutables que este sistema construye se depositan dentro del directorio bin/Debug y bin/Release según corresponda.
