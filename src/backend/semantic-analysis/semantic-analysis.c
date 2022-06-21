@@ -186,6 +186,7 @@ struct global * generateSymbolTable(tProgram * program){
 //        }
 //    }
 //    return newNode;
+    return NULL;
 }
 
 
@@ -378,9 +379,9 @@ struct variable * addDefinedVariables(tProgramStatements * programStatements){
     return first;
 }
 
-struct class * checkConstructorClassExists(struct class * classes, char * name){
-
-}
+//struct class * checkConstructorClassExists(struct class * classes, char * name){
+//
+//}
 
 void checkInstantiation(tInstantiation * instantiation){
 //    struct class * constructorClass = checkConstructorClassExists(symbolTable.classes, instantiation->functionCall->functionName->associated_value.varname);
@@ -702,7 +703,7 @@ struct pair * objectAttributeDesreferencing(tObjectAttributeDesreferencing * obj
 
     }
 
-
+    return NULL;
 }
 
 
@@ -834,6 +835,7 @@ struct pair * charValueT(tCharValue * charValue){
         return p;
     LogError("Una expresion esta siendo tratada como caracter de manera incorrecta.\n");
     fail();
+    return NULL;
 }
 
 struct pair * genericArrayWithBracket(tGenericArrayWithBracket * genericArrayWithBracket){
@@ -1018,6 +1020,7 @@ struct pair * conditionUnit(tConditionUnit * conditionUnit1){
             return valueComparatorValue(conditionUnit1->valueComparatorValue);
         }
     }
+    return NULL;
 }
 
 struct pair * whileLoopT(tWhileLoop * loop){
@@ -1203,7 +1206,7 @@ struct pair *  getTypeFromVarname(char * varname) {
         fail();
     }
     else return leftVariable->type ;
-
+    return NULL;
 }
 
 
@@ -1245,7 +1248,7 @@ struct  class * getClassByNameAux(char * name ){
 
 boolean  isMethodOnFatherAndSon(char * methodName, char * class ){
     struct class * currentClass = getClassByNameAux(class);
-    boolean  present;
+    boolean  present = false;
     if(currentClass ->fatherName == NULL)
         return false;
     struct class * fatherClass = getClassByNameAux(currentClass->fatherName);

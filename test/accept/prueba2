@@ -26,6 +26,7 @@ Class Cuadrado extends Rectangulo{
             int modificar(int lado){
                 this.ladoA = lado;
                 this.ladoB = lado;
+                return lado;
             }
 }
 int main(){
