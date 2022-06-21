@@ -1,4 +1,5 @@
 #include "semantic-analysis.h"
+#include "../support/logger.h"
 int getParametersNeed(struct function * function );
 boolean  checkIfExistsVarname(char * varname   , struct  variable * list );
 boolean checkIfExistsFunction(char * function , struct function * function1);
@@ -54,139 +55,6 @@ void fail();
 struct global  * symbolTable = NULL ;
 struct class * currentClassGlobal;
 struct function * currentMethodGlobal;
-struct variable * scopeVariablesGlobal;
-
-
-
-boolean  isMethodOnFatherAndSon(char * methodName, char * class ){
-//    struct class * currentClass = getClassByName(class);
-//    if(currentClass ->fatherName == NULL)
-//        return false;
-//    struct function * methodCall  = getMethodByName(class ,methodName);
-//    if(methodCall == NULL )
-//        return  false;
-//    methodCall = getMethodByName(currentClass->fatherName ,methodName);
-//    if(methodCall == NULL)
-//        return false;
-    return false;
-}
-boolean isMethodFromFather(char * varname ,char * methodName){
-//
-//    struct variable * variableStruct = getVarFromMain(varname);
-//    if(variableStruct == NULL)
-//        return false;
-//    struct class * currentClass = getClassByName(variableStruct->objectType);
-//    if(currentClass == NULL )
-//        return false;
-//    struct function * methodCall  = getMethodByName(variableStruct->objectType,methodName);
-//    if(methodCall == NULL && currentClass->fatherName == NULL  )
-//        return  false;
-//    else if(methodCall == NULL  && currentClass->fatherName != NULL ){
-//        methodCall = getMethodByName(currentClass->fatherName,methodName);
-//        if(methodCall == NULL)
-//            return false;
-//        else
-//            return true;
-//
-//    }
-//    return false ;
-return false;
-
-}
-int  isMethodCallValid(char * methodName,char * variable , tArgumentValues * parameters){
-//    struct variable * currentVariable = getVarFromMain(variable);
-//    if(currentVariable == NULL )
-//        return -4;
-//    if(currentVariable -> type != OBJECT_TYPE)
-//        return -2 ;
-//    struct function * methodCall = getMethodByName(currentVariable->objectType , methodName);
-//    struct class * currentClass = getClassByName(currentVariable->objectType);
-//    if(methodCall == NULL && currentClass->fatherName == NULL  )
-//        return  -3;
-//    else if(methodCall == NULL  && currentClass->fatherName != NULL ){
-//        methodCall = getMethodByName(currentClass->fatherName,methodName);
-//        if(methodCall == NULL)
-//            return -3;
-//    }
-//
-//    int NeedParameters = getParametersNeed(methodCall);
-//    tArgumentValues  * counting = parameters;
-//    int parametersC = 0 ;
-//    while (counting != NULL){
-//        parametersC++;
-//        if(counting->commaNextArgumentValue == NULL)
-//            break;
-//        counting = counting->commaNextArgumentValue->nextArgument;
-//    }
-//    if( parametersC - 1 == NeedParameters)
-//        return 1 ;
-//    else return -1;
-    return true;
-}
-int getParametersNeed(struct function * function ){
-    if(function == NULL )
-        return 0;
-    struct variable * var = function->parameters;
-    int count = 0 ;
-    while(var!=NULL){
-        count++;
-        var = var->next;
-    }
-    return count;
-}
-boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue){
-//    struct variable * leftVariable = getVarByName(class,method,leftValue);
-//    struct variable * rightVariable = getVarByName(class,method,rightValue);
-//    if(leftVariable == NULL || rightVariable == NULL)
-//        return false;
-//    if(leftVariable -> type == 5 && rightVariable->type == 5 ){
-//        return strcmp(leftVariable->objectType,rightVariable->objectType)==0;
-//    }
-//    return (leftVariable->type == rightVariable->type);
-    return true;
-}
-boolean isAttributeValid(char * className , char * variable){
-//    struct class * currentClass = getClassByName(className);
-//
-//    if(currentClass == NULL)
-//        return false; //no class with such name
-//    else{
-//        struct variable * currentAttribute = currentClass->attributes;
-//        while(currentAttribute!=NULL){
-//            if(strcmp(currentAttribute->varname,variable) == 0)
-//                return true;
-//            currentAttribute = currentAttribute->next;
-//        }
-//        return false;
-//    }
-    return true;
-}
-
-struct variable * getVarFromMainT(char * name ){
-    struct function * method = getMain();
-    struct variable * currentVariable = method->parameters;
-    while(currentVariable != NULL ){
-        if(strcmp(name, currentVariable->varname ) == 0 )
-            return currentVariable;
-        currentVariable = currentVariable->next;
-    }
-
-    currentVariable = method->definedVariables;
-    while(currentVariable != NULL ){
-        if(strcmp(name, currentVariable->varname ) == 0 )
-            return currentVariable;
-        currentVariable = currentVariable->next;
-    }
-
-    return NULL ;
-
-}
-
-
-
-struct function * getMain(){
-    return symbolTable->main;
-}
 
 
 
@@ -194,12 +62,17 @@ struct function * getMain(){
 struct variable * getVarByName(struct class  * class , struct function * methodName , char * name ){
     struct function * method;
 
-        //return
-    //if(strcmp(methodName , "main") == 0 ){
-    if(class == NULL && methodName == NULL ) method = symbolTable->main;
-    else method =methodName;
 
-        struct variable * currentVariable = scopeVariablesGlobal;
+    if(class == NULL && methodName == NULL )
+        method = symbolTable->main;
+    else
+        method =methodName;
+        struct variable * currentVariable;
+
+        if(currentMethodGlobal != NULL)
+            currentVariable = currentMethodGlobal->definedVariables;
+        else currentVariable = symbolTable->main->definedVariables;
+
         while(currentVariable != NULL ){
             if(strcmp(name, currentVariable->varname ) == 0 )
                 return currentVariable;
@@ -221,13 +94,14 @@ struct variable * getVarByName(struct class  * class , struct function * methodN
                     return currentVariable;
                 currentVariable = currentVariable->next;
             }
-            currentClassLocal = getClassByName(currentClassLocal->fatherName);
-
+            if(currentClassLocal->fatherName != NULL )
+                currentClassLocal = getClassByName(currentClassLocal->fatherName);
+            else
+                currentClassLocal = NULL;
         }
 
 
-
-
+        LogError("Variable %s not defined on Class %s Method %s\n", name, class->className, methodName->functionName);
         fail();
         return NULL ;
 
@@ -235,17 +109,22 @@ struct variable * getVarByName(struct class  * class , struct function * methodN
 
 
 struct function * getMethodByName(struct class  * currentClass1 , char * name ){
-    struct function * currentMethod1;
-    if(currentClass1 != NULL && currentClassGlobal!=NULL && strcmp(currentClass1->className, currentClassGlobal->className) == 0 )
-        currentMethod1 =  currentMethodGlobal;
-    else
-        currentMethod1 = currentClass1->methods;
 
-    while (currentMethod1 != NULL ){
-        if(strcmp(currentMethod1->functionName,name) == 0 )
-            return currentMethod1;
-        currentMethod1 = currentMethod1 -> next ;
+    while(currentClass1 != NULL ){
+        struct function * currentMethod1 = currentClass1->methods;
+
+        while (currentMethod1 != NULL ){
+            if(strcmp(currentMethod1->functionName,name) == 0 )
+                return currentMethod1;
+            currentMethod1 = currentMethod1 -> next ;
+        }
+        if(currentClass1->fatherName != NULL)
+            currentClass1 = getClassByName(currentClass1->fatherName);
+        else currentClass1= NULL;
     }
+    if(currentClass1 != NULL)
+    LogError("Method %s not found in class %s\n", name, currentClass1->className);
+    else LogError("Method %s not found\n", name);
     fail();
     return NULL;
 }
@@ -262,6 +141,7 @@ struct  class * getClassByName(char * name ){
             return currentClass1;
         currentClass1 = currentClass1->next;
     }
+    LogError("Class %s not found\n", name);
     fail();
     return NULL ;
 }
@@ -311,12 +191,12 @@ struct global * generateSymbolTable(tProgram * program){
 struct function * addMain(tMainFunction * mainFunction){
     currentClassGlobal = NULL;
     currentMethodGlobal = NULL ;
-    struct function * newNode = malloc(sizeof(struct function )) ;
+    struct function * newNode = symbolTable->main = malloc(sizeof(struct function )) ;
     newNode->functionName = "main";
-    newNode->parameters = fromParameterToVariable(mainFunction->parameters);
-    newNode->definedVariables = programStatements(mainFunction->programStatements);
     newNode->returnType = malloc(sizeof(struct pair));
     newNode->returnType->type = INT_TYPE;
+    newNode->parameters = fromParameterToVariable(mainFunction->parameters);
+    newNode->definedVariables = programStatements(mainFunction->programStatements);
     return  newNode;
 }
 
@@ -359,10 +239,6 @@ struct variable * addAttribute(tAttributes * attributes){
         if(first == NULL) {
             first = currentVariable ;
         }
-//        if ( checkIfExistsAttribute(currentVariable->varname, first) ) {
-//            printf("Error: This class has an attribute defined twice ");
-//            fail();
-//        }
             current = current->declarations;
         if(prev!=NULL && prev != currentVariable ) prev->next = currentVariable;
         prev = currentVariable;
@@ -372,15 +248,14 @@ struct variable * addAttribute(tAttributes * attributes){
 }
 
 struct pair * returnType(tReturn * returnType){
-    struct pair * returnFunction;
+    struct pair * returnFunction= malloc(sizeof(struct pair));
     if(currentClassGlobal != NULL) {
         if(currentMethodGlobal == NULL) {
-            returnFunction = malloc(sizeof(struct pair));
             returnFunction->type = INT_TYPE;
         }
         returnFunction = currentMethodGlobal->returnType;
     }else
-        returnFunction = getMain()->returnType;
+        returnFunction->type = INT_TYPE;
     struct pair * pair = malloc(sizeof(struct pair ));
     switch (returnType->type) {
         case RETURN_VALUE:
@@ -429,12 +304,14 @@ struct function * addMethods(tMethods * methods){
         current = addFunction(cM->function);
         currentMethodGlobal = current;
         if(checkIfExistsFunction(current->functionName,first)){
-            printf("Error: method %s has already been defined\n",current->functionName);
+            LogError("Method %s has already been defined\n",current->functionName);
             fail();
         }
 
-        if(first == NULL )
-            first = current ;
+        if(first == NULL ) {
+            first = current;
+            currentClassGlobal->methods = first;
+        }
 
         if(prev != NULL && prev != current) prev->next = current;
         prev = current;
@@ -596,14 +473,39 @@ static struct variable * fromDeclarationToVariable(struct tDeclaration * declara
             newNode->varname = declaration->charArrayAssignationDeclaration->name->associated_value.varname;
             break;
         case DECLARATION_WITH_OBJECT_TYPE:
-            newNode->type-> type = OBJECT_TYPE;
-            newNode->varname = declaration->declarationAux->objectDataType->associated_value.varname;
-            newNode->objectType = declaration->declarationAux->name->associated_value.varname;
-            newNode->type->name = declaration->declarationAux->name->associated_value.varname;
+
+            switch (declaration->declarationAux->type) {
+                        case ONLY_DECLARATION:
+                            newNode->type-> type = OBJECT_TYPE;
+                            newNode->varname = declaration->declarationAux->objectDataType->associated_value.varname;
+                            newNode->objectType = declaration->declarationAux->name->associated_value.varname;
+                            newNode->type->name = declaration->declarationAux->name->associated_value.varname;
+                            break;
+                        case ARRAY_ONLY_DECLARATION:
+                            newNode->type-> type = OBJECTARRAY_TYPE;
+                            newNode->varname = declaration->declarationAux->objectDataType->associated_value.varname;
+                            newNode->objectType = declaration->declarationAux->name->associated_value.varname;
+                            newNode->type->name = declaration->declarationAux->name->associated_value.varname;
+                            break;
+                        case ARRAY_WITH_INDEX_DECLARATION:
+                            newNode->type-> type = OBJECTARRAY_TYPE;
+                            newNode->varname = declaration->declarationAux->objectDataType->associated_value.varname;
+                            newNode->objectType = declaration->declarationAux->name->associated_value.varname;
+                            newNode->type->name = declaration->declarationAux->name->associated_value.varname;
+                            break;
+                        case INSTANTIATION:
+                            newNode->type-> type = OBJECT_TYPE;
+                            newNode->objectType = declaration->declarationAux->name->associated_value.varname;
+                            newNode->varname = declaration->declarationAux->objectDataType->associated_value.varname;
+                            newNode->type->name = declaration->declarationAux->name->associated_value.varname;
+                            struct pair * aux = instantiation(declaration->declarationAux->assignationWithMethodFunctionInstantiation->instantiation);
+                            equalPairs(newNode->type, aux);
+                            break;
+            }
             break;
     }
     if ( checkIfExistsVarname(newNode->varname  , list ) ){
-        printf("Error : variable with name %s has already been defined\n",newNode->varname);
+        LogError("Variable with name %s has already been defined\n",newNode->varname);
         fail();
         return NULL;
     }
@@ -629,11 +531,13 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
         case OBJECT_PARAMETERS:
             newNode->type = malloc(sizeof(struct  pair )) ;
             newNode->type->type = OBJECT_TYPE;
+            newNode->type->name = parameters->objectTypeName->associated_value.varname;
             newNode->objectType = parameters->objectTypeName->associated_value.varname;
             break;
         case MULTIOBJECT_PARAMETERS:
             newNode->type = malloc(sizeof(struct pair ));
             newNode->type->type = OBJECT_TYPE;
+            newNode->type->name = parameters->objectTypeName->associated_value.varname;
             newNode->objectType = parameters->objectTypeName->associated_value.varname;
             newNode->next = fromParameterToVariable(parameters->nextParameters->nextParameters);
             break;
@@ -641,16 +545,19 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
             newNode->type = fromDeclarationTypeToVariableType(parameters);
             break;
         case MULTIARRAY_PARAMETERS:
+            newNode->type = fromDeclarationTypeToVariableType(parameters);
             newNode->next = fromParameterToVariable(parameters->nextParameters->nextParameters);
             break;
         case OBJECTARRAY_PARAMETERS:
             newNode->type = malloc(sizeof(struct pair) );
             newNode->type->type =OBJECTARRAY_TYPE;
+            newNode->type->name = parameters->objectTypeName->associated_value.varname;
             newNode->objectType = parameters->objectTypeName->associated_value.varname;
             break;
         case MULTIOBJECTARRAY_PARAMETERS:
             newNode->type = malloc(sizeof(struct pair));
             newNode->type->type = OBJECTARRAY_TYPE;
+            newNode->type->name = parameters->objectTypeName->associated_value.varname;
             newNode->objectType = parameters->objectTypeName->associated_value.varname;
             newNode->next = fromParameterToVariable(parameters->nextParameters->nextParameters);
             break;
@@ -699,7 +606,10 @@ struct pair * arrayDesreferencingT(tArrayDesreferencing * arrayDesreferencing){
     }else if (currentVariable->type->type == OBJECTARRAY_TYPE){
         pair->type = OBJECT_TYPE;
         pair->name = currentVariable->objectType;
-    } else fail();
+    } else {
+        LogError("Variable %s is not an array\n", arrayDesreferencing->varname->associated_value.varname);
+        fail();
+    }
     return pair;
 }
 
@@ -749,6 +659,8 @@ struct pair * factorT(tFactor * factor ) {
         case FACTOR_INT:
             return integer(factor->integer);
             break;
+        case FACTOR_OBJECT_ARRAY_DESREFERENCING:
+            return objectAttributeDesreferencing(factor->objectAttributeDesreferencing);
     }
     return NULL;
 }
@@ -771,9 +683,20 @@ struct pair * objectAttributeDesreferencing(tObjectAttributeDesreferencing * obj
         }else if (left->type == OBJECTARRAY_TYPE){
             returnPair->type = OBJECT_TYPE;
             returnPair->name = left->name;
-        } else fail();
+        } else {
+            LogError("Attribute %s is not an array\n", objectAttributeDesreferencing->objectAttribute->varnameRight->associated_value.varname);
+            fail();
+        }
+        return returnPair;
     }else {
-        return innerAttribute(objectAttributeDesreferencing->innerAttribute,objectAttributeDesreferencing->objectAttribute->varnameRight->associated_value.varname);
+        struct pair * left = objectAttribute(objectAttributeDesreferencing->objectAttribute);
+        if (left->type == OBJECTARRAY_TYPE){
+            return innerAttribute(objectAttributeDesreferencing->innerAttribute,left->name);
+        } else {
+            LogError("Attribute %s is not an object array\n", objectAttributeDesreferencing->objectAttribute->varnameRight->associated_value.varname);
+            fail();
+        }
+
     }
 
 
@@ -795,8 +718,10 @@ struct pair * subInteger(tSubInteger *subInteger){
 
 struct pair * methodCallT(tMethodCall * methodCall){
     struct variable * cc = getVarByName(currentClassGlobal,currentMethodGlobal, methodCall->varname->associated_value.varname);
-    if(cc->type->type != OBJECT_TYPE)
+    if(cc->type->type != OBJECT_TYPE) {
+        LogError("Variable %s is not an object\n", cc->varname);
         fail();
+    }
     struct function * cM = getMethodByName(getClassByName(cc->type->name),methodCall->functionCall->functionName->associated_value.varname);
     struct variable * currentParameter = cM->parameters;
     tArgumentValues * passParameter = methodCall->functionCall->firstArgument;
@@ -812,6 +737,7 @@ struct pair * methodCallT(tMethodCall * methodCall){
         else passParameter = NULL;
     }
     if(currentParameter != NULL || passParameter != NULL){
+        LogError("Wrong amount of parameters on %s call\n", methodCall->functionCall->functionName);
         fail();
     }
     return cM->returnType;
@@ -819,19 +745,6 @@ struct pair * methodCallT(tMethodCall * methodCall){
 
 
 struct pair * functionCallT(tFunctionCall * functionCall ){
-//    struct function * getFunction = getMethodByName(currentClassGlobal, functionCall->functionName->associated_value.varname);
-//
-//    struct variable * currentParameter = getFunction->parameters;
-//    tArgumentValues * passParameter = functionCall->firstArgument;
-//    struct pair * currentParameterType;
-//    struct pair * receivedType ;
-//    while(currentParameter != NULL ){
-//        currentParameterType = currentParameter->type;
-//        receivedType = genericValueT(passParameter->value);
-//        equalPairs(receivedType,currentParameterType);
-//        currentParameter= currentParameter->next;
-//        passParameter = passParameter->commaNextArgumentValue->nextArgument;
-//    }
     struct pair * int_type = malloc(sizeof(struct pair));
     int_type->type = INT_TYPE;
     return int_type;
@@ -844,8 +757,10 @@ struct pair *  objectAttribute(tObjectAttribute * objectAttribute1 ){
         switch (objectAttribute1->type) {
             case OBJECT_ATTRIBUTE_VARNAME:
                 if(strcmp(objectAttribute1->varnameLeft->associated_value.varname , "this") == 0 ){
-                    if(currentClassGlobal == NULL)
+                    if(currentClassGlobal == NULL){
+                        LogError("this is a reserved word to refer objects attributes.\n");
                         fail();
+                    }
                     leftPair = getAttributeFromVarname(currentClassGlobal,objectAttribute1->varnameRight->associated_value.varname)->type;
                 }else{
                     leftPair = getAttributeFromVarname(getClassByName(objectAttribute1->varnameLeft->associated_value.varname),objectAttribute1->varnameRight->associated_value.varname)->type;
@@ -853,29 +768,30 @@ struct pair *  objectAttribute(tObjectAttribute * objectAttribute1 ){
                 break;
             case OBJECT_ATTRIBUTE_OBJECT_ATTRIBUTE:
                 aux = objectAttribute(objectAttribute1->objectAttribute);
-                if(aux->type != OBJECT_TYPE)
+                if(aux->type != OBJECT_TYPE){
+                    LogError("Intentando acceder a los atributos de un tipo built-in.\n");
                     fail();
+                }
                 leftPair = getAttributeFromVarname(getClassByName(aux->name),objectAttribute1->varnameRight->associated_value.varname)->type;
                 break;
             case OBJECT_ATTRIBUTE_ARRAY_DESREF:
                 aux = arrayDesreferencingT(objectAttribute1->arrayDesreferencing);
-                if(aux->type != OBJECT_TYPE)
+                if(aux->type != OBJECT_TYPE){
+                    LogError("Intentando acceder a los atributos de un tipo built-in.\n");
                     fail();
+                }
                 leftPair = getAttributeFromVarname(getClassByName(aux->name),objectAttribute1->varnameRight->associated_value.varname)->type;
                 break;
         }
-//    }else{
-//        leftPair = getAttributeFromVarname(currentClassGlobal,objectAttribute1->varnameRight->associated_value.varname)->type;
-//    }
 
-//    struct pair * rightPair = getTypeFromVarname(objectAttribute1->varnameRight->associated_value.varname);
-//    equalPairs(leftPair,rightPair);
     return leftPair;
 }
 
 struct pair * instantiation(tInstantiation * instantiation){
-    if(checkIfExistsClass(instantiation->functionCall->functionName->associated_value.varname, symbolTable->classes))
+    if(checkIfExistsClass(instantiation->functionCall->functionName->associated_value.varname, symbolTable->classes)){
+        LogError("La clase %s no fue definida.\n",instantiation->functionCall->functionName->associated_value.varname);
         fail();
+    }
     struct pair * p = malloc(sizeof(struct pair));
     p->type = OBJECT_TYPE;
     p->name = instantiation->functionCall->functionName->associated_value.varname;
@@ -913,6 +829,7 @@ struct pair * charValueT(tCharValue * charValue){
     }
     if(p->type == CHAR_TYPE)
         return p;
+    LogError("Una expresion esta siendo tratada como caracter de manera incorrecta.\n");
     fail();
 }
 
@@ -1008,7 +925,7 @@ struct pair * superSubnode(tSuperSubnode * subnode){
 }
 
 struct pair * arrayAssignation(tArrayAssignation * arrayAssignation){
-    struct pair * p1, * p2;
+    struct pair * p1, * p2, *p3 = malloc(sizeof(struct pair));
     switch (arrayAssignation->typeVariable) {
         case ARRAY_ASSIG_VARNAME: {
             p1 = varname(arrayAssignation->varname);
@@ -1016,6 +933,20 @@ struct pair * arrayAssignation(tArrayAssignation * arrayAssignation){
         }
         case ARRAY_ASSIG_OBJECT_ATT:{
             p1 = objectAttribute(arrayAssignation->objectAttribute);
+            switch (p1->type) {
+                case OBJECTARRAY_TYPE:{
+                    p3->type = OBJECT_TYPE;
+                    p3->name = p1->name;
+                    break;
+                }
+                case INTARRAY_TYPE:
+                    p3->type = INT_TYPE;
+                    break;
+                case CHARARRAY_TYPE:
+                    p3->type = CHAR_TYPE;
+                    break;
+
+            }
             break;
         }
     }
@@ -1029,8 +960,8 @@ struct pair * arrayAssignation(tArrayAssignation * arrayAssignation){
             break;
         }
     }
-    equalPairs(p1, p2);
-    return p1;
+    equalPairs(p3, p2);
+    return p3;
 }
 
 struct pair * assignation(tAssignation * assignation){
@@ -1103,10 +1034,14 @@ void equalPairs(struct pair * p1, struct pair * p2){
         if(p1->type == OBJECT_TYPE) {
             if(strcmp(p1->name, p2->name) == 0)
                 return;
-            else fail();
+            else {
+                LogError("Existe una asignacion incorrecta, los tipos no coinciden.\n");
+                fail();
+            }
         }
         return;
     }
+    LogError("Existe una asignacion incorrecta, los tipos no coinciden.\n");
     fail();
 }
 
@@ -1139,13 +1074,37 @@ struct variable * programStatements(tProgramStatements * programStatements1){
     struct variable * newNode = NULL;
     struct variable * first = NULL ;
     struct variable * prev = NULL ;
+    struct variable * this;
+    if(currentMethodGlobal != NULL && currentMethodGlobal->definedVariables == NULL) {
+        this = malloc(sizeof(*this));
+            this->type = malloc(sizeof(struct pair));
+            this->varname = "this";
+            this->type->type = OBJECT_TYPE ;
+            this->type->name = currentClassGlobal->className;
+            this->objectType = currentClassGlobal->className;
+            currentMethodGlobal->definedVariables = this;
+    }
     tProgramStatements *  ps = programStatements1;
     while (ps != NULL && ps->programUnitStatements != NULL ){
         if(ps->programUnitStatements->type == PUS_DECLARATION){
             newNode = fromDeclarationToVariable(ps->programUnitStatements->declaration,first);
-            if(first == NULL ) {
+            if(first == NULL ){
                 first = newNode;
-                scopeVariablesGlobal = first;
+                struct variable * aux;
+                if(currentMethodGlobal == NULL) {
+                    aux = symbolTable->main->definedVariables;
+                    if(aux == NULL)
+                        symbolTable->main->definedVariables = first;
+                    else{
+                        while (aux ->next!= NULL) aux = aux->next;
+                        aux->next = first;
+                    }
+                }else{
+                    aux = currentMethodGlobal->definedVariables;
+                    while (aux ->next!= NULL) aux = aux->next;
+                    aux->next = first;
+                }
+
             }
             if(prev != NULL && prev != newNode )prev -> next = newNode;
             prev = newNode;
@@ -1155,8 +1114,9 @@ struct variable * programStatements(tProgramStatements * programStatements1){
         else programUnitStatementsT(ps->programUnitStatements);
         ps = ps->ProgramStatements;
     }
-    scopeVariablesGlobal = NULL ;
-    return first;
+    if(currentMethodGlobal == NULL )
+        return symbolTable->main->definedVariables;
+    else return currentMethodGlobal->definedVariables;
 }
 
 
@@ -1201,16 +1161,6 @@ boolean checkIfExistsFunction(char * functionName, struct function * functions )
    }
    return false;
 
-//    struct class * currentClass = getClassByName(class);
-//    struct function * methods = currentClass -> methods;
-//    if(methods == NULL )
-//        return false;
-//    while(methods != NULL ){
-//        if(strcmp(functionName,methods->functionName) == 0 )
-//            return true;
-//        methods = methods->next ;
-//    }
-//    return false;
 
 }
 
@@ -1225,19 +1175,6 @@ boolean checkIfExistsClass(char * className, struct class * classList){
     return true;
 }
 
-boolean checkIfMatches(char * leftVarname, char * rightVarname, struct pair  * type){
-//    struct variable * leftVariable = getVarByName(currentClass,currentMethod,leftVarname);
-//    struct variable * rightVariable = getVarByName(currentClass,currentMethod,rightVarname);
-//    if(leftVariable == NULL || rightVarname == NULL)
-//        return false ;
-//    else{
-//        type ->type = rightVariable->type->type;
-//        if(rightVariable->type == OBJECT_TYPE || rightVariable->type == OBJECTARRAY_TYPE)
-//            type->name = rightVariable->objectType;
-//        return rightVariable->type == leftVariable->type;
-//    }
-    return true;
-}
 
 struct variable * getAttribute(struct class  * currentClass , char * attribute){
     struct variable * currentAttribute = currentClass->attributes;
@@ -1246,6 +1183,7 @@ struct variable * getAttribute(struct class  * currentClass , char * attribute){
             return currentAttribute;
         currentAttribute = currentAttribute ->next;
     }
+    LogError("Attribute %s is not defined on %s\n",varname,currentClass->className);
     fail();
     return NULL ;
 }
@@ -1257,6 +1195,7 @@ struct pair *  getTypeFromVarname(char * varname) {
 
     struct variable * leftVariable = getVarByName(currentClassGlobal,currentMethodGlobal,varname);
     if(leftVariable == NULL ){
+        LogError("Variable %s is not defined \n",varname);
         fail();
     }
     else return leftVariable->type ;
@@ -1269,10 +1208,6 @@ struct variable * getAttributeFromVarname(struct class * currentClass , char * v
     struct variable * currentVariable;
     while(currentClassLocal!= NULL ){
          currentVariable = currentClassLocal->attributes;
-//        if(currentVariable == NULL ) {
-//            fail();
-//            return NULL;
-//        }
         while (currentVariable!= NULL ) {
             if (strcmp(varname, currentVariable->varname) == 0)
                 return currentVariable;
@@ -1283,6 +1218,76 @@ struct variable * getAttributeFromVarname(struct class * currentClass , char * v
         else currentClassLocal = NULL;
     }
 
+    LogError("Attribute %s is not defined on %s\n",varname,currentClass->className);
     fail();
     return NULL ;
+}
+
+
+
+struct  class * getClassByNameAux(char * name ){
+    if(currentClassGlobal!=NULL && strcmp(name , currentClassGlobal->className) ==  0)
+        return currentClassGlobal;
+
+    struct class * currentClass1 = symbolTable->classes;
+    while(currentClass1 != NULL){
+        if(strcmp(currentClass1->className,name) == 0 )
+            return currentClass1;
+        currentClass1 = currentClass1->next;
+    }
+    return NULL ;
+}
+
+
+boolean  isMethodOnFatherAndSon(char * methodName, char * class ){
+    struct class * currentClass = getClassByNameAux(class);
+    boolean  present;
+    if(currentClass ->fatherName == NULL)
+        return false;
+    struct class * fatherClass = getClassByNameAux(currentClass->fatherName);
+    struct function * fatherMethods = fatherClass->methods;
+    while(fatherMethods!=NULL){
+        if(strcmp(fatherMethods->functionName,methodName) == 0 )
+            present = true;
+        fatherMethods = fatherMethods->next;
+    }
+    if(!present)
+        return false;
+
+    struct function *sonMethods= currentClass->methods;
+    while(sonMethods !=NULL){
+        if(strcmp(sonMethods->functionName,methodName) == 0 )
+            return true;
+        sonMethods= sonMethods->next;
+    }
+    return false;
+}
+
+
+
+
+
+
+
+
+boolean isMethodFromFather(char * varname ,char * methodName) {
+    struct variable *mainVariables = symbolTable->main->definedVariables;
+    while (mainVariables != NULL) {
+        if (strcmp(varname, mainVariables->varname) == 0)
+            break;
+        mainVariables = mainVariables->next;
+    }
+    if (mainVariables == NULL)
+        return false;
+    struct class *currentClass = getClassByNameAux(mainVariables->objectType);
+    if (currentClass == NULL || currentClass->fatherName == NULL)
+        return false;
+    struct class *fatherClass = getClassByNameAux(currentClass->fatherName);
+    struct function *fatherMethods = fatherClass->methods;
+    while (fatherMethods != NULL) {
+        if (strcmp(fatherMethods->functionName, methodName) == 0)
+            return true;
+        fatherMethods = fatherMethods->next;
+    }
+    return false;
 }

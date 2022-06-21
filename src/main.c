@@ -4,7 +4,7 @@
 #include "frontend/syntactic-analysis/bison-parser.h"
 #include "backend/semantic-analysis/semantic-analysis.h"
 #include <stdio.h>
-
+#include "./backend/support/supermalloc.h"
 //Estado de la aplicación.
 CompilerState state;
 
@@ -13,11 +13,15 @@ const int main(const int argumentCount, const char ** arguments) {
 	// Inicializar estado de la aplicación.
 	state.result = 0;
 	state.succeed = false;
-
+    initMemory();
     FILE * file;
-    if(argumentCount > 1)
+    if(argumentCount > 1) {
         file = fopen(arguments[1], "w");
-    else
+        if(file == NULL){
+            printf("Fail opening file\n");
+            exit(0);
+        }
+    }else
         file = fopen("result.c", "w");
 
 	// Mostrar parámetros recibidos por consola.
@@ -55,6 +59,7 @@ const int main(const int argumentCount, const char ** arguments) {
     if(final_result != 0){
         LogError("Se produjo un error en la aplicacion.");
     }
+    superFree();
     fclose(file);
 	return result;
 }

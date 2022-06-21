@@ -39,7 +39,8 @@ Class ListaPersonas{
 
         int registrar(int dni, char nombre[])
         {
-            if (this.n >= this.capacity && this.n > 300){
+            if (this.n >= this.capacity || this.n > 300){
+                printf("Capacidad maxima de lista alcanzada. No se pudo registrar a %s.\n", nombre);
                 return this.n;
                 }
 
@@ -50,7 +51,7 @@ Class ListaPersonas{
             if(this.n != 0){
                 comp = this.compare(this.personas[i].nombre, nombre);
             }
-            while(i >= 0 && (comp<0 || (comp==0 && this.personas[i].dni > dni) )){
+            while(i >= 0 && (comp>0 || (comp==0 && this.personas[i].dni > dni) )){
                 this.personas[i + 1] = this.personas[i];
                 i = i - 1;
                 if(i >= 0){
@@ -59,7 +60,7 @@ Class ListaPersonas{
                 }
 
             this.personas[i + 1] = new Persona(dni, nombre);
-
+            this.n = this.n + 1;
             return (this.n + 1);
         }
 
@@ -67,17 +68,25 @@ Class ListaPersonas{
     }
 
 int main(){
-    ListaPersonas lista = new ListaPersonas(10);
-    lista.registrar(1, "A");
-    printf("%d\n", lista.personas[0].dni);
+    ListaPersonas lista = new ListaPersonas(5);
+    printf("Registro al dni %d con nombre %s\n", 2, "A");
     lista.registrar(2, "A");
-    printf("%d\n",lista.personas[1].dni);
+    printf("Registro al dni %d con nombre %s\n", 5, "C");
+    lista.registrar(5, "C");
+    printf("Registro al dni %d con nombre %s\n", 3, "B");
     lista.registrar(3, "B");
-    printf("%d\n", lista.personas[2].dni);
-     lista.registrar(4, "C");
-     printf("%d\n", lista.personas[3].dni);
-     lista.registrar(5, "C");
-     printf("%d\n", lista.personas[4].dni);
+    printf("Registro al dni %d con nombre %s\n", 4, "C");
+    lista.registrar(4, "C");
+    printf("Registro al dni %d con nombre %s\n", 1, "A");
+    lista.registrar(1, "A");
+    printf("Registro al dni %d con nombre %s\n", 6, "Z");
+    lista.registrar(6, "Z");
+    printf("Lista de personas ordenada por nombre y luego por dni:\n");
+    printf("%d %s\n", lista.personas[0].dni, lista.personas[0].nombre);
+    printf("%d %s\n", lista.personas[1].dni, lista.personas[1].nombre);
+    printf("%d %s\n", lista.personas[2].dni, lista.personas[2].nombre);
+    printf("%d %s\n", lista.personas[3].dni, lista.personas[3].nombre);
+    printf("%d %s\n", lista.personas[4].dni, lista.personas[4].nombre);
 
 
 }

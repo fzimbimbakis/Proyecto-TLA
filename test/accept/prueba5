@@ -9,6 +9,6 @@ int main(){
             iteraciones = iteraciones - 1;
         }
     }
-    printf("%d\n",base);
+    printf("2 elevado a la 16: %d\n" ,base);
     return base;
 }

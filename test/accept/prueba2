@@ -31,13 +31,13 @@ Class Cuadrado extends Rectangulo{
 int main(){
     Cuadrado c = new Cuadrado(3);
     int p = c.perimetro();
-    printf("%d\n",p);
+    printf("Perimetro de un cuadrado de lado 3: %d\n",p);
     int a = c.area();
-    printf("%d\n",a);
+    printf("Area de un cuadrado de lado 3: %d\n",a);
     c.modificar(2);
     int pmod = c.perimetro();
-    printf("%d\n",pmod);
+    printf("Perimetro de un cuadrado de lado 2: %d\n",pmod);
     int amod = c.area();
-    printf("%d\n",amod);
+    printf("Area de un cuadrado de lado 2: %d\n",amod);
 
 }

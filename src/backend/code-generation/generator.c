@@ -3,6 +3,7 @@
 #include "generator.h"
 #include "../../frontend/syntactic-analysis/bison-parser.h"
 #include "../semantic-analysis/semantic-analysis.h"
+
 /**
  * Implementación de "generator.h".
  */
@@ -291,11 +292,6 @@ if(FACTOR_FUNCTION_CALL == factor->type){
     FunctionCall(factor->function_call);
 }
 if(FACTOR_VARNAME == factor->type){
-
-    if(currentFunction != NULL && strcmp(currentFunction,"main")==0 && leftName != NULL && !isAssignationValid(currentClass, currentFunction, leftName, factor->varname->associated_value.varname)){
-            isCorrect = false;
-            printf("error: Incorrect assignation on function %s\n",currentFunction);
-        }
         fprintf(fd, "%s", factor->varname->associated_value.varname);
 }
 if(FACTOR_METHOD_CALL == factor->type){
@@ -448,10 +444,6 @@ void ObjectAttribute(tObjectAttribute* objectAttribute){
             if(isExtended)
                 fprintf(fd, "%s->extended_%s->%s", objectAttribute->varnameLeft->associated_value.varname,fatherName, objectAttribute->varnameRight->associated_value.varname);
             else{
-                if( !isAttributeValid(currentClass, objectAttribute->varnameRight->associated_value.varname) ){
-                    isCorrect = false;
-                    printf("error:  %s is not part of %s's attributes.  \n",objectAttribute->varnameRight->associated_value.varname,currentClass);
-                }
                 fprintf(fd, "%s->%s", objectAttribute->varnameLeft->associated_value.varname, objectAttribute->varnameRight->associated_value.varname);
             }
             break;
@@ -469,17 +461,6 @@ void ObjectAttribute(tObjectAttribute* objectAttribute){
 void FunctionCall(tFunctionCall * objectAttribute){
     fprintf(fd,"%s",objectAttribute->functionName->associated_value.varname);
     fprintf(fd,"(");
-    if( callingVariable != NULL ) {
-        int returnValue = isMethodCallValid(objectAttribute->functionName->associated_value.varname,callingVariable,objectAttribute->firstArgument);
-        if(returnValue == -3 ){
-            isCorrect = false;
-            printf("%s is not declared on class methods.\n",objectAttribute->functionName->associated_value.varname);
-        }else if (returnValue == -1 ){
-            isCorrect = false;
-            printf("Error calling %s with incorrect parameters number\n",objectAttribute->functionName->associated_value.varname);
-        }
-    }
-    callingVariable = NULL ;
     ArgumentValues(objectAttribute->firstArgument);
     fprintf(fd,")");
 }
@@ -487,8 +468,7 @@ void FunctionCall(tFunctionCall * objectAttribute){
 
 void ArgumentValues(tArgumentValues * argumentValues){
     if(argumentValues == NULL)
-        return;
-    GenericValue(argumentValues->value);
+        return;GenericValue(argumentValues->value);
     if(argumentValues->commaNextArgumentValue!=NULL){
         fprintf(fd,",");
         ArgumentValues(argumentValues->commaNextArgumentValue->nextArgument);
@@ -968,12 +948,6 @@ void GenericValue(tGenericValue* genericValue){
             FunctionCall(genericValue->functionCall);
         break;
         case GENERIC_VALUE_VARNAME:
-            if(strcmp(currentFunction,"main")==0 && leftName != NULL && !isAssignationValid(currentClass , currentFunction , leftName, genericValue->varname->associated_value.varname)){
-                isCorrect = false ;
-                printf("error: Incompatible assigning on %s function\n",currentFunction);
-            }
-
-
             if( calllingMethod != NULL &&   isMethodFromFather(genericValue->varname->associated_value.varname,calllingMethod) ){
                 fprintf(fd, "%s->extended_%s", genericValue->varname->associated_value.varname,fatherName);
             }

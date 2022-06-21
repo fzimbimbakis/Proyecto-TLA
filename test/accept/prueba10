@@ -55,15 +55,15 @@ Class Prueba{
 
 int main(){
        Prueba r= new Prueba();
-       r.or(0,2);
-       r.and(0,2);
-       r.mult(0,2);
-       r.division(0,2);
-       r.add(0,2);
-       r.substract(0,2);
-       r.lower(0,2);
-       r.lowerEq(0,2);
-       r.greater(0,2);
-       r.greaterEq(0,2);
-       r.equal(0,2);
+       printf("%d\n",r.or(0,2));
+       printf("%d\n",r.and(0,2));
+       printf("%d\n",r.mult(0,2));
+       printf("%d\n",r.division(0,2));
+       printf("%d\n",r.add(0,2));
+       printf("%d\n",r.substract(0,2));
+       printf("%d\n",r.lower(0,2));
+       printf("%d\n",r.lowerEq(0,2));
+       printf("%d\n",r.greater(0,2));
+       printf("%d\n",r.greaterEq(0,2));
+       printf("%d\n",r.equal(0,2));
     }
