@@ -65,7 +65,7 @@ struct pair{
 };
 
 boolean  isMethodOnFatherAndSon(char * methodName, char * class );
-boolean isMethodFromFather(char * varname ,char * methodName);
+boolean isMethodFromFatherMain(char * varname ,char * methodName);
 boolean isAssignationValid(char * class ,char  * method ,char * leftValue, char * rightValue);
 int isMethodCallValid(char * methodName,char * variable , tArgumentValues * parameters);
 struct global * generateSymbolTable(tProgram * program);
@@ -79,5 +79,6 @@ struct function * addMethods(tMethods * methods);
 //struct variable * addParameters(tParameters * parameters);
 struct variable * addDefinedVariables(tProgramStatements * programStatements);
 boolean isAttributeValid(char * className , char * variable);
+boolean isMethodFromFather(char * className ,char * methodName) ;
 
 #endif //COMPILER_SEMANTIC_ANALYSIS_H

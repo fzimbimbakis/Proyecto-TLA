@@ -88,11 +88,11 @@ if [ "$1" = "--compile" ]; then
               if test -f ./test/accept/"$1"; then
               ./bin/Compiler ./results/"$1".c < ./test/accept/"$1"
               gcc -o ./results/"$1" ./results/"$1".c
-              rm ./results/"$1".c
+#              rm ./results/"$1".c
               elif test -f ./test/reject/"$1"; then
                   ./bin/Compiler ./results/"$1".c < ./test/reject/"$1"
                   gcc -o ./results/"$1" ./results/"$1".c
-                  rm ./results/"$1".c
+#                  rm ./results/"$1".c
               else
                 echo "No existe el test $1"
               fi
@@ -105,11 +105,11 @@ if [ "$1" = "--compileall" ]; then
           if test -f ./test/accept/prueba"$i"; then
               ./bin/Compiler ./results/prueba"$i".c < ./test/accept/prueba"$i"
               gcc -o ./results/prueba"$i" ./results/prueba"$i".c
-              rm ./results/prueba"$i".c
+#              rm ./results/prueba"$i".c
           elif test -f ./test/reject/prueba"$i"; then
               ./bin/Compiler ./results/prueba"$i".c < ./test/reject/prueba"$i"
               gcc -o ./results/prueba"$i" ./results/prueba"$i".c
-              rm ./results/prueba"$i".c
+#              rm ./results/prueba"$i".c
           else
             echo "No existe el test $i"
           fi

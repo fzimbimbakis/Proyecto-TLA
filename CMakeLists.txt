@@ -16,8 +16,9 @@ add_custom_command(
 	# Opciones para GCC:
 	add_compile_options(-static-libgcc)
 	add_compile_options(-std=gnu99)
-#	add_compile_options(-O3)
-
+	#add_compile_options(-03)
+	#add_compile_options(-fsanitize=address)
+	
 	# Compilar el scanner con Flex:
 	add_custom_command(
 		OUTPUT ../src/frontend/lexical-analysis/flex-scanner.c

@@ -4,7 +4,7 @@
 
 void initMemory();
 
-void * superMalloc(size_t size);
+void * superMalloc(int quantity,size_t size);
 
 void superFree();
 

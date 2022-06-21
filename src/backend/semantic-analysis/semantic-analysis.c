@@ -1,5 +1,8 @@
 #include "semantic-analysis.h"
 #include "../support/logger.h"
+#include "../support/supermalloc.h"
+
+
 int getParametersNeed(struct function * function );
 boolean  checkIfExistsVarname(char * varname   , struct  variable * list );
 boolean checkIfExistsFunction(char * function , struct function * function1);
@@ -150,7 +153,7 @@ struct  class * getClassByName(char * name ){
 struct global * generateSymbolTable(tProgram * program){
     struct global * newNode;
     if(symbolTable == NULL ) {
-        symbolTable = malloc(sizeof(struct global)) ;
+        symbolTable = superMalloc(1,sizeof(struct global)) ;
     }
     newNode = symbolTable;
     if(program->type == PROGRAM_MAIN){
@@ -165,7 +168,7 @@ struct global * generateSymbolTable(tProgram * program){
     }
 
 
-//    struct global * newNode = &symbolTable; //malloc(sizeof(struct global));
+//    struct global * newNode = &symbolTable; //superMalloc(1,sizeof(struct global));
 //    if(program->type == PROGRAM_MAIN){
 //        currentClass = NULL;
 //        newNode->main = addMain(program->mainFunction);
@@ -191,9 +194,9 @@ struct global * generateSymbolTable(tProgram * program){
 struct function * addMain(tMainFunction * mainFunction){
     currentClassGlobal = NULL;
     currentMethodGlobal = NULL ;
-    struct function * newNode = symbolTable->main = malloc(sizeof(struct function )) ;
+    struct function * newNode = symbolTable->main = superMalloc(1,sizeof(struct function )) ;
     newNode->functionName = "main";
-    newNode->returnType = malloc(sizeof(struct pair));
+    newNode->returnType = superMalloc(1,sizeof(struct pair));
     newNode->returnType->type = INT_TYPE;
     newNode->parameters = fromParameterToVariable(mainFunction->parameters);
     newNode->definedVariables = programStatements(mainFunction->programStatements);
@@ -203,7 +206,7 @@ struct function * addMain(tMainFunction * mainFunction){
 struct class * addClass(tClass * aClass){
     if(aClass == NULL )
         return NULL;
-    struct class * newNode = malloc(sizeof(struct class));
+    struct class * newNode = superMalloc(1,sizeof(struct class));
     currentClassGlobal = newNode;
     newNode->className = aClass->varname->associated_value.varname;
     if(aClass->extendsName != NULL && aClass->extendsName->extendedClassName->associated_value.varname!=NULL) newNode->fatherName = aClass->extendsName->extendedClassName->associated_value.varname;
@@ -215,11 +218,11 @@ struct class * addClass(tClass * aClass){
 
 
 struct function * addConstructor(tConstructor * constructor){
-    struct function * newNode = malloc(sizeof(struct function));
+    struct function * newNode = superMalloc(1,sizeof(struct function));
     currentMethodGlobal = newNode;
     newNode->parameters = fromParameterToVariable(constructor->function->parameters);
     newNode->definedVariables = programStatements(constructor->function->programStatements);
-    struct pair * returnType = malloc(sizeof(struct pair));
+    struct pair * returnType = superMalloc(1,sizeof(struct pair));
     returnType->type = OBJECT_TYPE;
     returnType->name = currentClassGlobal->className;
     newNode->returnType = returnType;
@@ -248,7 +251,7 @@ struct variable * addAttribute(tAttributes * attributes){
 }
 
 struct pair * returnType(tReturn * returnType){
-    struct pair * returnFunction= malloc(sizeof(struct pair));
+    struct pair * returnFunction= superMalloc(1,sizeof(struct pair));
     if(currentClassGlobal != NULL) {
         if(currentMethodGlobal == NULL) {
             returnFunction->type = INT_TYPE;
@@ -256,7 +259,7 @@ struct pair * returnType(tReturn * returnType){
         returnFunction = currentMethodGlobal->returnType;
     }else
         returnFunction->type = INT_TYPE;
-    struct pair * pair = malloc(sizeof(struct pair ));
+    struct pair * pair = superMalloc(1,sizeof(struct pair ));
     switch (returnType->type) {
         case RETURN_VALUE:
                   pair= genericValueT(returnType->valueUnion.value);
@@ -276,7 +279,7 @@ struct pair * returnType(tReturn * returnType){
 
 
 struct pair * genericValueT(tGenericValue * genericValue ){
-    struct pair * currentPair = malloc(sizeof(struct pair ));
+    struct pair * currentPair = superMalloc(1,sizeof(struct pair ));
     switch (genericValue->type) {
         case GENERIC_VALUE_INTEGER_EXPRESSION:
             return integerExpression(genericValue->integerExpression);
@@ -325,7 +328,7 @@ struct function * addMethods(tMethods * methods){
 
 
 struct function *  addFunction(tFunction * function){
-    struct function * newNode = malloc(sizeof(struct function )) ;
+    struct function * newNode = superMalloc(1,sizeof(struct function )) ;
     currentMethodGlobal = newNode;
     newNode->functionName = function->varname->associated_value.varname;
     newNode->parameters = fromParameterToVariable(function->parameters);
@@ -333,7 +336,7 @@ struct function *  addFunction(tFunction * function){
         newNode->returnType = fromDataTypeToTypeTokenId(function->datatype->type->tokenId);
     }
     else if (function->type == VOID_FUNCTION){
-        newNode->returnType = malloc(sizeof(struct pair ));
+        newNode->returnType = superMalloc(1,sizeof(struct pair ));
         newNode->returnType->type = VOID_TYPE;
     }
     newNode->definedVariables = programStatements(function->programStatements);
@@ -436,8 +439,8 @@ void checkAssignation(tAssignation * assignation){
 }
 
 static struct variable * fromDeclarationToVariable(struct tDeclaration * declaration , struct variable * list ){
-    struct variable * newNode = malloc(sizeof(struct variable));
-    newNode->type = malloc(sizeof (struct pair ));
+    struct variable * newNode = superMalloc(1,sizeof(struct variable));
+    newNode->type = superMalloc(1,sizeof (struct pair ));
     newNode->objectType = NULL;
     switch (declaration->type) {
         case CHAR_DECLARATION:
@@ -517,7 +520,7 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
     if(parameters == NULL)
         return NULL;
 
-    struct variable * newNode = malloc(sizeof(struct variable));
+    struct variable * newNode = superMalloc(1,sizeof(struct variable));
     newNode->varname = parameters->paramName->associated_value.varname;
 
     switch (parameters->type) {
@@ -529,13 +532,13 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
             newNode->next = fromParameterToVariable(parameters->nextParameters->nextParameters);
             break;
         case OBJECT_PARAMETERS:
-            newNode->type = malloc(sizeof(struct  pair )) ;
+            newNode->type = superMalloc(1,sizeof(struct  pair )) ;
             newNode->type->type = OBJECT_TYPE;
             newNode->type->name = parameters->objectTypeName->associated_value.varname;
             newNode->objectType = parameters->objectTypeName->associated_value.varname;
             break;
         case MULTIOBJECT_PARAMETERS:
-            newNode->type = malloc(sizeof(struct pair ));
+            newNode->type = superMalloc(1,sizeof(struct pair ));
             newNode->type->type = OBJECT_TYPE;
             newNode->type->name = parameters->objectTypeName->associated_value.varname;
             newNode->objectType = parameters->objectTypeName->associated_value.varname;
@@ -549,13 +552,13 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
             newNode->next = fromParameterToVariable(parameters->nextParameters->nextParameters);
             break;
         case OBJECTARRAY_PARAMETERS:
-            newNode->type = malloc(sizeof(struct pair) );
+            newNode->type = superMalloc(1,sizeof(struct pair) );
             newNode->type->type =OBJECTARRAY_TYPE;
             newNode->type->name = parameters->objectTypeName->associated_value.varname;
             newNode->objectType = parameters->objectTypeName->associated_value.varname;
             break;
         case MULTIOBJECTARRAY_PARAMETERS:
-            newNode->type = malloc(sizeof(struct pair));
+            newNode->type = superMalloc(1,sizeof(struct pair));
             newNode->type->type = OBJECTARRAY_TYPE;
             newNode->type->name = parameters->objectTypeName->associated_value.varname;
             newNode->objectType = parameters->objectTypeName->associated_value.varname;
@@ -572,7 +575,7 @@ static struct variable * fromParameterToVariable(tParameters * parameters ){
 
 
 static struct pair  * fromDataTypeToTypeTokenId(int  dataType){
-    struct pair * pairType = malloc(sizeof (struct pair));
+    struct pair * pairType = superMalloc(1,sizeof (struct pair));
     pairType->name = NULL;
     if(dataType == INT )
             pairType->type = INT_TYPE;
@@ -582,7 +585,7 @@ static struct pair  * fromDataTypeToTypeTokenId(int  dataType){
 
 
 static struct pair *  fromDeclarationTypeToVariableType(tParameters  * parameters){
-    struct pair * pairType  =malloc(sizeof(struct pair));
+    struct pair * pairType  =superMalloc(1,sizeof(struct pair));
     if(parameters->datatype->type->tokenId == INT) {
         if (parameters->squareBrackets == NULL)  pairType->type=INT_TYPE;
         else  pairType->type=INTARRAY_TYPE;
@@ -598,7 +601,7 @@ struct pair * varname(tTokenNode * varname){
 
 struct pair * arrayDesreferencingT(tArrayDesreferencing * arrayDesreferencing){
     struct variable * currentVariable = getVarByName(currentClassGlobal, currentMethodGlobal, arrayDesreferencing->varname->associated_value.varname);
-    struct pair  * pair = malloc(sizeof(struct pair ))  ;
+    struct pair  * pair = superMalloc(1,sizeof(struct pair ))  ;
     if(currentVariable->type->type == INTARRAY_TYPE ){
         pair->type = INT_TYPE;
     } else if (currentVariable->type->type == CHARARRAY_TYPE){
@@ -614,7 +617,7 @@ struct pair * arrayDesreferencingT(tArrayDesreferencing * arrayDesreferencing){
 }
 
 struct pair * integerExpression(tIntegerExpression * expression){
-    struct pair * returnPair =malloc(sizeof(struct pair) );
+    struct pair * returnPair =superMalloc(1,sizeof(struct pair) );
     returnPair->type = INT_TYPE;
     switch (expression->type) {
             case INTEGER_EXPRESSION_COMMON :
@@ -674,7 +677,7 @@ struct pair * innerAttribute(tInnerAttribute * attribute,char * className ){
 struct pair * objectAttributeDesreferencing(tObjectAttributeDesreferencing * objectAttributeDesreferencing){
 
     if(objectAttributeDesreferencing->innerAttribute == NULL ){
-        struct pair * returnPair = malloc(sizeof(struct pair ));
+        struct pair * returnPair = superMalloc(1,sizeof(struct pair ));
         struct pair * left = objectAttribute(objectAttributeDesreferencing->objectAttribute);
         if(left->type == INTARRAY_TYPE ){
             returnPair->type = INT_TYPE;
@@ -704,13 +707,13 @@ struct pair * objectAttributeDesreferencing(tObjectAttributeDesreferencing * obj
 
 
 struct pair * integer(tTokenNode * integer){
-     struct pair * pair = malloc(sizeof( struct pair ));
+     struct pair * pair = superMalloc(1,sizeof( struct pair ));
      pair ->type = INT_TYPE;
      return pair;
 }
 
 struct pair * subInteger(tSubInteger *subInteger){
-    struct pair * pair = malloc(sizeof( struct pair ));
+    struct pair * pair = superMalloc(1,sizeof( struct pair ));
     pair ->type = INT_TYPE;
     return pair;
 }
@@ -745,7 +748,7 @@ struct pair * methodCallT(tMethodCall * methodCall){
 
 
 struct pair * functionCallT(tFunctionCall * functionCall ){
-    struct pair * int_type = malloc(sizeof(struct pair));
+    struct pair * int_type = superMalloc(1,sizeof(struct pair));
     int_type->type = INT_TYPE;
     return int_type;
 }
@@ -792,7 +795,7 @@ struct pair * instantiation(tInstantiation * instantiation){
         LogError("La clase %s no fue definida.\n",instantiation->functionCall->functionName->associated_value.varname);
         fail();
     }
-    struct pair * p = malloc(sizeof(struct pair));
+    struct pair * p = superMalloc(1,sizeof(struct pair));
     p->type = OBJECT_TYPE;
     p->name = instantiation->functionCall->functionName->associated_value.varname;
     return p;
@@ -802,7 +805,7 @@ struct pair * charValueT(tCharValue * charValue){
     struct pair * p;
     switch (charValue->type) {
         case CHARACTER_CHARVALUE: {
-            p = malloc(sizeof(struct pair));
+            p = superMalloc(1,sizeof(struct pair));
             p->type = CHAR_TYPE;
             return p;
         }
@@ -880,7 +883,7 @@ struct pair * arrayAssignationSubnode(tArrayAssignationSubnode * arrayAssignatio
             break;
         }
         case ARRAY_ASSIG_SUB_NODE_STRING:{
-            struct pair * p = malloc(sizeof(struct pair));
+            struct pair * p = superMalloc(1,sizeof(struct pair));
             p->type = CHARARRAY_TYPE;
             break;
         }
@@ -925,7 +928,7 @@ struct pair * superSubnode(tSuperSubnode * subnode){
 }
 
 struct pair * arrayAssignation(tArrayAssignation * arrayAssignation){
-    struct pair * p1, * p2, *p3 = malloc(sizeof(struct pair));
+    struct pair * p1, * p2, *p3 = superMalloc(1,sizeof(struct pair));
     switch (arrayAssignation->typeVariable) {
         case ARRAY_ASSIG_VARNAME: {
             p1 = varname(arrayAssignation->varname);
@@ -979,7 +982,7 @@ struct pair * assignation(tAssignation * assignation){
 struct pair * comparationT(tComparation * comparation){
     genericValueT(comparation->lValue);
     genericValueT(comparation->rValue);
-    struct pair * p = malloc(sizeof(struct pair));
+    struct pair * p = superMalloc(1,sizeof(struct pair));
     p->type = INT_TYPE;
     return p;
 }
@@ -987,7 +990,7 @@ struct pair * comparationT(tComparation * comparation){
 struct pair * valueComparatorValue(tValueComparatorValue * valueComparatorValue){
     genericValueT(valueComparatorValue->lValue);
     genericValueT(valueComparatorValue->rValue);
-    struct pair * p = malloc(sizeof(struct pair));
+    struct pair * p = superMalloc(1,sizeof(struct pair));
     p->type = INT_TYPE;
     return p;
 }
@@ -995,7 +998,7 @@ struct pair * valueComparatorValue(tValueComparatorValue * valueComparatorValue)
 struct pair * logicalComparationUnit(tLogicalComparationUnit * logicalComparationUnit){
     comparationT(logicalComparationUnit->comparation);
     conditionUnit(logicalComparationUnit->conditionUnit);
-    struct pair * p = malloc(sizeof(struct pair));
+    struct pair * p = superMalloc(1,sizeof(struct pair));
     p->type = INT_TYPE;
     return p;
 }
@@ -1076,8 +1079,8 @@ struct variable * programStatements(tProgramStatements * programStatements1){
     struct variable * prev = NULL ;
     struct variable * this;
     if(currentMethodGlobal != NULL && currentMethodGlobal->definedVariables == NULL) {
-        this = malloc(sizeof(*this));
-            this->type = malloc(sizeof(struct pair));
+        this = superMalloc(1,sizeof(*this));
+            this->type = superMalloc(1,sizeof(struct pair));
             this->varname = "this";
             this->type->type = OBJECT_TYPE ;
             this->type->name = currentClassGlobal->className;
@@ -1122,6 +1125,7 @@ struct variable * programStatements(tProgramStatements * programStatements1){
 
 void fail(){
     //// free
+    superFree();
     exit(EXIT_FAILURE);
 }
 
@@ -1265,12 +1269,30 @@ boolean  isMethodOnFatherAndSon(char * methodName, char * class ){
 
 
 
+boolean isMethodFromFather(char * className ,char * methodName) {
+    struct class * currentClass = getClassByNameAux(className);
+    if(currentClass->fatherName == NULL )
+        return false;
+
+    struct class *fatherClass = getClassByNameAux(currentClass->fatherName);
+    if (fatherClass == NULL)
+        return false;
+
+    struct function *fatherMethods = fatherClass->methods;
+    while (fatherMethods != NULL) {
+        if (strcmp(fatherMethods->functionName, methodName) == 0)
+            return true;
+        fatherMethods = fatherMethods->next;
+    }
+    return false;
+
+}
 
 
 
 
 
-boolean isMethodFromFather(char * varname ,char * methodName) {
+boolean isMethodFromFatherMain(char * varname ,char * methodName) {
     struct variable *mainVariables = symbolTable->main->definedVariables;
     while (mainVariables != NULL) {
         if (strcmp(varname, mainVariables->varname) == 0)

@@ -3,6 +3,8 @@
 #include "generator.h"
 #include "../../frontend/syntactic-analysis/bison-parser.h"
 #include "../semantic-analysis/semantic-analysis.h"
+#include "../support/supermalloc.h"
+
 
 /**
  * Implementación de "generator.h".
@@ -460,6 +462,9 @@ void ObjectAttribute(tObjectAttribute* objectAttribute){
 }
 void FunctionCall(tFunctionCall * objectAttribute){
     fprintf(fd,"%s",objectAttribute->functionName->associated_value.varname);
+//    if( calllingMethod != NULL &&   isMethodFromFatherClass(currentClass,calllingMethod) ){
+//        fprintf(fd, "%s->extended_%s", genericValue->varname->associated_value.varname,fatherName);
+//    }
     fprintf(fd,"(");
     ArgumentValues(objectAttribute->firstArgument);
     fprintf(fd,")");
@@ -468,7 +473,8 @@ void FunctionCall(tFunctionCall * objectAttribute){
 
 void ArgumentValues(tArgumentValues * argumentValues){
     if(argumentValues == NULL)
-        return;GenericValue(argumentValues->value);
+        return;
+    GenericValue(argumentValues->value);
     if(argumentValues->commaNextArgumentValue!=NULL){
         fprintf(fd,",");
         ArgumentValues(argumentValues->commaNextArgumentValue->nextArgument);
@@ -479,15 +485,15 @@ void ArgumentValues(tArgumentValues * argumentValues){
 void MethodCall(tMethodCall * objectAttribute){
     //// Agrego un Argument más que sea la estructura de la clase.
     calllingMethod = objectAttribute->functionCall->functionName->associated_value.varname;
-    tArgumentValues * argumentValues = malloc(sizeof(tArgumentValues));
-    argumentValues->value = malloc(sizeof(tGenericValue));
+    tArgumentValues * argumentValues = superMalloc(1,sizeof(tArgumentValues));
+    argumentValues->value = superMalloc(1,sizeof(tGenericValue));
     argumentValues->value->type = GENERIC_VALUE_VARNAME;
     argumentValues->value->varname = objectAttribute->varname;
     callingVariable = objectAttribute->varname->associated_value.varname;
     if(objectAttribute->functionCall->firstArgument != NULL) {
-        argumentValues->commaNextArgumentValue = malloc(sizeof(tCommaNextArgumentValue));
+        argumentValues->commaNextArgumentValue = superMalloc(1,sizeof(tCommaNextArgumentValue));
         argumentValues->commaNextArgumentValue->nextArgument = objectAttribute->functionCall->firstArgument;
-        argumentValues->commaNextArgumentValue->comma = malloc(sizeof(tTokenNode));
+        argumentValues->commaNextArgumentValue->comma = superMalloc(1,sizeof(tTokenNode));
         argumentValues->commaNextArgumentValue->comma->tokenId = COMMA;
     }
     objectAttribute->functionCall->firstArgument = argumentValues;
@@ -948,7 +954,10 @@ void GenericValue(tGenericValue* genericValue){
             FunctionCall(genericValue->functionCall);
         break;
         case GENERIC_VALUE_VARNAME:
-            if( calllingMethod != NULL &&   isMethodFromFather(genericValue->varname->associated_value.varname,calllingMethod) ){
+            if( calllingMethod != NULL &&   isMethodFromFatherMain(genericValue->varname->associated_value.varname,calllingMethod) ){
+                fprintf(fd, "%s->extended_%s", genericValue->varname->associated_value.varname,fatherName);
+            }
+            else if( calllingMethod != NULL &&   isMethodFromFather(currentClass,calllingMethod) ){
                 fprintf(fd, "%s->extended_%s", genericValue->varname->associated_value.varname,fatherName);
             }
             else fprintf(fd, "%s", genericValue->varname->associated_value.varname);
