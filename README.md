@@ -28,11 +28,13 @@ Se utiliza el script run.sh que puede recibir los siguientes argumentos (en el l
 * --make: Para correr el Make
 
 ### Tests
-* --all: Correr todos los tests en la carpeta tests.
+* --all: Genera los .c de todos los tests en la carpeta tests.
 * TEST_#: Nombre de archivo que esta en la carpeta tests.
+* --compileall: Genera los .c de todos los tests y los compila
+* --compile TEST_#: Genera el .c del TEST_# y lo compila
 
 ```bash
-./run.sh [--cmake] [--make] [--all] [TEST_1 TEST_2 ...]
+./run.sh [--cmake] [--make] [--all] [--compileall] [--compile TEST_X] [TEST_1 TEST_2 ...]
 ```
 
 El run.sh no toma en cuenta que:
